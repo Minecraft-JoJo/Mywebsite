@@ -288,21 +288,15 @@ export function initField(motion) {
     else stop();
   }
 
-  /* 惰性启动：关着不点火，开回来才启动；关时清成透明，让 HTML 里的内联 SVG 兜底透出来。 */
-  let started = false;
-  function boot() {
-    if (started || !motion.isOn()) return;
-    started = true;
-    sync();
-  }
-
+  /* 惰性启动：sync() 自带开关判断且幂等（start/stop 都查 raf），关时清成透明，
+     让 HTML 里那层内联 SVG 兜底透出来。 */
   function halt() {
     stop();
     if (cssW && cssH) ctx.clearRect(0, 0, cssW, cssH);
   }
 
   motion.onChange(function () {
-    if (motion.isOn()) boot();
+    if (motion.isOn()) sync();
     else halt();
   });
 
@@ -327,5 +321,5 @@ export function initField(motion) {
   }, { passive: true });
 
   resize();
-  boot();
+  sync();
 }
