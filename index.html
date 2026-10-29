@@ -21,6 +21,7 @@
     <span class="aurora__blob aurora__blob--b"></span>
     <span class="aurora__blob aurora__blob--c"></span>
   </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="scanline" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -40,7 +41,10 @@
         <a class="nav-link" href="./about.html">About</a>
         <a class="nav-link" href="./contact.html">Contact</a>
       </nav>
-      <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
         Search <span class="mono xs muted">⌘K</span>
       </button>
       <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
@@ -243,7 +247,7 @@
         <p class="home-work__note">点进任意一个，能看到架构、取舍和失败记录。</p>
 
         <div class="home-work__grid">
-          <a class="card card--glow home-card" href="./projects.html#ocr-pipeline" data-reveal data-glow>
+          <a class="card card--glow home-card" href="./projects/ocr-pipeline.html" data-reveal data-glow>
             <span class="home-card__num mono">01</span>
             <h3 class="h3 home-card__title">漫画 OCR 翻译管线</h3>
             <p class="home-card__body">识别、版面分块、批量翻译、译文回填重绘，一条能跑通的 Python 管线。</p>
@@ -255,7 +259,7 @@
             <span class="home-card__arrow" aria-hidden="true">→</span>
           </a>
 
-          <a class="card card--glow home-card" href="./projects.html#train-framework" data-reveal data-glow>
+          <a class="card card--glow home-card" href="./projects/train-framework.html" data-reveal data-glow>
             <span class="home-card__num mono">02</span>
             <h3 class="h3 home-card__title">自建 PyTorch 训练框架</h3>
             <p class="home-card__body">配置、数据、模型、训练、导出五层分离，日志与检查点留档。</p>
@@ -267,7 +271,7 @@
             <span class="home-card__arrow" aria-hidden="true">→</span>
           </a>
 
-          <a class="card card--glow home-card" href="./projects.html#diffusion-lora" data-reveal data-glow>
+          <a class="card card--glow home-card" href="./projects/diffusion-lora.html" data-reveal data-glow>
             <span class="home-card__num mono">03</span>
             <h3 class="h3 home-card__title">扩散模型 LoRA 微调</h3>
             <p class="home-card__body">训练链本地化，配置模板化，每次训练留一份参数快照。</p>
@@ -279,7 +283,7 @@
             <span class="home-card__arrow" aria-hidden="true">→</span>
           </a>
 
-          <a class="card card--glow home-card" href="./projects.html#pose-pipeline" data-reveal data-glow>
+          <a class="card card--glow home-card" href="./projects/pose-pipeline.html" data-reveal data-glow>
             <span class="home-card__num mono">04</span>
             <h3 class="h3 home-card__title">实时姿态估计推理管线</h3>
             <p class="home-card__body">姿态模型导出、引擎缓存、透明覆盖层与控制台。</p>
@@ -291,7 +295,7 @@
             <span class="home-card__arrow" aria-hidden="true">→</span>
           </a>
 
-          <a class="card card--glow home-card" href="./projects.html#vision-classifier" data-reveal data-glow>
+          <a class="card card--glow home-card" href="./projects/vision-classifier.html" data-reveal data-glow>
             <span class="home-card__num mono">05</span>
             <h3 class="h3 home-card__title">图像分类实验台</h3>
             <p class="home-card__body">迁移学习到 ONNX 导出的完整闭环，分类任务的标准骨架。</p>
@@ -303,7 +307,7 @@
             <span class="home-card__arrow" aria-hidden="true">→</span>
           </a>
 
-          <a class="card card--glow home-card" href="./projects.html#service-layer" data-reveal data-glow>
+          <a class="card card--glow home-card" href="./projects/service-layer.html" data-reveal data-glow>
             <span class="home-card__num mono">06</span>
             <h3 class="h3 home-card__title">应用服务与数据层</h3>
             <p class="home-card__body">FastAPI 服务、SQLAlchemy 数据层与 JWT 鉴权链。</p>

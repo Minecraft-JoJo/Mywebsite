@@ -34,7 +34,7 @@ export const PROJECTS = [
     lines: 969, modules: 9, repo: "https://github.com/Minecraft-JoJo/OCR_Manga_trans",
     summary: "RapidOCR 识别 → 版面分块重组 → 批量翻译 → 原图字块擦除与译文回填重绘。",
     stack: ["RapidOCR / PaddleOCR", "OpenCV", "HTTP 翻译 API", "Python 3.13", "ruff"],
-    href: "./projects.html#ocr-pipeline"
+    href: "./projects/ocr-pipeline.html"
   },
   {
     id: "train-framework", n: "02",
@@ -43,7 +43,7 @@ export const PROJECTS = [
     lines: 3012, modules: 29, repo: null,
     summary: "model / train / predata / cfg / logs 五层分离，含 ONNX 导出、TensorBoard、JWT 用户鉴权。",
     stack: ["PyTorch", "ONNX", "TensorBoard", "YAML 配置", "JWT"],
-    href: "./projects.html#train-framework"
+    href: "./projects/train-framework.html"
   },
   {
     id: "diffusion-lora", n: "03",
@@ -53,7 +53,7 @@ export const PROJECTS = [
     scale: "8,000 STEPS · DIM 64 / α 32 · BF16",
     summary: "kohya_ss 训练链本地化：配置模板生成、本地训练入口、每次训练留一份配置快照。",
     stack: ["kohya_ss", "Diffusers", "SDXL / LoRA", "uv", "WSL CUDA"],
-    href: "./projects.html#diffusion-lora"
+    href: "./projects/diffusion-lora.html"
   },
   {
     id: "pose-pipeline", n: "04",
@@ -62,7 +62,7 @@ export const PROJECTS = [
     lines: 5604, modules: 31, repo: null,
     summary: "YOLO pose → ONNX Runtime / TensorRT 缓存 → Win32 透明覆盖层 → PySide6 控制台与录制器。",
     stack: ["YOLO pose", "ONNX Runtime", "TensorRT", "Win32 API", "PySide6"],
-    href: "./projects.html#pose-pipeline"
+    href: "./projects/pose-pipeline.html"
   },
   {
     id: "vision-classifier", n: "05",
@@ -71,7 +71,7 @@ export const PROJECTS = [
     lines: 1495, modules: 8, repo: null,
     summary: "数据集加载、迁移学习训练、ONNX 导出与单图推理的完整闭环，作为分类任务的基准骨架。",
     stack: ["PyTorch", "torchvision", "ONNX", "argparse"],
-    href: "./projects.html#vision-classifier"
+    href: "./projects/vision-classifier.html"
   },
   {
     id: "service-layer", n: "06",
@@ -81,7 +81,7 @@ export const PROJECTS = [
     scale: "139 LOC SERVICE · 7,994 LOC DOCS",
     summary: "FastAPI 服务模板、PostgreSQL + SQLAlchemy 数据层、JWT / passlib 鉴权链。",
     stack: ["FastAPI", "uvicorn", "PostgreSQL", "SQLAlchemy", "JWT", "Jinja2"],
-    href: "./projects.html#service-layer"
+    href: "./projects/service-layer.html"
   }
 ];
 

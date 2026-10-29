@@ -1,0 +1,141 @@
+/* ============================================================
+   project-page.css — 单个项目文章页（projects/<id>.html 专用）
+   与 projects.css 无依赖：文章页只要 tokens + base + 本文件。
+   ============================================================ */
+
+.pa{padding-block:clamp(48px,7vh,96px) var(--rhythm);position:relative}
+
+/* —— 头部 —— */
+.pa__head{max-width:74ch;margin-bottom:var(--s-8)}
+.pa__crumb{
+  display:flex;align-items:center;gap:var(--s-2);
+  font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted-2);margin-bottom:var(--s-5);
+}
+.pa__crumb a{color:var(--muted);transition:color var(--t-fast) var(--e)}
+.pa__crumb a:hover{color:var(--cyan)}
+.pa__title{
+  font-size:clamp(30px,4.2vw,58px);letter-spacing:-.035em;line-height:1.08;
+  margin-top:var(--s-4);
+}
+.pa__tag{margin-top:var(--s-4);font-family:var(--font-mono);font-size:var(--t-sm);color:var(--muted);letter-spacing:.02em}
+.pa__lede{margin-top:var(--s-4);font-size:var(--t-lede);line-height:1.62;color:var(--ink-2);max-width:64ch}
+.pa__facts{
+  margin-top:var(--s-6);display:grid;gap:var(--s-2) var(--s-5);
+  grid-template-columns:minmax(96px,auto) 1fr;
+  font-family:var(--font-mono);font-size:var(--t-sm);
+  border-top:1px solid var(--line);padding-top:var(--s-4);
+}
+.pa__facts dt{color:var(--muted-2);letter-spacing:.06em}
+.pa__facts dd{margin:0;color:var(--ink-2)}
+
+/* —— 正文骨架：宽屏左文右目录 —— */
+.pa__body{display:grid;gap:var(--gutter);grid-template-columns:1fr}
+@media (min-width:1080px){
+  .pa__body{grid-template-columns:minmax(0,68ch) 220px;justify-content:space-between;align-items:start}
+  .pa__toc{position:sticky;top:96px}
+}
+.pa__main{min-width:0}
+
+/* —— 小节 —— */
+.pa-sec{padding-block:var(--s-7);border-top:1px solid var(--line)}
+.pa-sec:first-child{border-top:0;padding-top:0}
+.pa-sec__t{
+  display:flex;align-items:baseline;gap:var(--s-3);
+  font-size:var(--t-h3);letter-spacing:-.02em;margin-bottom:var(--s-4);
+}
+.pa-sec__n{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--cyan);letter-spacing:.1em}
+.pa-sec p{color:var(--ink-2);line-height:1.78;margin-top:var(--s-3)}
+.pa-sec p:first-of-type{margin-top:0}
+.pa-sec ul{margin-top:var(--s-3);display:grid;gap:var(--s-2)}
+.pa-sec li{
+  position:relative;padding-left:var(--s-5);color:var(--ink-2);line-height:1.7;
+}
+.pa-sec li::before{content:"";position:absolute;left:0;top:.72em;width:10px;height:1px;background:var(--line-2)}
+.pa-sec strong{color:var(--ink);font-weight:600}
+.pa-sec code{
+  font-family:var(--font-mono);font-size:.9em;color:var(--cyan);
+  background:rgba(99,214,203,.09);padding:1px 5px;border-radius:var(--r-1);
+}
+
+/* —— 决策 / 取舍块 —— */
+.pa-dec{
+  margin-top:var(--s-4);padding:var(--s-4) var(--s-5);
+  border-left:2px solid rgba(99,214,203,.34);
+  background:linear-gradient(90deg,rgba(99,214,203,.05),transparent 60%);
+}
+.pa-dec__k{
+  font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cyan);margin-right:var(--s-2);
+}
+.pa-dec__k--give{color:var(--amber)}
+.pa-dec + .pa-dec{margin-top:var(--s-3)}
+
+/* —— 图 —— */
+.pa-fig{margin:var(--s-5) 0 0;border:1px solid var(--line);border-radius:var(--r-2);background:rgba(34,39,54,.5);padding:var(--s-4)}
+/* 架构图按 880px 设计，正文栏只有约 604px，缩放 0.69 会把节点文字压到 7.5px。
+   因此宽屏下让图破出正文栏、向目录一侧借位，接近 1:1 显示；文字保持作者设计的 11px。 */
+@media (min-width:1080px){
+  .pa-fig{width:calc(100% + 220px + var(--gutter));max-width:920px}
+}
+.pa-fig svg{width:100%;height:auto;display:block}
+.pa-fig figcaption{margin-top:var(--s-3);font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted-2);line-height:1.6}
+
+/* —— 代码 —— */
+.pa-code{position:relative;margin-top:var(--s-4)}
+.pa-code pre{
+  background:rgba(24,28,38,.9);border:1px solid var(--line);border-radius:var(--r-2);
+  padding:var(--s-4) var(--s-5);overflow:auto;font-size:var(--t-sm);line-height:1.72;color:var(--ink-2);
+}
+.pa-code__copy{
+  position:absolute;top:10px;right:10px;
+  font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.1em;
+  color:var(--muted-2);border:1px solid var(--line);border-radius:var(--r-1);
+  padding:4px 8px;background:rgba(27,31,42,.8);
+  transition:color var(--t-fast) var(--e),border-color var(--t-fast) var(--e);
+}
+.pa-code__copy:hover{color:var(--cyan);border-color:rgba(99,214,203,.34)}
+
+/* —— 规模栏 —— */
+.pa-scale{
+  margin-top:var(--s-5);display:grid;gap:var(--s-2) var(--s-4);
+  grid-template-columns:minmax(96px,auto) 1fr;
+  font-family:var(--font-mono);font-size:var(--t-sm);
+}
+.pa-scale dt{color:var(--muted-2);letter-spacing:.06em}
+.pa-scale dd{margin:0;color:var(--ink-2);overflow-wrap:anywhere}
+
+/* —— 目录 —— */
+.pa__toc{border-left:1px solid var(--line);padding-left:var(--s-4)}
+.pa-toc__label{
+  font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted-2);margin-bottom:var(--s-3);
+}
+.pa-toc{display:grid;gap:var(--s-2)}
+.pa-toc a{
+  font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted);
+  line-height:1.5;transition:color var(--t-fast) var(--e);
+}
+.pa-toc a:hover{color:var(--ink)}
+.pa-toc a.is-active{color:var(--cyan)}
+
+/* —— 前后篇 —— */
+.pa-nav{
+  margin-top:var(--s-8);border-top:1px solid var(--line);padding-top:var(--s-5);
+  display:grid;gap:var(--s-4);grid-template-columns:1fr;
+}
+@media (min-width:760px){.pa-nav{grid-template-columns:1fr 1fr}}
+.pa-nav a{
+  display:flex;flex-direction:column;gap:6px;padding:var(--s-4);
+  border:1px solid var(--line);border-radius:var(--r-2);
+  transition:border-color var(--t-fast) var(--e),transform var(--t-fast) var(--e);
+}
+.pa-nav a:hover{border-color:rgba(99,214,203,.30);transform:translateY(-2px)}
+.pa-nav__k{font-family:var(--font-mono);font-size:var(--t-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+.pa-nav__t{font-size:var(--t-body);color:var(--ink)}
+.pa-nav a:last-child{text-align:right;align-items:flex-end}
+
+@media (max-width:759px){
+  .pa__facts,.pa-scale{grid-template-columns:1fr;gap:2px var(--s-3)}
+  .pa__toc{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:var(--s-4)}
+}

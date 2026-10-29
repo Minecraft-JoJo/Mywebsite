@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>扩散模型 LoRA 微调 · Minecraft-JoJo</title>
+  <meta name="description" content="扩散模型 LoRA 微调的本地化外壳：数据集与 tag 整理、TOML 配置落盘、环境引导与训练快照；实参 8000 steps / dim 64 / alpha 32 / AdamW8bit / bf16，本地入口 1 文件 91 行。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="扩散模型 LoRA 微调 · Minecraft-JoJo">
+  <meta property="og:description" content="把数据集、配置、训练、采样固定成可重放的文件；8,000 steps / dim 64 / bf16，本地入口 91 行。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/project-page.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="../notes.html">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="pa">
+      <div class="wrap">
+        <nav class="pa__crumb" aria-label="面包屑">
+          <a href="../projects.html">PROJECTS</a>
+          <span aria-hidden="true">/</span>
+          <span>03</span>
+        </nav>
+
+        <header class="pa__head">
+          <p class="eyebrow">PROJECTS / 03 · GENERATIVE</p>
+          <h1 class="pa__title">扩散模型 LoRA 微调</h1>
+          <p class="pa__tag">kohya_ss · sd-scripts · TOML · bitsandbytes · PyTorch(CUDA) · uv · WSL</p>
+          <p class="pa__lede">LoRA 微调真正花时间的不是训练，是复现：同一张图换分辨率、同一组超参换版本，结果就对不上。这里要的是一个把「数据集 → 配置 → 训练 → 采样」固定成文件的地方，而不是每次在图形界面里重新点一遍。整个外壳只有 1 个 Python 文件 91 行，训练本身交给上游的 sd-scripts；本地入口负责把环境搭起来、把每一次启动落成可重放的记录。</p>
+          <dl class="pa__facts">
+            <dt>形态</dt><dd>kohya_ss 训练链的本地化外壳：环境引导脚本 + 每次训练一份 TOML 配置快照</dd>
+            <dt>依赖</dt><dd>kohya_ss（sd-scripts）· diffusers · PyTorch(CUDA) · bitsandbytes · uv · WSL</dd>
+            <dt>运行环境</dt><dd>Linux / WSL + CUDA 11.x 工具链（脚本按 <code>cuda11x</code> 编译 bitsandbytes）；bf16 需要 Ampere 及以上</dd>
+            <dt>仓库</dt><dd>未单独公开；上游为 kohya_ss 与 sd-scripts，站点仓库见 <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">github.com/Minecraft-JoJo/Mywebsite</a></dd>
+            <dt>规模</dt><dd>本地入口 1 个 Python 文件 / 91 行（上游不计入）</dd>
+            <dt>复核方式</dt><dd><code>wc -l</code> 计入口行数，训练实参从运行记录 json 直接打印，命令见第 7 节</dd>
+          </dl>
+        </header>
+
+        <div class="pa__body">
+          <div class="pa__main">
+
+            <section class="pa-sec" id="task" aria-labelledby="taskT">
+              <h2 class="pa-sec__t" id="taskT"><span class="pa-sec__n" aria-hidden="true">01</span>任务与边界</h2>
+              <p>它是一个外壳，不是训练框架。入口脚本 <code>local_train.py</code> 干四件事：把 bitsandbytes 按 <code>cuda11x</code> 编好装好、拉一份 kohya_ss、把工作目录切到固定位置、最后起 GUI；真正的训练由 sd-scripts 的 <code>train_network.py</code> 执行，采样由 <code>sdxl_gen_img.py</code> 执行，两者的输入是同一份 TOML。</p>
+              <p>边界同样要写清楚：</p>
+              <ul>
+                <li>不实现训练算法：UNet、VAE、文本编码器的前向与 LoRA 注入全在上游，这里是调用方。</li>
+                <li>不量化采样质量：没有 FID、CLIP score 之类的指标，验证靠人眼比对同一组种子与提示词的输出。</li>
+                <li>不做服务化：没有推理接口与任务队列，采样是本机的一次脚本执行。</li>
+                <li>不托管权重：权重按 run 目录堆在本地磁盘，没有模型注册表与版本号。</li>
+                <li>不做数据集标注：tag 由既有流程准备，<code>delete.py</code> 只按名单改写标签文件，不动图像本身。</li>
+              </ul>
+              <p>边界的结果是：能复现的部分被固定成文件，不能复现的部分（CUDA、驱动、上游代码版本）暴露在脚本里，见第 6 节。</p>
+            </section>
+
+            <section class="pa-sec" id="arch" aria-labelledby="archT">
+              <h2 class="pa-sec__t" id="archT"><span class="pa-sec__n" aria-hidden="true">02</span>架构</h2>
+              <p>数据流是一条闭环：数据集与 tag 只进入配置生成；配置进训练，训练出权重，权重进采样；每次训练同时落一条运行记录，下一次配置从它出发。下图青色是决定产物的主路径。</p>
+              <figure class="pa-fig">
+                <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig3t">
+                  <title id="fig3t">LoRA 微调的数据流：数据集与 tag 生成 TOML 配置，本地入口引导环境后由 sd-scripts 训练出权重，权重进入采样并由运行记录回流到下一轮配置</title>
+                  <defs>
+                    <marker id="pa-ar3" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B93A6"/></marker>
+                    <marker id="pa-arc3" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#63D6CB"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="880" height="240" fill="none"/>
+                  <text x="10" y="26" font-size="11" fill="#D9AE79">训练与采样读同一份 TOML；每次训练落 config_lora-*.toml 与 last_*.json 两份快照</text>
+                  <rect x="10" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="22" y="105" font-size="12" fill="#E3E7F0">数据集 + tag</text>
+                  <text x="22" y="120" font-size="11" fill="#8B93A6">delete.py 清理标签</text>
+                  <rect x="190" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="202" y="105" font-size="12" fill="#E3E7F0">配置模板</text>
+                  <text x="202" y="120" font-size="11" fill="#8B93A6">TOML · toml.dump 落盘</text>
+                  <rect x="370" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="382" y="105" font-size="12" fill="#E3E7F0">local_train.py</text>
+                  <text x="382" y="120" font-size="11" fill="#8B93A6">环境引导 · 起 GUI</text>
+                  <rect x="550" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="562" y="105" font-size="12" fill="#E3E7F0">train_network.py</text>
+                  <text x="562" y="120" font-size="11" fill="#8B93A6">sd-scripts 训练</text>
+                  <rect x="730" y="40" width="140" height="40" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="742" y="57" font-size="12" fill="#E3E7F0">LoRA 权重</text>
+                  <text x="742" y="72" font-size="11" fill="#8B93A6">按 run 目录归集</text>
+                  <rect x="730" y="136" width="140" height="40" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="742" y="153" font-size="12" fill="#E3E7F0">采样验证</text>
+                  <text x="742" y="168" font-size="11" fill="#8B93A6">sdxl_gen_img.py</text>
+                  <rect x="10" y="176" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="22" y="193" font-size="12" fill="#E3E7F0">运行记录 json</text>
+                  <text x="22" y="208" font-size="11" fill="#8B93A6">last_*.json 快照</text>
+                  <path d="M160 108 H190" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar3)"/>
+                  <path d="M340 108 H370" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar3)"/>
+                  <path d="M520 108 H550" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc3)"/>
+                  <path d="M700 102 H716 V60 H730" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc3)"/>
+                  <path d="M800 80 V136" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc3)"/>
+                  <path d="M625 128 V196 H160" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc3)"/>
+                  <path d="M85 216 V228 H265 V132" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar3)"/>
+                </svg>
+                <figcaption>图 03 — 数据集与 tag 只进入配置生成；训练读取同一份 TOML 并落一条运行记录，权重交给采样端验证，记录沿底边回流到下一轮配置。</figcaption>
+              </figure>
+            </section>
+
+            <section class="pa-sec" id="decisions" aria-labelledby="decT">
+              <h2 class="pa-sec__t" id="decT"><span class="pa-sec__n" aria-hidden="true">03</span>关键决策与取舍</h2>
+              <p>三个决策都围绕同一件事：让「这次训练用了什么」事后还能读出来。</p>
+
+              <div class="pa-dec">
+                <p><strong>D1 · 参数落成 TOML 文件，不只存在界面里</strong></p>
+                <p><span class="pa-dec__k">理由</span>kohya_gui 侧用 <code>toml.dump</code> 写盘（<code>common_gui.py</code> 的写配置分支，入口是 <code>lora_gui.py</code> 的 <code>save_configuration</code>）；训练与采样读同一份，改超参只改一处。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>「只在界面上保留一份临时参数」的便利：界面关掉之后，那些参数就不存在了。</p>
+              </div>
+
+              <div class="pa-dec">
+                <p><strong>D2 · 训练与采样分两个入口</strong></p>
+                <p><span class="pa-dec__k">理由</span><code>sd-scripts/train_network.py</code> 负责训练，<code>sdxl_gen_img.py</code> 负责采样；采样失败不用重训，换提示词也不用重新加载训练侧状态。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>一次启动两步走完：代价是两边各自加载一次底座模型，显存与时间都要付两遍。</p>
+              </div>
+
+              <div class="pa-dec">
+                <p><strong>D3 · tag 清理与训练分离</strong></p>
+                <p><span class="pa-dec__k">理由</span><code>delete.py</code> 只按名单改写数据目录下的标签文件、不动图像本身；先整理标签再起训练，避免训练中样本被删导致 dataloader 直接抛错。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>用通配符批量改标签的省事写法：一次手误就不可逆，而这里只改文本、可回滚。</p>
+              </div>
+            </section>
+
+            <section class="pa-sec" id="hard" aria-labelledby="hardT">
+              <h2 class="pa-sec__t" id="hardT"><span class="pa-sec__n" aria-hidden="true">04</span>难点与解法</h2>
+              <p><strong>配置与权重必须成对。</strong>每次训练落 <code>config_lora-20261001-080553.toml</code> 与 <code>last_20261001-080553.json</code> 两份，文件名带同一个时间戳，权重与参数永远成对。任何「临时在命令行补一个参数」的做法都会让两份输入分叉，事后无法判断某组权重对应哪份配置，因此补参数必须回写到 TOML。</p>
+              <p><strong>模板字段名与 sd-scripts 参数名来自不同层。</strong>配置模板由界面字段拼出，字段名对不上时错误在训练启动后才以解析失败的形式出现，而加载模型可能已经花掉几十秒。做法是每次改完模板先跑极小步数的一轮，确认能被解析，而不是等几十分钟后才失败。</p>
+              <ul>
+                <li>分辨率按 bucket 处理：640–1024、bucket 步长 16、batch 1。显存换分辨率覆盖，极端长宽比的图会被裁到最近的 bucket。</li>
+                <li>精度与优化器绑定显卡代际：bf16 在 Ampere 以下没有硬件支持，AdamW8bit 依赖自行编译的 bitsandbytes，两者都是「换机器就重来」的环节。</li>
+                <li>引导脚本用 <code>os.path.exists</code> 判断是否需要 clone，存在即跳过；这意味着换目录重跑和补装依赖是两件事，脚本只保证第一次。</li>
+              </ul>
+            </section>
+
+            <section class="pa-sec" id="code" aria-labelledby="codeT">
+              <h2 class="pa-sec__t" id="codeT"><span class="pa-sec__n" aria-hidden="true">05</span>代码走读</h2>
+              <p><code>local_train.py</code> 一共 91 行，核心只有两个函数。执行外部命令用 <code>shlex.split</code> 切参数再交给 <code>subprocess.Popen</code>，不经过 shell 解释；stdout 与 stderr 合流后逐行转发，编译失败能立刻在终端看到。</p>
+              <div class="pa-code"><pre><code># local_train.py — 外部命令按参数数组执行，输出逐行转发
+def run_command(command):
+    args = shlex.split(command, posix=(os.name != "nt"))
+    process = subprocess.Popen(
+        args, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
+    for line in process.stdout:
+        print(line, end="")
+    process.wait()
+    if process.returncode != 0:
+        raise subprocess.CalledProcessError(process.returncode, command)</code></pre><button class="pa-code__copy" type="button" data-copy>COPY</button></div>
+              <p>引导流程是四步直线：建工作目录、编译 bitsandbytes、拉 kohya_ss、起 GUI。下面省略了日志与注释，仓库地址已隐去。</p>
+              <div class="pa-code"><pre><code># local_train.py — main() 的四步引导
+base_dir = "kohya_local_setup"
+os.makedirs(base_dir, exist_ok=True)
+os.chdir(base_dir)
+
+if not os.path.exists("bitsandbytes"):
+    run_command("git clone -b 0.41.0 &lt;bitsandbytes 仓库&gt;")
+os.chdir("bitsandbytes")
+run_command("make cuda11x")
+run_command("python setup.py install")
+os.chdir("..")
+
+if not os.path.exists("kohya_ss"):
+    run_command("git clone -b v1.0 &lt;kohya_ss 仓库&gt;")
+os.chdir("kohya_ss")
+run_command("python kohya_gui.py --headless")</code></pre><button class="pa-code__copy" type="button" data-copy>COPY</button></div>
+            </section>
+
+            <section class="pa-sec" id="limits" aria-labelledby="limT">
+              <h2 class="pa-sec__t" id="limT"><span class="pa-sec__n" aria-hidden="true">06</span>失败与下一步</h2>
+              <p>这套外壳解决的问题是「记录」，它没解决的问题是「环境」。已知缺陷按影响排序：</p>
+              <ul>
+                <li><code>local_train.py</code> 与 <code>gui-uv.sh</code> 职责重叠：两条路径都能起 GUI，一条负责装依赖、一条负责 clone，哪条先跑没有写进文档。</li>
+                <li>clone 锁到分支 tag（<code>0.41.0</code> / <code>v1.0</code>），但 pip 依赖由 requirements 决定、没有哈希锁；半年后重跑可能装出另一套环境。</li>
+                <li>CUDA 版本写死在脚本里（<code>make cuda11x</code>），CUDA 12 的机器要改脚本才能过这一行。</li>
+                <li>启动 GUI 那段被 <code>try/except</code> 包住并只 <code>print</code> 异常，脚本退出码仍是 0：从流水线角度看，启动失败也算「成功」。</li>
+                <li>91 行里没有任何一步把训练实参写回 TOML：实参来自界面落盘的快照，脚本本身不校验两份是否一致。</li>
+                <li>没有采样质量的量化口径，同一组种子的图只能靠人眼比。</li>
+              </ul>
+              <p>下一步三件：引导改成带 lock 文件的可复现安装；启动失败返回非零退出码；每次 run 记录上游 git commit，让「哪份代码 + 哪份 TOML + 哪份权重」三者能对应上。</p>
+            </section>
+
+            <section class="pa-sec" id="scale" aria-labelledby="scaleT">
+              <h2 class="pa-sec__t" id="scaleT"><span class="pa-sec__n" aria-hidden="true">07</span>规模与复核</h2>
+              <p>规模只算本地入口：上游 kohya_ss 与 sd-scripts 不计入本站数字。训练实参来自运行记录快照，可当场打印。</p>
+              <dl class="pa-scale">
+                <dt>本地入口</dt><dd>1 个 Python 文件（local_train.py）</dd>
+                <dt>行数</dt><dd>91</dd>
+                <dt>训练实参</dt><dd>max_train_steps 8,000 · epoch 4 · network_dim 64 / alpha 32 · lr 1e-4 · cosine · AdamW8bit · bf16</dd>
+                <dt>分辨率</dt><dd>640–1024 · bucket 步长 16 · batch 1</dd>
+                <dt>配置快照</dt><dd>config_lora-20261001-080553.toml · last_20261001-080553.json</dd>
+                <dt>依赖</dt><dd>kohya_ss · sd-scripts · diffusers · PyTorch(CUDA) · bitsandbytes · uv · WSL</dd>
+                <dt>复核命令</dt><dd><code>wc -l local_train.py</code> → 91；<code>python -c "import json;d=json.load(open('last_20261001-080553.json'));print(d['max_train_steps'],d['epoch'],d['learning_rate'],d['network_dim'],d['network_alpha'],d['optimizer'],d['mixed_precision'],d['max_resolution'],d['bucket_reso_steps'],d['lr_scheduler'],d['train_batch_size'])"</code></dd>
+              </dl>
+            </section>
+
+          </div>
+
+          <aside class="pa__toc" data-toc aria-label="本文目录">
+            <p class="pa-toc__label">SECTIONS</p>
+            <nav class="pa-toc" data-scrollspy>
+              <a href="#task">01 任务与边界</a>
+              <a href="#arch">02 架构</a>
+              <a href="#decisions">03 关键决策与取舍</a>
+              <a href="#hard">04 难点与解法</a>
+              <a href="#code">05 代码走读</a>
+              <a href="#limits">06 失败与下一步</a>
+              <a href="#scale">07 规模与复核</a>
+            </nav>
+          </aside>
+        </div>
+
+        <nav class="pa-nav" aria-label="前后篇">
+          <a href="./train-framework.html">
+            <span class="pa-nav__k">PREV · 02</span>
+            <span class="pa-nav__t">自建 PyTorch 训练框架</span>
+          </a>
+          <a href="./pose-pipeline.html">
+            <span class="pa-nav__k">NEXT · 04</span>
+            <span class="pa-nav__t">实时姿态估计推理管线</span>
+          </a>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

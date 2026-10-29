@@ -37,12 +37,12 @@ function makeGlow() {
   return pad;
 }
 
-export function initField() {
+export function initField(motion) {
   const canvas = document.querySelector("#fieldCanvas[data-field]");
   if (!canvas) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  const pointer = motion.pointer;
 
   const fpsEl = document.querySelector("[data-fps]");
   const glow = makeGlow();
@@ -59,6 +59,12 @@ export function initField() {
   const ry = new Float32Array(COUNT);
   const nearA = new Int32Array(COUNT);
   const nearB = new Int32Array(COUNT);
+  /* 引力：240px 内连线提亮，增量 = min(1, 原 alpha×1.6) − 原 alpha（叠在批量描边上）。 */
+  const GRAV = 240;
+  const GRAV2 = GRAV * GRAV;
+  const nearP = new Uint8Array(COUNT);
+  const LINE_UP = "rgba(200,240,255,0.060)";
+  const ATTN_UP = "rgba(99,214,203,0.180)";
 
   const random = mulberry32(0x9E3779B9);
   for (let i = 0; i < COUNT; i += 1) {
@@ -109,6 +115,10 @@ export function initField() {
   let targetY = 0;
   let easeX = 0;
   let easeY = 0;
+  let gx = 0;
+  let gy = 0;
+  let vw = 1;
+  let vh = 1;
 
   function resize() {
     const w = canvas.clientWidth;
@@ -117,6 +127,8 @@ export function initField() {
     if (!w || !h) return;
     cssW = w;
     cssH = h;
+    vw = window.innerWidth || 1;
+    vh = window.innerHeight || 1;
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -124,6 +136,15 @@ export function initField() {
 
   function draw(dt) {
     if (!cssW || !cssH) return;
+    /* 指针状态由 main.js 唯一持有：这里只读，不挂监听。 */
+    const live = pointer.seen;
+    if (live) {
+      const rect = canvas.getBoundingClientRect();
+      gx = pointer.x - rect.left;
+      gy = pointer.y - rect.top;
+      targetX = (pointer.x / vw - 0.5) * 2;
+      targetY = (pointer.y / vh - 0.5) * 2;
+    }
     easeX += (targetX - easeX) * 0.04;
     easeY += (targetY - easeY) * 0.04;
     const step = dt / 1000;
@@ -135,8 +156,22 @@ export function initField() {
       else if (nx[i] > 1.05) nx[i] -= 1.1;
       if (ny[i] < -0.05) ny[i] += 1.1;
       else if (ny[i] > 1.05) ny[i] -= 1.1;
-      rx[i] = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
-      ry[i] = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
+      const bx = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
+      const by = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
+      rx[i] = bx;
+      ry[i] = by;
+      nearP[i] = 0;
+      if (!live) continue;
+      /* 靠近指针的节点朝它偏移，位移按距离线性收到 6px 以内。 */
+      const dx = gx - bx;
+      const dy = gy - by;
+      const d2 = dx * dx + dy * dy;
+      if (d2 >= GRAV2) continue;
+      const d = Math.sqrt(d2) || 1;
+      const pull = 6 - (6 * d) / GRAV;
+      rx[i] = bx + (dx / d) * pull;
+      ry[i] = by + (dy / d) * pull;
+      nearP[i] = 1;
     }
 
     ctx.clearRect(0, 0, cssW, cssH);
@@ -177,6 +212,22 @@ export function initField() {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgba(99,214,203,0.30)";
     ctx.stroke();
+
+    /* 引力提亮：只补指针附近的少量连线，逐条 stroke，不动整屏批量描边的开销。 */
+    if (live) {
+      ctx.lineWidth = 1;
+      for (let i = 0; i < COUNT; i += 1) {
+        for (let k = 0; k < 2; k += 1) {
+          const j = k ? nearA[i] : nearB[i];
+          if (!nearP[i] && !nearP[j]) continue;
+          ctx.strokeStyle = k ? ATTN_UP : LINE_UP;
+          ctx.beginPath();
+          ctx.moveTo(rx[i], ry[i]);
+          ctx.lineTo(rx[j], ry[j]);
+          ctx.stroke();
+        }
+      }
+    }
 
     ctx.beginPath();
     for (let i = 0; i < COUNT; i += 1) {
@@ -233,9 +284,27 @@ export function initField() {
   }
 
   function sync() {
-    if (visible && onScreen) start();
+    if (motion.isOn() && visible && onScreen) start();
     else stop();
   }
+
+  /* 惰性启动：关着不点火，开回来才启动；关时清成透明，让 HTML 里的内联 SVG 兜底透出来。 */
+  let started = false;
+  function boot() {
+    if (started || !motion.isOn()) return;
+    started = true;
+    sync();
+  }
+
+  function halt() {
+    stop();
+    if (cssW && cssH) ctx.clearRect(0, 0, cssW, cssH);
+  }
+
+  motion.onChange(function () {
+    if (motion.isOn()) boot();
+    else halt();
+  });
 
   document.addEventListener("visibilitychange", function () {
     visible = document.visibilityState !== "hidden";
@@ -248,23 +317,15 @@ export function initField() {
   }, { threshold: 0 });
   io.observe(canvas);
 
-  window.addEventListener("pointermove", function (event) {
-    if (event.pointerType === "touch") return;
-    const w = window.innerWidth || 1;
-    const h = window.innerHeight || 1;
-    targetX = (event.clientX / w - 0.5) * 2;
-    targetY = (event.clientY / h - 0.5) * 2;
-  }, { passive: true });
-
   let resizeTimer = 0;
   window.addEventListener("resize", function () {
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(function () {
       resize();
-      if (!raf) draw(16);
+      if (!raf && motion.isOn()) draw(16);
     }, 120);
   }, { passive: true });
 
   resize();
-  sync();
+  boot();
 }

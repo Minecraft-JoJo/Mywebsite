@@ -27,7 +27,10 @@
 | 页面 | 文件 | 拥有者 |
 |---|---|---|
 | 首页 | `index.html` `assets/css/home.css` | A1 |
-| 项目 | `projects.html` `assets/css/projects.css` | A2 |
+| 项目索引 | `projects.html` `assets/css/projects.css` | A4 |
+| 项目文章 01-03 | `projects/ocr-pipeline.html` `projects/train-framework.html` `projects/diffusion-lora.html` | A4 |
+| 项目文章 04-06 | `projects/pose-pipeline.html` `projects/vision-classifier.html` `projects/service-layer.html` | A5 |
+| 项目文章样式 | `assets/css/project-page.css` | 主控 |
 | 知识库索引 | `notes.html` `assets/css/notes.css` | A3 |
 | 文章页 | `notes/attention.html` `notes/ocr-pipeline.html` `assets/css/article.css` | A3 |
 | 关于/联系/404 | `about.html` `contact.html` `404.html` `assets/css/pages.css` `robots.txt` `sitemap.xml` | B2 |
@@ -209,3 +212,17 @@
 grep -rn 'href="/' <你的文件> ; grep -rn "src="/" <你的文件>          # 必须为空
 grep -rnE '精通|熟练掌握|资深|顶尖|高手|大神|极强|领先|完美' <你的文件>   # 必须为空
 ```
+
+---
+
+## 11 · 动效策略（v3 修订）
+
+1. **动效默认开启**。不得用 `prefers-reduced-motion` 作为绘制/动画的硬门槛——所有者本人的机器就开着该系统开关，曾因此看到完全静止的页面。
+2. 开关由站内按钮 `[data-motion-toggle]` 控制，状态写入 `<html data-motion="on|off">` 与 localStorage（键 `motion:`）。CSS 侧 `html[data-motion="off"]` 已统一停掉动画。
+3. 满足 WCAG 2.2.2「可暂停」：用户能停，但不替用户停。
+
+## 12 · 项目结构（v3 修订）
+
+- `projects.html` 是**索引页**：6 张卡片，不放技术细节。
+- 每个项目是**独立文章**：`projects/<id>.html`，使用 `assets/css/project-page.css` 的 `.pa-*` 类。
+- 首页项目卡直接链到文章页（不再用锚点）。

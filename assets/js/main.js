@@ -7,7 +7,82 @@ import { initReveal } from "./reveal.js";
 import { initHeatmap } from "./heatmap.js";
 import { initTelemetry } from "./telemetry.js";
 
-const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)");
+/* —— 0 · 动效开关：站内唯一真相 ——
+   默认开：prefers-reduced-motion 只当建议，拿它硬杀动效会让用户以为站点坏了。
+   选择写进 localStorage（只有 "off" 算关），状态落到 <html data-motion>，再派发 motionchange。 */
+const MOTION_KEY = "motion:";
+
+function storedMotion() {
+  /* 只有明确存过 "off" 才算关；读不到（首次访问、隐私模式抛错）一律按开。 */
+  try {
+    return window.localStorage.getItem(MOTION_KEY) !== "off";
+  } catch (ignored) {
+    return true;
+  }
+}
+
+let motionOn = storedMotion();
+document.documentElement.dataset.motion = motionOn ? "on" : "off";
+
+export function isMotionOn() {
+  return motionOn;
+}
+
+export function onMotionChange(fn) {
+  document.addEventListener("motionchange", fn);
+}
+
+/* —— 0b · 指针状态：全站唯一一份 ——
+   pointermove 只写这个对象；使用者挂 pointer.fn，每帧不再读事件。 */
+const pointer = { x: 0, y: 0, seen: false, fn: null };
+const motionApi = { isOn: isMotionOn, onChange: onMotionChange, pointer: pointer };
+
+function watchPointer() {
+  function emit() {
+    if (pointer.fn) pointer.fn();
+  }
+  window.addEventListener("pointermove", function (event) {
+    if (event.pointerType === "touch") return;
+    pointer.x = event.clientX;
+    pointer.y = event.clientY;
+    pointer.seen = true;
+    emit();
+  }, { passive: true });
+  /* 离开文档：先置空再通知，跟随者据此收尾（摘下 .is-live）。 */
+  document.documentElement.addEventListener("mouseleave", function () {
+    pointer.seen = false;
+    emit();
+  }, { passive: true });
+}
+
+function paintMotion() {
+  const buttons = document.querySelectorAll("[data-motion-toggle]");
+  for (let i = 0; i < buttons.length; i += 1) buttons[i].setAttribute("aria-pressed", motionOn ? "true" : "false");
+}
+
+function setMotion(on) {
+  if (on === motionOn) return;
+  motionOn = on;
+  document.documentElement.dataset.motion = on ? "on" : "off";
+  try {
+    window.localStorage.setItem(MOTION_KEY, on ? "on" : "off");
+  } catch (ignored) {
+    /* 隐私模式写不进去：本次会话内照样生效 */
+  }
+  paintMotion();
+  document.dispatchEvent(new CustomEvent("motionchange", { detail: { on: on } }));
+}
+
+function initMotionToggle() {
+  /* HTML 里写死 aria-pressed="true"：关过站的访客进来要先对齐真实状态。 */
+  paintMotion();
+  const buttons = document.querySelectorAll("[data-motion-toggle]");
+  for (let i = 0; i < buttons.length; i += 1) {
+    buttons[i].addEventListener("click", function () {
+      setMotion(!motionOn);
+    });
+  }
+}
 
 /* —— 1 · 移动端导航 —— */
 function initNav() {
@@ -43,67 +118,93 @@ function initNav() {
   else if (typeof wide.addListener === "function") wide.addListener(onChange);
 }
 
-/* —— 3 · 光标环 —— */
-function initCursor() {
+/* —— 2 · 指针跟随：光晕 + 光标环 ——
+   一份插值、一个 rAF、每帧两次写；收敛即停（raf = 0），关闭时立刻隐藏。 */
+function initFollow(motion) {
+  const glow = document.querySelector("[data-pointer-glow]");
   const ring = document.querySelector("[data-cursor]");
-  if (!ring) return;
+  if (!glow && !ring) return;
   if (!window.matchMedia("(pointer: fine)").matches) return;
-  if (REDUCED.matches) return;
 
+  const EASE = 0.12;
+  const EPS = 0.1;
   const SIZE = 26;
   const SIZE_HOVER = 44;
-  const EASE = 0.18;
-  let targetX = 0;
-  let targetY = 0;
   let x = 0;
   let y = 0;
+  let live = false;
   let raf = 0;
 
-  function tick() {
-    x += (targetX - x) * EASE;
-    y += (targetY - y) * EASE;
-    ring.style.transform = "translate3d(" + x + "px," + y + "px,0) translate(-50%,-50%)";
-    raf = window.requestAnimationFrame(tick);
+  /* 环靠自己那句 translate(-50%,-50%) 居中；光晕由 CSS 负 margin 居中，这里不再减半宽高。 */
+  function write() {
+    const at = "translate3d(" + x.toFixed(2) + "px," + y.toFixed(2) + "px,0)";
+    if (glow) glow.style.transform = at;
+    if (ring) ring.style.transform = at + " translate(-50%,-50%)";
   }
 
-  function hide() {
-    ring.style.opacity = "0";
+  function tick() {
+    const dx = pointer.x - x;
+    const dy = pointer.y - y;
+    x += dx * EASE;
+    y += dy * EASE;
+    const settled = dx > -EPS && dx < EPS && dy > -EPS && dy < EPS;
+    if (settled) {
+      x = pointer.x;
+      y = pointer.y;
+      raf = 0;
+    }
+    write();
+    if (!settled) raf = window.requestAnimationFrame(tick);
+  }
+
+  function halt() {
     if (raf) window.cancelAnimationFrame(raf);
     raf = 0;
-    ring.style.width = SIZE + "px";
-    ring.style.height = SIZE + "px";
+    live = false;
+    if (glow) glow.classList.remove("is-live");
+    if (ring) {
+      ring.style.opacity = "0";
+      ring.style.width = SIZE + "px";
+      ring.style.height = SIZE + "px";
+    }
   }
 
-  window.addEventListener("pointermove", function (event) {
-    if (event.pointerType === "touch") return;
-    targetX = event.clientX;
-    targetY = event.clientY;
-    if (!raf) {
-      x = targetX;
-      y = targetY;
-      ring.style.opacity = "1";
-      raf = window.requestAnimationFrame(tick);
+  /* 指针动了、动效开着、指针还在文档里——缺一个就收尾。 */
+  function wake() {
+    if (!motion.isOn() || !pointer.seen) {
+      halt();
+      return;
     }
-  }, { passive: true });
+    if (!live) {
+      /* 首次真实 pointermove：先落到指针上，避免从 (0,0) 一路滑过去。 */
+      live = true;
+      x = pointer.x;
+      y = pointer.y;
+      write();
+      if (glow) glow.classList.add("is-live");
+      if (ring) ring.style.opacity = "1";
+    }
+    if (!raf) raf = window.requestAnimationFrame(tick);
+  }
+
+  pointer.fn = wake;
 
   window.addEventListener("pointerover", function (event) {
     const target = event.target;
-    if (!target || target.nodeType !== 1) return;
-    const hit = target.closest("a,button,[data-palette-open]");
-    const size = hit ? SIZE_HOVER : SIZE;
+    if (!ring || !target || target.nodeType !== 1) return;
+    const size = target.closest("a,button,[data-palette-open]") ? SIZE_HOVER : SIZE;
     ring.style.width = size + "px";
     ring.style.height = size + "px";
   }, { passive: true });
 
-  document.documentElement.addEventListener("mouseleave", hide, { passive: true });
-  window.addEventListener("blur", hide, { passive: true });
+  window.addEventListener("blur", halt, { passive: true });
+  motion.onChange(wake);
 }
 
 /* —— 2b · 卡片指针聚光（钩子 data-glow） ——
    聚光本身在 CSS（.card::after 用 var(--spot)），这里只把指针换算成卡片内坐标写进
    --mx/--my；document 上一个 pointermove 委托全部卡片，写样式按帧合并。 */
-function initGlow() {
-  if (REDUCED.matches) return;
+function initGlow(motion) {
   if (!window.matchMedia("(pointer: fine)").matches) return;
 
   let card = null;
@@ -126,7 +227,7 @@ function initGlow() {
   }
 
   document.addEventListener("pointermove", function (event) {
-    if (event.pointerType === "touch") return;
+    if (event.pointerType === "touch" || !motion.isOn()) return;
     const el = pick(event);
     if (!el) return;
     card = el;
@@ -152,8 +253,7 @@ function initGlow() {
 /* —— 2c · 标题指针视差（data-parallax，缺省回落到 hero 的 h1） ——
    位移写在 translate 而非 transform：若之后有人给标题加 CSS transform，两者相乘而不是
    互相覆盖。±6px，rAF 插值，停稳后自停。 */
-function initParallax() {
-  if (REDUCED.matches) return;
+function initParallax(motion) {
   if (!window.matchMedia("(pointer: fine)").matches) return;
   if (!("translate" in document.documentElement.style)) return;
   const el = document.querySelector("[data-parallax]") || document.querySelector(".home-hero__title");
@@ -182,13 +282,21 @@ function initParallax() {
   }
 
   window.addEventListener("pointermove", function (event) {
-    if (event.pointerType === "touch") return;
+    if (event.pointerType === "touch" || !motion.isOn()) return;
     const w = window.innerWidth || 1;
     const h = window.innerHeight || 1;
     tx = (event.clientX / w - 0.5) * 2 * RANGE;
     ty = (event.clientY / h - 0.5) * 2 * RANGE;
     if (!raf) raf = window.requestAnimationFrame(tick);
   }, { passive: true });
+
+  /* 关掉时把标题放回原位，别留一个冻住的偏移。 */
+  motion.onChange(function () {
+    if (motion.isOn()) return;
+    window.cancelAnimationFrame(raf);
+    raf = 0;
+    el.style.translate = "";
+  });
 }
 
 /* —— 4 · 阅读进度 —— */
@@ -220,7 +328,7 @@ function initProgress() {
 }
 
 /* —— 6 · Boot 序列（仅首页） —— */
-function initBoot() {
+function initBoot(motion) {
   const boot = document.querySelector("[data-boot]");
   if (!boot) return;
   const lines = boot.querySelectorAll(".boot__line");
@@ -248,7 +356,7 @@ function initBoot() {
     boot.classList.remove("is-booting");
   }
 
-  if (skipped || REDUCED.matches) {
+  if (skipped || !motion.isOn()) {
     lightAll();
     return;
   }
@@ -277,6 +385,13 @@ function initBoot() {
       }
     });
   }
+
+  /* 播出途中关掉动效：立刻全亮收尾，不留半截的启动序列。 */
+  motion.onChange(function () {
+    if (motion.isOn()) return;
+    lightAll();
+    finish();
+  });
 }
 
 /* —— 7 · HUD 分区读数（仅首页的 8 个区块） —— */
@@ -324,10 +439,9 @@ function formatCount(value) {
   return out;
 }
 
-function initCounters() {
+function initCounters(motion) {
   const nodes = document.querySelectorAll("[data-count]");
   if (!nodes.length) return;
-  if (REDUCED.matches) return;
   if (typeof window.IntersectionObserver !== "function") return;
 
   const items = [];
@@ -339,7 +453,7 @@ function initCounters() {
   if (!items.length) return;
 
   function run(item) {
-    if (item.target <= 0) return;
+    if (item.target <= 0 || !motion.isOn()) return;
     if (document.visibilityState === "hidden") return;
     const target = item.target;
     const duration = 900;
@@ -354,6 +468,10 @@ function initCounters() {
 
     function frame(now) {
       if (settled) return;
+      if (!motion.isOn()) {
+        restore();
+        return;
+      }
       if (!begin) begin = now;
       const elapsed = now - begin;
       if (elapsed < duration) {
@@ -384,7 +502,16 @@ function initCounters() {
     }
   }, { threshold: 0.35 });
 
-  for (let i = 0; i < items.length; i += 1) io.observe(items[i].el);
+  /* 惰性启动：HTML 里的文本本来就是最终值，关着就什么都不做；半途关掉由 frame() 自己收尾。 */
+  let started = false;
+  function arm() {
+    if (started || !motion.isOn()) return;
+    started = true;
+    for (let i = 0; i < items.length; i += 1) io.observe(items[i].el);
+  }
+
+  motion.onChange(arm);
+  arm();
 }
 
 /* —— 8 · 知识库过滤（仅 notes.html） —— */
@@ -519,28 +646,30 @@ function initNotFound() {
   node.textContent = window.location.pathname + window.location.search;
 }
 
-function safe(run) {
+function safe(run, arg) {
   try {
-    run();
+    run(arg);
   } catch (ignored) {
     /* 单个钩子失败不应拖垮其余钩子；页面无 JS 时也必须可读 */
   }
 }
 
+safe(watchPointer);
+safe(initMotionToggle);
 safe(initNav);
 safe(initPalette);
-safe(initCursor);
-safe(initGlow);
-safe(initParallax);
+safe(initFollow, motionApi);
+safe(initGlow, motionApi);
+safe(initParallax, motionApi);
 safe(initProgress);
-safe(initReveal);
-safe(initBoot);
+safe(initReveal, motionApi);
+safe(initBoot, motionApi);
 safe(initHud);
-safe(initCounters);
+safe(initCounters, motionApi);
 safe(initNotesFilter);
 safe(initScrollSpy);
 safe(initCopy);
 safe(initNotFound);
-safe(initField);
+safe(initField, motionApi);
 safe(initHeatmap);
 safe(initTelemetry);

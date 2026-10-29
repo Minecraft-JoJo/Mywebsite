@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>工程档案 · Minecraft-JoJo</title>
-  <meta name="description" content="六份工程档案：漫画 OCR 翻译管线、PyTorch 训练框架、扩散模型 LoRA 微调、实时姿态估计推理、图像分类实验台与服务层；每份给出架构图、决策取舍、行数与复核命令。">
+  <meta name="description" content="六份工程档案的索引：漫画 OCR 翻译管线、自建 PyTorch 训练框架、扩散模型 LoRA 微调、实时姿态估计推理管线、图像分类实验台、应用服务与数据层；每个项目一篇文章。">
   <meta name="theme-color" content="#07080A">
   <meta property="og:type" content="website">
   <meta property="og:title" content="工程档案 · Minecraft-JoJo">
-  <meta property="og:description" content="六份工程档案：漫画 OCR 翻译管线、PyTorch 训练框架、扩散模型 LoRA 微调、实时姿态估计推理、图像分类实验台与服务层。">
+  <meta property="og:description" content="六份工程档案的索引，每个项目一篇独立文章：架构、决策取舍、代码走读、规模与复核命令。">
   <meta property="og:image" content="./assets/svg/favicon.svg">
   <link rel="icon" href="./assets/svg/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./assets/css/tokens.css">
@@ -21,10 +21,12 @@
     <span class="aurora__blob aurora__blob--b"></span>
     <span class="aurora__blob aurora__blob--c"></span>
   </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="scanline" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to main content</a>
   <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
   <header class="site-header" data-header>
     <div class="wrap site-header__inner">
       <a class="brand" href="./index.html">
@@ -39,7 +41,10 @@
         <a class="nav-link" href="./about.html">About</a>
         <a class="nav-link" href="./contact.html">Contact</a>
       </nav>
-      <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
         Search <span class="mono xs muted">⌘K</span>
       </button>
       <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
@@ -51,834 +56,94 @@
       <div class="wrap">
         <p class="eyebrow">PROJECTS / 6 ARCHIVES</p>
         <h1 class="proj-hero__title" id="projHeroTitle">工程档案</h1>
-        <p class="lede proj-hero__lede">每一份都给出架构、决策、取舍与可核对的规模；没有截图堆砌。</p>
+        <p class="lede proj-hero__lede">每个项目一篇文章：进去能看到架构、决策与取舍，以及可以自己跑一遍的复核命令。</p>
         <div class="proj-hero__facts">
-          <span>6 份档案</span>
-          <span>每份一张内联 SVG 数据流图</span>
+          <span>6 篇文章</span>
+          <span>每篇一张内联 SVG 数据流图</span>
           <span>行数与文件数用 wc -l 与 find 计</span>
         </div>
         <nav class="proj-index" aria-label="档案索引">
-          <a class="proj-index__item" href="#ocr-pipeline">01 OCR管线</a>
+          <a class="proj-index__item" href="./projects/ocr-pipeline.html">01 OCR 翻译管线</a>
           <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="#train-framework">02 训练框架</a>
+          <a class="proj-index__item" href="./projects/train-framework.html">02 训练框架</a>
           <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="#diffusion-lora">03 扩散微调</a>
+          <a class="proj-index__item" href="./projects/diffusion-lora.html">03 扩散微调</a>
           <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="#pose-pipeline">04 姿态推理</a>
+          <a class="proj-index__item" href="./projects/pose-pipeline.html">04 姿态推理</a>
           <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="#vision-classifier">05 分类实验台</a>
+          <a class="proj-index__item" href="./projects/vision-classifier.html">05 分类实验台</a>
           <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="#service-layer">06 服务层</a>
+          <a class="proj-index__item" href="./projects/service-layer.html">06 服务层</a>
         </nav>
       </div>
     </section>
 
     <div class="wrap proj-list">
-      <section class="proj-entry" id="ocr-pipeline" data-reveal aria-labelledby="ocr-pipelineTitle">
-        <span class="proj-entry__no" aria-hidden="true">01</span>
-        <header class="proj-entry__head">
-          <p class="proj-entry__kicker"><em>01</em> ARCHIVE <span aria-hidden="true">/</span> OCR PIPELINE</p>
-          <h2 class="proj-entry__title" id="ocr-pipelineTitle">漫画 OCR 翻译管线</h2>
-          <p class="proj-entry__tag">Computer Vision · NLP · Render · RapidOCR / OpenCV / 翻译 API</p>
-        </header>
-        <div class="proj-entry__grid">
-          <div class="proj-entry__main">
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">01</span>定位</h3>
-              <div class="proj-sec__body">
-                <p>RapidOCR 识别 → 版面分块重组 → 句级批量翻译 → 原字擦除与译文回填重绘的一条 Python 管线；9 个 Python 文件 969 行，依赖限定在 RapidOCR、OpenCV、Pillow、requests。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">02</span>问题</h3>
-              <div class="proj-sec__body">
-                <p>难点不在识别，在版面。文本框互相重叠，竖排与斜排混在同一页，一个气泡里的句子常被折成两三行；句子一错位，整页的阅读顺序就断了。翻译接口一次请求多行、一次返回，返回条数不保证等于输入行数，而回填必须让译文塞进原框且不溢出。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">03</span>架构</h3>
-              <div class="proj-sec__body">
-                <p class="proj-flow">输入图 <i>→</i> RapidOCR <i>→</i> 版面分块重组 <i>→</i> 批量翻译 API <i>→</i> 擦除原字 / 二分字号回填 <i>→</i> 输出图</p>
-              </div>
-              <figure class="proj-fig">
-      <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <marker id="proj-ar1" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B9199"/></marker>
-          <marker id="proj-arc1" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#57E3D2"/></marker>
-        </defs>
-        <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="24" y="114" font-size="11" fill="#E9EBEE">输入图 / RAW</text>
-        <text x="24" y="128" font-size="11" fill="#8B9199">漫画页 · 任意尺寸</text>
-        <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="114" font-size="11" fill="#E9EBEE">RapidOCR</text>
-        <text x="202" y="128" font-size="11" fill="#8B9199">文本框 + 文本识别</text>
-        <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="114" font-size="11" fill="#E9EBEE">版面分块重组</text>
-        <text x="380" y="128" font-size="11" fill="#8B9199">block.py 并查集分组</text>
-        <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="114" font-size="11" fill="#E9EBEE">批量翻译 API</text>
-        <text x="558" y="128" font-size="11" fill="#8B9199">trans.py 行级对齐</text>
-        <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="114" font-size="11" fill="#E9EBEE">输出图</text>
-        <text x="736" y="128" font-size="11" fill="#8B9199">output/final.jpg</text>
-        <rect x="190" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="196" font-size="11" fill="#E9EBEE">擦除原字</text>
-        <text x="202" y="210" font-size="11" fill="#8B9199">mask → cv2.inpaint</text>
-        <rect x="368" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="196" font-size="11" fill="#E9EBEE">字体宽度测量</text>
-        <text x="380" y="210" font-size="11" fill="#8B9199">textlength → 二分缩放</text>
-        <rect x="546" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="196" font-size="11" fill="#E9EBEE">回填重绘</text>
-        <text x="558" y="210" font-size="11" fill="#8B9199">change.py 二分字号</text>
-        <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
-        <path d="M316 115 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
-        <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
-        <path d="M610 134 V178" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
-        <path d="M253 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
-        <path d="M316 197 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
-        <path d="M494 197 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
-        <path d="M672 197 H700 V115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
-        <text x="12" y="228" font-size="11" fill="#F2B441">字号 = 二分（折行后总高 ≤ 框高）· 单行按框宽 94% 折行</text>
-      </svg>
-                <figcaption class="proj-fig__cap"><b>图 01 —</b>输入图在一次调用里走完识别、分块与批量翻译；擦除与回填在同一帧上重建页面，回填字号由二分搜索决定，最后写回 output/final.jpg。</figcaption>
-              </figure>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">04</span>关键决策与取舍</h3>
-              <ol class="proj-dec">
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D1</span>
-                <div>
-                  <p class="proj-dec__title"><strong>句级翻译，不按块翻译</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>整块文本会超过翻译接口的单行上限，切句后每句独立、失败只影响一句（units.py 的 extract_units 记录 block_idx，regroup_blocks 再拼回原块）。<span class="proj-dec__k proj-dec__k--give">放弃</span>段落级语气的连贯。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D2</span>
-                <div>
-                  <p class="proj-dec__title"><strong>擦除用 cv2.inpaint，不用生成式修复</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>change.py 的 Erase 走 mask + dilate(5×5) + INPAINT_TELEA，不引入额外权重与 GPU，整条链纯 CPU 跑完。<span class="proj-dec__k proj-dec__k--give">放弃</span>复杂网点背景上的残影控制。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D3</span>
-                <div>
-                  <p class="proj-dec__title"><strong>回填字号用二分搜索，不用固定档位</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>font.getmetrics() 让「折行后总高」随字号单调，可行字号可以二分（change.py:93），循环里只排版不绘制。<span class="proj-dec__k proj-dec__k--give">放弃</span>几档固定字号的省事写法，代价是框内空间浪费。</p>
-                </div>
-              </li>
-              </ol>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">05</span>难点与解法</h3>
-              <ol class="proj-hard">
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>译文比原文长时溢出框</strong></p>
-                <p class="proj-hard__body">先按字符累加 draw.textlength，在框宽的 94% 内折行（change.py 的 _char_wrap），再二分找「折行后总高 ≤ 框高」的最大字号；二分上界由框高给出，不靠试画。</p>
-              </li>
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>批量返回条数与输入对不上</strong></p>
-                <p class="proj-hard__body">trans.py 先按行数相等直接对齐；不等就把多行译文重拼再切；仍不等则整批回落逐条翻译，并把条数差异写进日志。超长单句在 units.py 里按 1500 字符上限、以逗号与句号兜底再切。</p>
-              </li>
-              </ol>
-            </div>
-          </div>
-          <aside class="proj-entry__side" aria-label="漫画 OCR 翻译管线的规模">
-            <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">06</span>规模</h3>
-            <dl class="kv proj-scale">
-              <div>
-                <dt>Python 文件数</dt>
-                <dd>9</dd>
-              </div>
-              <div>
-                <dt>行数</dt>
-                <dd>969</dd>
-              </div>
-              <div>
-                <dt>依赖</dt>
-                <dd>RapidOCR · OpenCV · Pillow · numpy · requests · FastAPI + uvicorn（api.py）</dd>
-              </div>
-              <div>
-                <dt>复核</dt>
-                <dd>find . -name "*.py" -not -path "*__pycache__*" | wc -l → 9 · cat $(find . -name "*.py") | wc -l → 969</dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
-      </section>
+      <div style="display:grid;gap:var(--gutter) var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
 
-      <section class="proj-entry" id="train-framework" data-reveal aria-labelledby="train-frameworkTitle">
-        <span class="proj-entry__no" aria-hidden="true">02</span>
-        <header class="proj-entry__head">
-          <p class="proj-entry__kicker"><em>02</em> ARCHIVE <span aria-hidden="true">/</span> TRAINING FRAMEWORK</p>
-          <h2 class="proj-entry__title" id="train-frameworkTitle">自建 PyTorch 训练框架</h2>
-          <p class="proj-entry__tag">Framework · Training · Export · PyTorch / ONNX / TensorBoard</p>
-        </header>
-        <div class="proj-entry__grid">
-          <div class="proj-entry__main">
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">01</span>定位</h3>
-              <div class="proj-sec__body">
-                <p>把模型定义、数据管线、训练循环、配置、日志拆成五层的 PyTorch 骨架，3,012 行；训练、导出、推理共用一个参数对象，附带 ONNX 导出与用户鉴权。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">02</span>问题</h3>
-              <div class="proj-sec__body">
-                <p>手写训练脚本的通病是每换一个数据集就复制一份 train.py：增强、断点续训、日志路径全散在循环里。这里要解决的是「换数据集不碰训练循环」——配置、数据、模型、循环四者只通过参数对象通信；代价是任何一处字段改名都要同步四处。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">03</span>架构</h3>
-              <div class="proj-sec__body">
-                <p class="proj-flow">cfg(yaml) <i>→</i> predata <i>→</i> model <i>→</i> train <i>→</i> logs(TensorBoard) / out_onnx <i>·</i> train <i>→</i> ckpt 续训</p>
-              </div>
-              <figure class="proj-fig">
-      <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <marker id="proj-ar2" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B9199"/></marker>
-          <marker id="proj-arc2" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#57E3D2"/></marker>
-        </defs>
-        <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="24" y="114" font-size="11" fill="#E9EBEE">cfg / yaml</text>
-        <text x="24" y="128" font-size="11" fill="#8B9199">build_cfg.py 参数对象</text>
-        <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="114" font-size="11" fill="#E9EBEE">predata</text>
-        <text x="202" y="128" font-size="11" fill="#8B9199">Dataset · DataLoader</text>
-        <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="114" font-size="11" fill="#E9EBEE">model</text>
-        <text x="380" y="128" font-size="11" fill="#8B9199">build.py 装配</text>
-        <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="114" font-size="11" fill="#E9EBEE">train</text>
-        <text x="558" y="128" font-size="11" fill="#8B9199">循环 · 日志 · ckpt</text>
-        <rect x="724" y="48" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="66" font-size="11" fill="#E9EBEE">logs / TB</text>
-        <text x="736" y="80" font-size="11" fill="#8B9199">TensorBoard · Loss/Acc</text>
-        <rect x="724" y="146" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="164" font-size="11" fill="#E9EBEE">out_onnx</text>
-        <text x="736" y="178" font-size="11" fill="#8B9199">opset 12 · 动态 batch</text>
-        <rect x="368" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="196" font-size="11" fill="#E9EBEE">ckpt / 续训</text>
-        <text x="380" y="210" font-size="11" fill="#8B9199">start_epoch 起算</text>
-        <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
-        <path d="M316 115 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
-        <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc2)"/>
-        <path d="M672 115 H700 V67 H724" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
-        <path d="M672 115 H700 V165 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc2)"/>
-        <path d="M609 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
-        <text x="12" y="228" font-size="11" fill="#F2B441">add_scalar：Loss/train · Loss/val · Accuracy/train · Accuracy/val</text>
-      </svg>
-                <figcaption class="proj-fig__cap"><b>图 02 —</b>cfg 提供参数对象，predata 与 model 只读它；train 是唯一写权重的地方，日志与 ONNX 各走一条出边，断点续训回流到下一轮。</figcaption>
-              </figure>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">04</span>关键决策与取舍</h3>
-              <ol class="proj-dec">
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D1</span>
-                <div>
-                  <p class="proj-dec__title"><strong>配置做成参数对象（cfg/build_cfg.py 的 setting 类）</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>训练、导出、推理拿到同一个对象，字段名一致；设备在构造时就选定 cuda 或 cpu。<span class="proj-dec__k proj-dec__k--give">放弃</span>dataclass 的类型检查，字段拼错要等运行时才报。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D2</span>
-                <div>
-                  <p class="proj-dec__title"><strong>日志目录按启动时间戳切分</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>train/train_rnn.py:28 用 logs/tensorboard/{时间戳} 作 log_dir，同一份配置跑多次不互相覆盖，写入 Loss/train、Loss/val、Accuracy/train、Accuracy/val。<span class="proj-dec__k proj-dec__k--give">放弃</span>一个实验一个固定目录的整洁，代价是目录数随实验数增长。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D3</span>
-                <div>
-                  <p class="proj-dec__title"><strong>导出独立成 train/out_onnx.py</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>训练进程不负责导出，checkpoint 是两者唯一的接口，导出失败不用重训。<span class="proj-dec__k proj-dec__k--give">放弃</span>训练结束自动导出的顺带便利。</p>
-                </div>
-              </li>
-              </ol>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">05</span>难点与解法</h3>
-              <ol class="proj-hard">
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>ONNX 导出对 checkpoint 结构敏感</strong></p>
-                <p class="proj-hard__body">先用 map_location=「cpu」载入，取 model_state_dict，取不到直接抛 ValueError；再 cpu()、eval()、no_grad 导出，opset 12，dynamic_axes 只放开 batch 维，输入输出按名固定。</p>
-              </li>
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>断点续训从 start_epoch 起算</strong></p>
-                <p class="proj-hard__body">循环写成 range(start_epoch, num_epochs + start_epoch)，轮次显示同步换算；两个 interrupted 权重路径分开写（train/train.py），避免中断时两份都不可用。</p>
-              </li>
-              </ol>
-            </div>
-          </div>
-          <aside class="proj-entry__side" aria-label="自建 PyTorch 训练框架的规模">
-            <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">06</span>规模</h3>
-            <dl class="kv proj-scale">
-              <div>
-                <dt>Python 文件数</dt>
-                <dd>29</dd>
-              </div>
-              <div>
-                <dt>行数</dt>
-                <dd>3,012</dd>
-              </div>
-              <div>
-                <dt>依赖</dt>
-                <dd>PyTorch · ONNX · TensorBoard · PyYAML · SQLAlchemy + jose/passlib · PySide6</dd>
-              </div>
-              <div>
-                <dt>复核</dt>
-                <dd>find . -name "*.py" -not -path "*__pycache__*" | wc -l → 29 · cat $(find . -name "*.py") | wc -l → 3012</dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
-      </section>
+        <a class="card card--glow" href="./projects/ocr-pipeline.html" id="ocr-pipeline" data-reveal data-glow>
+          <p class="card__label"><span>01</span><span>OCR</span></p>
+          <h2 class="card__title">漫画 OCR 翻译管线</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">识别、分块、翻译、擦除、回填，一条纯 CPU 管线。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">RapidOCR</span><span class="tag">OpenCV</span><span class="tag">Pillow</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>阅读全文</span><span aria-hidden="true">→</span></p>
+        </a>
 
-      <section class="proj-entry" id="diffusion-lora" data-reveal aria-labelledby="diffusion-loraTitle">
-        <span class="proj-entry__no" aria-hidden="true">03</span>
-        <header class="proj-entry__head">
-          <p class="proj-entry__kicker"><em>03</em> ARCHIVE <span aria-hidden="true">/</span> DIFFUSION LORA</p>
-          <h2 class="proj-entry__title" id="diffusion-loraTitle">扩散模型 LoRA 微调</h2>
-          <p class="proj-entry__tag">Generative · Fine-tuning · kohya_ss / TOML / CUDA</p>
-        </header>
-        <div class="proj-entry__grid">
-          <div class="proj-entry__main">
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">01</span>定位</h3>
-              <div class="proj-sec__body">
-                <p>kohya_ss 训练链的本地化外壳：数据集与 tag 整理、TOML 配置模板落盘、本地训练入口 91 行；训练与采样共用同一份参数，每次训练落一份配置快照。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">02</span>问题</h3>
-              <div class="proj-sec__body">
-                <p>LoRA 微调真正花时间的不是训练，是复现：同一张图换分辨率、同一组超参换版本，结果就对不上。需要一个把「数据集 → 配置 → 训练 → 采样」固定成文件的地方，而不是每次在图形界面里重新点一遍——界面里点的每一步都要能落回一次可重放的启动。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">03</span>架构</h3>
-              <div class="proj-sec__body">
-                <p class="proj-flow">数据集 + tag <i>→</i> 配置模板(TOML) <i>→</i> kohya_ss 训练 <i>→</i> LoRA 权重 <i>→</i> 采样验证 <i>·</i> 训练 <i>→</i> 运行记录 json <i>→</i> 回到配置模板</p>
-              </div>
-              <figure class="proj-fig">
-      <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <marker id="proj-ar3" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B9199"/></marker>
-          <marker id="proj-arc3" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#57E3D2"/></marker>
-        </defs>
-        <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="24" y="114" font-size="11" fill="#E9EBEE">数据集 + tag</text>
-        <text x="24" y="128" font-size="11" fill="#8B9199">dataset/images · tag</text>
-        <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="114" font-size="11" fill="#E9EBEE">配置模板</text>
-        <text x="202" y="128" font-size="11" fill="#8B9199">TOML · toml.dump 落盘</text>
-        <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="114" font-size="11" fill="#E9EBEE">kohya_ss 训练</text>
-        <text x="380" y="128" font-size="11" fill="#8B9199">train_network.py</text>
-        <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="114" font-size="11" fill="#E9EBEE">LoRA 权重</text>
-        <text x="558" y="128" font-size="11" fill="#8B9199">按 run 目录归集</text>
-        <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="114" font-size="11" fill="#E9EBEE">采样验证</text>
-        <text x="736" y="128" font-size="11" fill="#8B9199">sdxl_gen_img.py</text>
-        <rect x="368" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="196" font-size="11" fill="#E9EBEE">运行记录 json</text>
-        <text x="380" y="210" font-size="11" fill="#8B9199">last_*.json 快照</text>
-        <path d="M138 115 H190" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
-        <path d="M316 115 H368" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
-        <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
-        <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
-        <path d="M431 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar3)"/>
-        <path d="M368 197 H253 V134" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar3)"/>
-        <text x="12" y="228" font-size="11" fill="#F2B441">训练与采样读同一份 TOML；运行记录里留一份配置快照</text>
-      </svg>
-                <figcaption class="proj-fig__cap"><b>图 03 —</b>数据集与 tag 只进入配置生成；训练读取同一份 TOML 并落一条运行记录，权重交给采样端验证，记录回流到下一轮配置。</figcaption>
-              </figure>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">04</span>关键决策与取舍</h3>
-              <ol class="proj-dec">
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D1</span>
-                <div>
-                  <p class="proj-dec__title"><strong>参数落成 TOML 文件，不止存在界面里</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>kohya_gui/common_gui.py:1679 用 toml.dump 写盘，lora_gui.py:103 的 save_configuration 是入口；训练与采样读同一份，改超参只改一处。<span class="proj-dec__k proj-dec__k--give">放弃</span>只在界面上保留一份临时参数的便利。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D2</span>
-                <div>
-                  <p class="proj-dec__title"><strong>训练与采样分两个入口</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>sd-scripts/train_network.py 训练，sdxl_gen_img.py 采样；采样失败不用重训。<span class="proj-dec__k proj-dec__k--give">放弃</span>一次启动两步走完，代价是两次各自加载一次底座模型。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D3</span>
-                <div>
-                  <p class="proj-dec__title"><strong>tag 清理与训练分离</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>delete.py 只按名单改写 ./data 下的标签文件、不动图像本身；先整理标签再起训练，避免训练中样本被删导致 dataloader 直接抛错。<span class="proj-dec__k proj-dec__k--give">放弃</span>用通配符批量处理的省事。</p>
-                </div>
-              </li>
-              </ol>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">05</span>难点与解法</h3>
-              <ol class="proj-hard">
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>配置是唯一真相，改动必须回写</strong></p>
-                <p class="proj-hard__body">界面里的 save_configuration 落 TOML 之后，训练与采样都读这一份；任何「临时在命令行补一个参数」的做法都会让两份输入分叉，事后无法判断某组权重对应哪份配置，所以每次训练落 config_lora-时间戳.toml 与 last-时间戳.json 两份，权重与参数永远成对。</p>
-              </li>
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>模板字段错要几十秒内暴露</strong></p>
-                <p class="proj-hard__body">配置模板由界面字段生成，字段名与 sd-scripts 的参数名来自不同层；每次改完模板先跑极小步数的一轮，确认能被解析，而不是等几十分钟后才在解析错误处失败。</p>
-              </li>
-              </ol>
-            </div>
-          </div>
-          <aside class="proj-entry__side" aria-label="扩散模型 LoRA 微调的规模">
-            <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">06</span>规模</h3>
-            <dl class="kv proj-scale">
-              <div>
-                <dt>Python 文件数</dt>
-                <dd>1（local_train.py）</dd>
-              </div>
-              <div>
-                <dt>本地入口</dt>
-                <dd>91 行（local_train.py）</dd>
-              </div>
-              <div>
-                <dt>训练实参</dt>
-                <dd>8,000 steps · 4 epoch · dim 64 / α 32</dd>
-              </div>
-              <div>
-                <dt>优化与精度</dt>
-                <dd>AdamW8bit · bf16 · lr 1e-4 · cosine 调度</dd>
-              </div>
-              <div>
-                <dt>分辨率</dt>
-                <dd>640–1024 · bucket 16 · batch 1</dd>
-              </div>
-              <div>
-                <dt>配置快照</dt>
-                <dd>config_lora-20261001-080553.toml · last_20261001-080553.json</dd>
-              </div>
-              <div>
-                <dt>复核</dt>
-                <dd>find . -name local_train.py | wc -l → 1 · wc -l local_train.py → 91 · python -c "import json;d=json.load(open('last_20261001-080553.json'));print(d['max_train_steps'],d['epoch'],d['learning_rate'],d['network_dim'],d['network_alpha'],d['optimizer'],d['mixed_precision'],d['max_resolution'],d['bucket_reso_steps'],d['lr_scheduler'],d['train_batch_size'])"</dd>
-              </div>
-              <div>
-                <dt>依赖</dt>
-                <dd>kohya_ss · diffusers · PyTorch(CUDA) · uv · WSL</dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
-      </section>
+        <a class="card card--glow" href="./projects/train-framework.html" id="train-framework" data-reveal data-glow>
+          <p class="card__label"><span>02</span><span>FRAMEWORK</span></p>
+          <h2 class="card__title">自建 PyTorch 训练框架</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">配置、数据、模型、循环四层解耦，换数据集不改循环。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">PyTorch</span><span class="tag">ONNX</span><span class="tag">TensorBoard</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>阅读全文</span><span aria-hidden="true">→</span></p>
+        </a>
 
-      <section class="proj-entry" id="pose-pipeline" data-reveal aria-labelledby="pose-pipelineTitle">
-        <span class="proj-entry__no" aria-hidden="true">04</span>
-        <header class="proj-entry__head">
-          <p class="proj-entry__kicker"><em>04</em> ARCHIVE <span aria-hidden="true">/</span> POSE INFERENCE</p>
-          <h2 class="proj-entry__title" id="pose-pipelineTitle">实时姿态估计推理管线</h2>
-          <p class="proj-entry__tag">Real-time Inference · ONNX Runtime / TensorRT / Win32 / PySide6</p>
-        </header>
-        <div class="proj-entry__grid">
-          <div class="proj-entry__main">
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">01</span>定位</h3>
-              <div class="proj-sec__body">
-                <p>YOLO pose 权重 → ONNX 导出 → TensorRT 引擎缓存 → ONNX Runtime 会话 → Win32 分层覆盖层渲染的实时管线，5,604 行 31 个 Python 文件；控制台与录制器为 PySide6 与 dxcam。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">02</span>问题</h3>
-              <div class="proj-sec__body">
-                <p>这条链要在每帧十来毫秒里跑完预处理、推理、后处理、上屏。全流程跑通不等于稳：抖动来自每次调用的固定开销，不是算子本身；一次多余的整帧拷贝就能把预算吃掉一成。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">03</span>架构</h3>
-              <div class="proj-sec__body">
-                <p class="proj-flow">pose 标注(309 帧) <i>→</i> 训练 <i>→</i> ONNX 导出 <i>→</i> 引擎缓存 <i>→</i> 运行时推理 <i>→</i> 覆盖层渲染 <i>·</i> 录制回归</p>
-              </div>
-              <figure class="proj-fig">
-      <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <marker id="proj-ar4" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B9199"/></marker>
-          <marker id="proj-arc4" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#57E3D2"/></marker>
-        </defs>
-        <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="24" y="114" font-size="11" fill="#E9EBEE">pose 标注</text>
-        <text x="24" y="128" font-size="11" fill="#8B9199">309 帧关键点</text>
-        <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="114" font-size="11" fill="#E9EBEE">训练</text>
-        <text x="202" y="128" font-size="11" fill="#8B9199">YOLO pose 权重</text>
-        <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="114" font-size="11" fill="#E9EBEE">ONNX 导出</text>
-        <text x="380" y="128" font-size="11" fill="#8B9199">make_pre_model.py</text>
-        <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="114" font-size="11" fill="#E9EBEE">引擎缓存</text>
-        <text x="558" y="128" font-size="11" fill="#8B9199">trt_cache · 缓存落盘</text>
-        <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="114" font-size="11" fill="#E9EBEE">运行时推理</text>
-        <text x="736" y="128" font-size="11" fill="#8B9199">ORT · CUDA Graph</text>
-        <rect x="546" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="196" font-size="11" fill="#E9EBEE">覆盖层渲染</text>
-        <text x="558" y="210" font-size="11" fill="#8B9199">分层窗口 · 点击穿透</text>
-        <rect x="190" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="196" font-size="11" fill="#E9EBEE">录制回归</text>
-        <text x="202" y="210" font-size="11" fill="#8B9199">dxcam → mp4v</text>
-        <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
-        <path d="M316 115 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
-        <path d="M494 115 H546" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
-        <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc4)"/>
-        <path d="M787 134 V197 H672" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc4)"/>
-        <path d="M546 197 H316" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
-        <text x="12" y="228" font-size="11" fill="#F2B441">每帧预算：整帧 10.76 → 7.80 ms · 纯推理 6.5 → 2.0 ms</text>
-      </svg>
-                <figcaption class="proj-fig__cap"><b>图 04 —</b>权重经 ONNX 与 TensorRT 引擎缓存进入运行时；推理结果直接写进分层窗口的位图，录制器用同一段输入做回归比对。</figcaption>
-              </figure>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">04</span>关键决策与取舍</h3>
-              <ol class="proj-dec">
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D1</span>
-                <div>
-                  <p class="proj-dec__title"><strong>引擎缓存落盘</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>TensorrtExecutionProvider 打开 trt_engine_cache_enable 并指定 trt_engine_cache_path（pose_forward.py:71-72），第二次启动不再重建引擎。<span class="proj-dec__k proj-dec__k--give">放弃</span>每次重建引擎与当前 GPU 完全匹配的确定性，换启动时间。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D2</span>
-                <div>
-                  <p class="proj-dec__title"><strong>预处理手写、顺序固定</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>先缩放再转色、NCHW 打包手写、中间缓冲区按输入尺寸复用一次；文件顶部记着实测差异（转色顺序约 1.3ms，blobFromImage 约 4ms）。<span class="proj-dec__k proj-dec__k--give">放弃</span>cv2.dnn.blobFromImage 的通用性，换确定的每帧耗时。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D3</span>
-                <div>
-                  <p class="proj-dec__title"><strong>覆盖层用 ctypes 写 Win32 分层窗口</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>内容整张位图经 UpdateLayeredWindow 提交，窗口带 WS_EX_TRANSPARENT 点击穿透与 WS_EX_TOOLWINDOW 不进任务栏（win32_overlay.py:25-31）。<span class="proj-dec__k proj-dec__k--give">放弃</span>跨平台。</p>
-                </div>
-              </li>
-              </ol>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">05</span>难点与解法</h3>
-              <ol class="proj-hard">
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>每帧预算</strong></p>
-                <p class="proj-hard__body">整帧 10.76ms 降到 7.80ms，靠去掉 CPU 侧的一次整帧拷贝（pose_forward.py:168）；再把整张计算图录成 CUDA Graph 回放，纯推理 6.5ms → 2.0ms（:211-212）。TensorRT 没生效时明确退回 CUDA 并报出 provider 列表（:159-163），不静默降速。</p>
-              </li>
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>覆盖层置顶与点击穿透</strong></p>
-                <p class="proj-hard__body">WS_EX_LAYERED + WS_EX_TRANSPARENT + HWND_TOPMOST + WS_EX_NOACTIVATE，内容不走 WM_PAINT、由系统常驻保存整张位图；所以覆盖层不闪、不抢焦点、不挡鼠标。录制器固定抓屏区域、总取最新帧，用于回归。</p>
-              </li>
-              </ol>
-            </div>
-          </div>
-          <aside class="proj-entry__side" aria-label="实时姿态估计推理管线的规模">
-            <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">06</span>规模</h3>
-            <dl class="kv proj-scale">
-              <div>
-                <dt>Python 文件数</dt>
-                <dd>31</dd>
-              </div>
-              <div>
-                <dt>行数</dt>
-                <dd>5,604</dd>
-              </div>
-              <div>
-                <dt>标注数据</dt>
-                <dd>309 帧 pose 关键点</dd>
-              </div>
-              <div>
-                <dt>依赖</dt>
-                <dd>onnxruntime · TensorRT · CUDA · dxcam · OpenCV · PySide6 · ctypes</dd>
-              </div>
-              <div>
-                <dt>复核</dt>
-                <dd>find . -name "*.py" -not -path "*__pycache__*" | wc -l → 31 · cat $(find . -name "*.py") | wc -l → 5604</dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
-      </section>
+        <a class="card card--glow" href="./projects/diffusion-lora.html" id="diffusion-lora" data-reveal data-glow>
+          <p class="card__label"><span>03</span><span>GENERATIVE</span></p>
+          <h2 class="card__title">扩散模型 LoRA 微调</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">把数据集、配置、训练、采样固定成可重放的文件。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">kohya_ss</span><span class="tag">TOML</span><span class="tag">CUDA</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>阅读全文</span><span aria-hidden="true">→</span></p>
+        </a>
 
-      <section class="proj-entry" id="vision-classifier" data-reveal aria-labelledby="vision-classifierTitle">
-        <span class="proj-entry__no" aria-hidden="true">05</span>
-        <header class="proj-entry__head">
-          <p class="proj-entry__kicker"><em>05</em> ARCHIVE <span aria-hidden="true">/</span> CLASSIFIER BENCH</p>
-          <h2 class="proj-entry__title" id="vision-classifierTitle">图像分类实验台</h2>
-          <p class="proj-entry__tag">CV · Transfer Learning · PyTorch / torchvision / ONNX</p>
-        </header>
-        <div class="proj-entry__grid">
-          <div class="proj-entry__main">
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">01</span>定位</h3>
-              <div class="proj-sec__body">
-                <p>数据集加载、迁移学习微调、验证指标、ONNX 导出与单图推理的完整闭环，1,495 行 8 个 Python 文件，作为分类任务的基准骨架。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">02</span>问题</h3>
-              <div class="proj-sec__body">
-                <p>换一个分类任务，最重复的动作是把 transforms、Dataset、训练循环、导出脚本各写一遍。实验台把这些固定下来：主干与分类头分离，装配只在一处发生，训练、导出、推理调用同一份装配。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">03</span>架构</h3>
-              <div class="proj-sec__body">
-                <p class="proj-flow">数据集 <i>→</i> 加载器 <i>→</i> 迁移学习微调 <i>→</i> 验证指标 <i>→</i> ONNX 导出 <i>→</i> 单图推理</p>
-              </div>
-              <figure class="proj-fig">
-      <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <marker id="proj-ar5" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B9199"/></marker>
-          <marker id="proj-arc5" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#57E3D2"/></marker>
-        </defs>
-        <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="24" y="114" font-size="11" fill="#E9EBEE">数据集</text>
-        <text x="24" y="128" font-size="11" fill="#8B9199">train / val 目录</text>
-        <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="114" font-size="11" fill="#E9EBEE">加载器</text>
-        <text x="202" y="128" font-size="11" fill="#8B9199">transforms · 增强</text>
-        <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="114" font-size="11" fill="#E9EBEE">迁移学习微调</text>
-        <text x="380" y="128" font-size="11" fill="#8B9199">主干 + 新分类头</text>
-        <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="114" font-size="11" fill="#E9EBEE">验证指标</text>
-        <text x="558" y="128" font-size="11" fill="#8B9199">best_acc 选优</text>
-        <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="114" font-size="11" fill="#E9EBEE">ONNX 导出</text>
-        <text x="736" y="128" font-size="11" fill="#8B9199">opset 12 · 动态 batch</text>
-        <rect x="724" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="196" font-size="11" fill="#E9EBEE">单图推理</text>
-        <text x="736" y="210" font-size="11" fill="#8B9199">pred.py · argmax</text>
-        <path d="M138 115 H190" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc5)"/>
-        <path d="M316 115 H368" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc5)"/>
-        <path d="M494 115 H546" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar5)"/>
-        <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc5)"/>
-        <path d="M787 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar5)"/>
-        <path d="M609 134 V197 H431 V134" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar5)"/>
-        <text x="12" y="228" font-size="11" fill="#F2B441">验证侧不做增强；训练与验证两侧的 resize 尺寸必须一致</text>
-      </svg>
-                <figcaption class="proj-fig__cap"><b>图 05 —</b>数据加载与增强只作用于训练侧，验证侧只做 resize 与归一化；导出后的图与训练用的是同一份权重装配。</figcaption>
-              </figure>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">04</span>关键决策与取舍</h3>
-              <ol class="proj-dec">
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D1</span>
-                <div>
-                  <p class="proj-dec__title"><strong>主干与分类头分离</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>model.py 里 5 个主干共用同一个 num_classes 出口（:100 / :224 / :355 / :430 / :508），换主干只改装配处。<span class="proj-dec__k proj-dec__k--give">放弃</span>一个主干一个文件的直观排布。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D2</span>
-                <div>
-                  <p class="proj-dec__title"><strong>训练与验证两套 transforms</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>训练侧 Resize + RandomHorizontalFlip(0.5) + RandomRotation(20)，验证侧不增强（load.py:18 起）。<span class="proj-dec__k proj-dec__k--give">放弃</span>两侧共用一套的省事，代价是 resize 尺寸要手动对齐。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D3</span>
-                <div>
-                  <p class="proj-dec__title"><strong>导出与训练分两个脚本</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>out_onnx.py 独立、带 dynamic_axes，推理端可以按需改 batch。<span class="proj-dec__k proj-dec__k--give">放弃</span>静态 shape 带来的导出期常量折叠。</p>
-                </div>
-              </li>
-              </ol>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">05</span>难点与解法</h3>
-              <ol class="proj-hard">
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>checkpoint 与模型必须对齐才能导出</strong></p>
-                <p class="proj-hard__body">out_onnx.py 显式检查 model_state_dict 是否存在，取不到直接抛错；再 cpu()、eval()、no_grad 导出，opset 12，input/output 名字固定，推理端按名取张量。</p>
-              </li>
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>指标口径</strong></p>
-                <p class="proj-hard__body">训练与验证的准确率按「批次正确数 / 本批样本数」累加（train.py 的 each_*_acc_total），不把最后一个不满批当整批；best_acc 与对应轮次一起存（maxacc_epoch），复盘时能定位到具体 checkpoint。</p>
-              </li>
-              </ol>
-            </div>
-          </div>
-          <aside class="proj-entry__side" aria-label="图像分类实验台的规模">
-            <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">06</span>规模</h3>
-            <dl class="kv proj-scale">
-              <div>
-                <dt>Python 文件数</dt>
-                <dd>8</dd>
-              </div>
-              <div>
-                <dt>行数</dt>
-                <dd>1,495</dd>
-              </div>
-              <div>
-                <dt>依赖</dt>
-                <dd>torch · torchvision · onnx · onnxruntime · tqdm · argparse</dd>
-              </div>
-              <div>
-                <dt>复核</dt>
-                <dd>find . -name "*.py" -not -path "*__pycache__*" | wc -l → 8 · cat $(find . -name "*.py") | wc -l → 1495</dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
-      </section>
+        <a class="card card--glow" href="./projects/pose-pipeline.html" id="pose-pipeline" data-reveal data-glow>
+          <p class="card__label"><span>04</span><span>INFERENCE</span></p>
+          <h2 class="card__title">实时姿态估计推理管线</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">逐帧关键点推理与平滑，端到端一条管线跑完。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">ONNX Runtime</span><span class="tag">OpenCV</span><span class="tag">关键点</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>READ ARCHIVE</span><span aria-hidden="true">→</span></p>
+        </a>
 
-      <section class="proj-entry" id="service-layer" data-reveal aria-labelledby="service-layerTitle">
-        <span class="proj-entry__no" aria-hidden="true">06</span>
-        <header class="proj-entry__head">
-          <p class="proj-entry__kicker"><em>06</em> ARCHIVE <span aria-hidden="true">/</span> SERVICE LAYER</p>
-          <h2 class="proj-entry__title" id="service-layerTitle">应用服务与数据层</h2>
-          <p class="proj-entry__tag">Backend · Data · Auth · FastAPI / SQLAlchemy / PostgreSQL</p>
-        </header>
-        <div class="proj-entry__grid">
-          <div class="proj-entry__main">
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">01</span>定位</h3>
-              <div class="proj-sec__body">
-                <p>FastAPI 服务模板 + SQLAlchemy 会话 + PostgreSQL + JWT/passlib 鉴权链；服务代码 139 行 5 个 Python 文件（users/ 4 文件 125 行 + live/main.py 14 行；live/1.py 42 行为草稿，不计入），另有 7,994 行 FastAPI 文档作为方法沉淀。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">02</span>问题</h3>
-              <div class="proj-sec__body">
-                <p>接口本身不难，难在连接与生命周期：数据库重启后连接池里的旧连接会变成一批 500；上传接口每次请求重新加载模型，会把内存和首字节一起拖住。鉴权还要分清「密码怎么存」和「令牌怎么发」。</p>
-              </div>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">03</span>架构</h3>
-              <div class="proj-sec__body">
-                <p class="proj-flow">HTTP 请求 <i>→</i> FastAPI 路由 <i>→</i> Pydantic 校验 <i>→</i> SQLAlchemy <i>→</i> PostgreSQL <i>·</i> 旁路 JWT/passlib 鉴权</p>
-              </div>
-              <figure class="proj-fig">
-      <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <marker id="proj-ar6" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B9199"/></marker>
-          <marker id="proj-arc6" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#57E3D2"/></marker>
-        </defs>
-        <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="24" y="114" font-size="11" fill="#E9EBEE">HTTP 请求</text>
-        <text x="24" y="128" font-size="11" fill="#8B9199">uvicorn · :8000</text>
-        <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="114" font-size="11" fill="#E9EBEE">FastAPI 路由</text>
-        <text x="202" y="128" font-size="11" fill="#8B9199">api.py · /docs</text>
-        <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="380" y="114" font-size="11" fill="#E9EBEE">Pydantic 校验</text>
-        <text x="380" y="128" font-size="11" fill="#8B9199">Body → 响应模型</text>
-        <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="558" y="114" font-size="11" fill="#E9EBEE">SQLAlchemy</text>
-        <text x="558" y="128" font-size="11" fill="#8B9199">sessionmaker 会话</text>
-        <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="736" y="114" font-size="11" fill="#E9EBEE">PostgreSQL</text>
-        <text x="736" y="128" font-size="11" fill="#8B9199">pool_pre_ping 探活</text>
-        <rect x="190" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
-        <text x="202" y="196" font-size="11" fill="#E9EBEE">JWT / passlib</text>
-        <text x="202" y="210" font-size="11" fill="#8B9199">hashed_password 列</text>
-        <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar6)"/>
-        <path d="M316 115 H368" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
-        <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
-        <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
-        <path d="M75 134 V197 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar6)"/>
-        <path d="M253 178 V134" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
-        <text x="12" y="228" font-size="11" fill="#F2B441">passlib bcrypt 哈希 · jose JWT · 密钥取自环境变量</text>
-      </svg>
-                <figcaption class="proj-fig__cap"><b>图 06 —</b>请求先过路由再进校验与数据层；鉴权在进入业务前完成，失败即拦截，密码只以哈希形式落库。</figcaption>
-              </figure>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">04</span>关键决策与取舍</h3>
-              <ol class="proj-dec">
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D1</span>
-                <div>
-                  <p class="proj-dec__title"><strong>连接池探活交给驱动</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>users/auth_db.py:17 的 create_engine 带 pool_pre_ping=True 与 connect_timeout=3，取连接前先探活，数据库重启不再批量 500。<span class="proj-dec__k proj-dec__k--give">放弃</span>每个请求自己 ping 的确定性，代价是每取连接多一次往返。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D2</span>
-                <div>
-                  <p class="proj-dec__title"><strong>重的对象放 lifespan</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>OCR/api.py 在启动时构造一次模型与客户端，接口只做调用。<span class="proj-dec__k proj-dec__k--give">放弃</span>每请求独立初始化的隔离性，换常驻内存的稳定首字节。</p>
-                </div>
-              </li>
-              <li class="proj-dec__item">
-                <span class="proj-dec__n" aria-hidden="true">D3</span>
-                <div>
-                  <p class="proj-dec__title"><strong>密码与令牌分表</strong></p>
-                  <p class="proj-dec__body"><span class="proj-dec__k">理由</span>hashed_password 列存哈希（auth_db.py:27），令牌单独一张表用 user_id 关联（:31-33）。<span class="proj-dec__k proj-dec__k--give">放弃</span>把令牌塞进用户行的省事，代价是校验多一次查询。</p>
-                </div>
-              </li>
-              </ol>
-            </div>
-            <div class="proj-sec">
-              <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">05</span>难点与解法</h3>
-              <ol class="proj-hard">
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>上传接口的依赖面</strong></p>
-                <p class="proj-hard__body">FastAPI 接文件要有 python-multipart（OCR/api.py 顶部写明），缺了它报 422 而不是 500；接口用 UploadFile 而不是 bytes，避免整份文件进内存。</p>
-              </li>
-              <li class="proj-hard__item">
-                <p class="proj-hard__title"><strong>会话不共享</strong></p>
-                <p class="proj-hard__body">sessionmaker(autocommit=False, autoflush=False)（auth_db.py:18），每个请求一个会话、显式提交、finally 关闭；全局会话会让并发请求的事务互相污染。</p>
-              </li>
-              </ol>
-            </div>
-          </div>
-          <aside class="proj-entry__side" aria-label="应用服务与数据层的规模">
-            <h3 class="proj-sec__t"><span class="proj-sec__n" aria-hidden="true">06</span>规模</h3>
-            <dl class="kv proj-scale">
-              <div>
-                <dt>服务代码</dt>
-                <dd>139 行 / 5 个 Python 文件（users/ 4 文件 125 行 + live/main.py 14 行）</dd>
-              </div>
-              <div>
-                <dt>文档</dt>
-                <dd>7,994 行 FastAPI 教程（data.js notes 索引），非服务实现</dd>
-              </div>
-              <div>
-                <dt>Python 文件数</dt>
-                <dd>5</dd>
-              </div>
-              <div>
-                <dt>复核</dt>
-                <dd>find users -name "*.py" | wc -l → 4 · cat users/*.py | wc -l → 125 · wc -l live/main.py → 14</dd>
-              </div>
-              <div>
-                <dt>接口文档</dt>
-                <dd>FastAPI 自动生成，浏览器里可直测</dd>
-              </div>
-              <div>
-                <dt>依赖</dt>
-                <dd>fastapi · uvicorn · pydantic · sqlalchemy · psycopg2 · jose · passlib · python-multipart</dd>
-              </div>
-              <div>
-                <dt>鉴权锚点</dt>
-                <dd>users/auth_db.py:17 的 create_engine（pool_pre_ping · connect_timeout=3）</dd>
-              </div>
-            </dl>
-          </aside>
-        </div>
-      </section>
+        <a class="card card--glow" href="./projects/vision-classifier.html" id="vision-classifier" data-reveal data-glow>
+          <p class="card__label"><span>05</span><span>EXPERIMENTS</span></p>
+          <h2 class="card__title">图像分类实验台</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">同一份数据多个模型并排跑，结果落表再比较。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">PyTorch</span><span class="tag">迁移学习</span><span class="tag">CSV</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>READ ARCHIVE</span><span aria-hidden="true">→</span></p>
+        </a>
+
+        <a class="card card--glow" href="./projects/service-layer.html" id="service-layer" data-reveal data-glow>
+          <p class="card__label"><span>06</span><span>BACKEND</span></p>
+          <h2 class="card__title">应用服务与数据层</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">用户鉴权与最小数据层，接口先于框架。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">FastAPI</span><span class="tag">SQLAlchemy</span><span class="tag">SQLite</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>READ ARCHIVE</span><span aria-hidden="true">→</span></p>
+        </a>
+
+      </div>
     </div>
 
     <section class="proj-outro">
-      <div class="wrap proj-outro__grid">
-        <div>
-          <p class="eyebrow">End of archives</p>
-          <p class="lede">六份档案的共同点是可复核：行数与文件数分别用 wc -l 与 find 计，锚点写成 文件名:行号，命令逐条列在每份的规模栏里。没有截图，也没有无法复现的指标。</p>
-          <p class="proj-outro__note">如果其中某一份正好对上你手上的问题，可以直接写信说明场景；我会回一份同样写法的评估——先给事实与数字，再给取舍。</p>
+      <div class="wrap">
+        <div class="proj-outro__grid">
+          <div>
+            <p class="eyebrow">How to read</p>
+            <p class="lede" style="margin-top:16px">这一页只给一句话和一张卡；技术细节进了各自的文章。</p>
+            <p class="proj-outro__note">每篇文章的骨架相同：任务与边界 / 架构（内联 SVG）/ 关键决策与取舍 / 难点与解法 / 代码走读 / 失败与下一步 / 规模与复核。行数一律用 find 与 wc 计，命令随文给出。</p>
+          </div>
+          <div>
+            <a class="btn" href="./notes.html">Knowledge base <span class="btn__arrow" aria-hidden="true">→</span></a>
+          </div>
         </div>
-        <a class="btn btn--solid" href="./contact.html">写信 / Contact <span class="btn__arrow" aria-hidden="true">→</span></a>
       </div>
     </section>
   </main>

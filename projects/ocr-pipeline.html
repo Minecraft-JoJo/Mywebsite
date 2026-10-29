@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>漫画 OCR 翻译管线 · Minecraft-JoJo</title>
+  <meta name="description" content="漫画 OCR 翻译管线：RapidOCR 识别、版面分块重组、句级批量翻译、cv2.inpaint 擦除与二分字号回填；9 个 Python 文件 969 行，附架构图、决策取舍与复核命令。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="漫画 OCR 翻译管线 · Minecraft-JoJo">
+  <meta property="og:description" content="RapidOCR 识别 → 版面分块 → 句级批量翻译 → 擦除与二分字号回填，9 个 Python 文件 969 行。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/project-page.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="../notes.html">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="pa">
+      <div class="wrap">
+        <nav class="pa__crumb" aria-label="面包屑">
+          <a href="../projects.html">PROJECTS</a>
+          <span aria-hidden="true">/</span>
+          <span>01</span>
+        </nav>
+
+        <header class="pa__head">
+          <p class="eyebrow">PROJECTS / 01 · COMPUTER VISION</p>
+          <h1 class="pa__title">漫画 OCR 翻译管线</h1>
+          <p class="pa__tag">RapidOCR · OpenCV · Pillow · numpy · requests · FastAPI · Python 3 · 纯 CPU</p>
+          <p class="pa__lede">一页漫画要变成可读的中文页，得先让机器把识别出来的文本框重新读回句子，批量送翻译，再把译文塞回原来的框里。难点不在识别率，在版面：文本框互相重叠、竖排与斜排混在同一页、一个气泡里的句子常被折成两三行。这条管线用 9 个 Python 文件 969 行，把这件事固定成一条能重复跑的命令。</p>
+          <dl class="pa__facts">
+            <dt>形态</dt><dd>CLI 管线（main.py 串联），另附 api.py 的 FastAPI 包装</dd>
+            <dt>依赖</dt><dd>RapidOCR · OpenCV · Pillow · numpy · requests · FastAPI + uvicorn</dd>
+            <dt>运行环境</dt><dd>Python 3，纯 CPU；不加载额外权重，不要求 GPU</dd>
+            <dt>仓库</dt><dd><a href="https://github.com/Minecraft-JoJo/OCR_Manga_trans" rel="noopener">github.com/Minecraft-JoJo/OCR_Manga_trans</a></dd>
+            <dt>规模</dt><dd>9 个 Python 文件 / 969 行</dd>
+            <dt>复核方式</dt><dd>find 与 wc -l 计数，命令见本文第 7 节</dd>
+          </dl>
+        </header>
+
+        <div class="pa__body">
+          <div class="pa__main">
+
+            <section class="pa-sec" id="task" aria-labelledby="taskT">
+              <h2 class="pa-sec__t" id="taskT"><span class="pa-sec__n" aria-hidden="true">01</span>任务与边界</h2>
+              <p>输入是一张漫画页图的路径，输出是同尺寸的重绘页。链路在 main.py 里按顺序写死：RapidOCR 给出文本框与识别文本 → block.py 按相邻关系把框并成块 → units.py 把块切成句 → trans.py 一次请求送多句译文 → change.py 擦掉原字、按框重排并写回。</p>
+              <p>边界和功能一样重要，下面这些事它明确不做：</p>
+              <ul>
+                <li>不做生成式修复。擦除走 <code>cv2.inpaint</code>，不加载修复模型。</li>
+                <li>不做气泡检测。只处理 OCR 给出的文本框，不用语义去寻找对话气泡的轮廓。</li>
+                <li>不做跨页拼接、不做色彩管理与导出格式转换，输出固定为同尺寸的 JPG。</li>
+                <li>不在识别阶段训练或微调，RapidOCR 用预置模型；这一层被当成黑盒。</li>
+                <li>不做语种选择，目标语言固定为简体中文。</li>
+              </ul>
+              <p>边界收窄换来的是可复核：整条链只依赖四个库，每一步都能单独跑，某一步出错不会把前后步骤一起拖垮。</p>
+            </section>
+
+            <section class="pa-sec" id="arch" aria-labelledby="archT">
+              <h2 class="pa-sec__t" id="archT"><span class="pa-sec__n" aria-hidden="true">02</span>架构</h2>
+              <p>数据流是单向的，只有擦除与回填共享同一帧：识别结果先变成句子，句子变成译文，译文再回到原来的框。下图里青色是决定输出质量的路径，其余是普通搬运。</p>
+              <figure class="pa-fig">
+                <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig1t">
+                  <title id="fig1t">漫画 OCR 翻译管线的数据流：输入图经 RapidOCR、分块、切句、批量翻译，再由擦除、字号二分、回填输出</title>
+                  <defs>
+                    <marker id="pa-ar1" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B93A6"/></marker>
+                    <marker id="pa-arc1" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#63D6CB"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="880" height="240" fill="none"/>
+                  <rect x="12" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="24" y="113" font-size="12" fill="#E3E7F0">输入图 / RAW</text>
+                  <text x="24" y="128" font-size="11" fill="#8B93A6">漫画页 · 任意尺寸</text>
+                  <rect x="190" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="202" y="113" font-size="12" fill="#E3E7F0">RapidOCR</text>
+                  <text x="202" y="128" font-size="11" fill="#8B93A6">文本框 + 识别文本</text>
+                  <rect x="368" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="380" y="113" font-size="12" fill="#E3E7F0">版面分块</text>
+                  <text x="380" y="128" font-size="11" fill="#8B93A6">block.py 并查集</text>
+                  <rect x="546" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="558" y="113" font-size="12" fill="#E3E7F0">句级切分</text>
+                  <text x="558" y="128" font-size="11" fill="#8B93A6">units.py 记块号</text>
+                  <rect x="724" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="736" y="113" font-size="12" fill="#E3E7F0">批量翻译</text>
+                  <text x="736" y="128" font-size="11" fill="#8B93A6">trans.py 行级对齐</text>
+                  <rect x="190" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="202" y="195" font-size="12" fill="#E3E7F0">擦除原字</text>
+                  <text x="202" y="210" font-size="11" fill="#8B93A6">mask → inpaint</text>
+                  <rect x="368" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="380" y="195" font-size="12" fill="#E3E7F0">字号二分</text>
+                  <text x="380" y="210" font-size="11" fill="#8B93A6">getmetrics 单调性</text>
+                  <rect x="546" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="558" y="195" font-size="12" fill="#E3E7F0">回填重绘</text>
+                  <text x="558" y="210" font-size="11" fill="#8B93A6">output/final.jpg</text>
+                  <path d="M138 115 H190" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar1)"/>
+                  <path d="M316 115 H368" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar1)"/>
+                  <path d="M494 115 H546" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc1)"/>
+                  <path d="M610 134 V178" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc1)"/>
+                  <path d="M253 134 V178" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar1)"/>
+                  <path d="M316 197 H368" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar1)"/>
+                  <path d="M494 197 H546" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc1)"/>
+                  <path d="M672 197 H700 V115 H724" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc1)"/>
+                  <text x="12" y="232" font-size="11" fill="#D9AE79">回填字号 = 二分 6–min(120, 框高)，单行宽度上限 = 框宽 × 0.94</text>
+                </svg>
+                <figcaption>图 01 — 一次调用走完识别、分块、切句与批量翻译；擦除与回填在同一帧上完成，字号由二分搜索决定，最后写回 <code>output/final.jpg</code>。</figcaption>
+              </figure>
+            </section>
+
+            <section class="pa-sec" id="decisions" aria-labelledby="decT">
+              <h2 class="pa-sec__t" id="decT"><span class="pa-sec__n" aria-hidden="true">03</span>关键决策与取舍</h2>
+              <p>三个决策决定了这条链的形状；每一条都写清楚换掉了什么。</p>
+
+              <div class="pa-dec">
+                <p><strong>D1 · 按句翻译，不按块翻译</strong></p>
+                <p><span class="pa-dec__k">理由</span>整块文本会超过翻译接口的单行上限，切句后每句独立，失败只影响一句。<code>units.py</code> 的 <code>extract_units</code> 给每句记 <code>block_idx</code>，<code>regroup_blocks</code> 再按它拼回原块。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>段落级语气的连贯——跨句的代词与语气词现在会各自独立翻译。</p>
+              </div>
+
+              <div class="pa-dec">
+                <p><strong>D2 · 擦除用 cv2.inpaint，不引生成式修复</strong></p>
+                <p><span class="pa-dec__k">理由</span><code>change.py</code> 的 <code>Erase</code> 走 mask 加 5×5 膨胀再 <code>INPAINT_TELEA</code>，不引入第二份权重，整条链在纯 CPU 上跑完，部署成本只有一个 Python 环境。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>复杂网点背景上的残影控制——网点、渐变底纹上仍会看到擦除痕迹。</p>
+              </div>
+
+              <div class="pa-dec">
+                <p><strong>D3 · 回填字号二分，不用固定档位</strong></p>
+                <p><span class="pa-dec__k">理由</span><code>font.getmetrics()</code> 让「折行后的总高」随字号单调上升，所以满足「总高 ≤ 框高」的最大字号可以二分求，循环里只排版、不绘制。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>几档固定字号的省事写法——那种写法在同一页里会明显浪费框内空间，长短译文看起来像两个字体。</p>
+              </div>
+            </section>
+
+            <section class="pa-sec" id="hard" aria-labelledby="hardT">
+              <h2 class="pa-sec__t" id="hardT"><span class="pa-sec__n" aria-hidden="true">04</span>难点与解法</h2>
+              <p>两个真正吃掉时间的点，都在回填这一步。</p>
+              <p><strong>译文比原文长时溢出框。</strong>中文译文常比原文长三成。做法是先用 <code>draw.textlength</code> 逐字累加真实像素宽，在框宽 94% 处折行（<code>change.py</code> 的 <code>_char_wrap</code>），再二分找「折行后总高 ≤ 框高 94%」的最大字号；二分的上界直接由框高给出（封顶 120px），不靠试画。</p>
+              <p><strong>批量返回的条数与输入对不上。</strong><code>trans.py</code> 的 <code>__call__</code> 先按行数相等直接对齐；不等就把多行译文重拼再切；仍不等则整批回落为逐条翻译，并把条数差异写进日志。<code>units.py</code> 还在切句时用 1,500 字符上限把超长单句再切一次，避免单条请求直接被接口拒绝。</p>
+              <ul>
+                <li>竖排与斜排各有一支绘制分支：<code>_draw_vertical</code> 逐字下移，<code>_draw_rotated</code> 旋转后绘制，字号仍来自同一套二分结果。</li>
+                <li>文字颜色从框内像素反推（<code>_text_color</code>），浅底写深字，避免白底白字。</li>
+              </ul>
+            </section>
+
+            <section class="pa-sec" id="code" aria-labelledby="codeT">
+              <h2 class="pa-sec__t" id="codeT"><span class="pa-sec__n" aria-hidden="true">05</span>代码走读</h2>
+              <p>折行是二分的前置条件：只有「给定字号能算出确定行数」，字号与总高之间才有单调关系。这一段来自 <code>change.py</code>。</p>
+              <div class="pa-code"><pre><code># change.py — 逐字符测量真实宽度后折行
+def _char_wrap(self, text, font, draw, max_w):
+    lines, cur = [], ""
+    for ch in text:
+        if draw.textlength(cur + ch, font=font) &lt;= max_w or not cur:
+            cur += ch
+        else:
+            lines.append(cur)
+            cur = ch
+    if cur:
+        lines.append(cur)
+    return lines or [""]</code></pre><button class="pa-code__copy" type="button" data-copy>COPY</button></div>
+              <p>有了它，字号搜索就是标准二分：每次只加载候选字号并排版，判据是「行数 × 行高 ≤ 框高 × 0.94」。搜索区间固定为 6px 到 <code>min(120, 框高)</code>，最多七次迭代。</p>
+              <div class="pa-code"><pre><code># change.py — 满足「折行后总高 ≤ 框高」的最大字号
+lo, hi = 6, max(6, min(120, int(box_h)))
+best = None
+while lo &lt;= hi:
+    mid = (lo + hi) // 2
+    font = self._load_font(mid)
+    asc, desc = font.getmetrics()
+    line_h = asc + desc
+    lines = self._char_wrap(text, font, draw, box_w * 0.94)
+    if lines and len(lines) * line_h &lt;= box_h * 0.94:
+        best = (mid, lines, line_h, asc)
+        lo = mid + 1
+    else:
+        hi = mid - 1</code></pre><button class="pa-code__copy" type="button" data-copy>COPY</button></div>
+            </section>
+
+            <section class="pa-sec" id="limits" aria-labelledby="limT">
+              <h2 class="pa-sec__t" id="limT"><span class="pa-sec__n" aria-hidden="true">06</span>失败与下一步</h2>
+              <p>已知缺陷，按影响排序：</p>
+              <ul>
+                <li>依赖外部翻译 API，凭据从环境变量读（<code>BAIDU_APP_ID</code> / <code>BAIDU_SECRET_KEY</code>）；离线环境整条链会停在 <code>trans.py</code>，没有本地模型兜底。</li>
+                <li>批量条数对不上时整批回落逐条翻译：正确但慢，日志里只记条数差异，没记原因。</li>
+                <li><code>_char_wrap</code> 不认词边界，英文与数字会在单词中间断开，中英混排页会出现断词。</li>
+                <li>擦除在网点与渐变底纹上留残影；94% 的宽度与高度余量是手调常数，不是从字体度量推出来的。</li>
+                <li>没有自动化测试：改动回填逻辑只能靠肉眼比对输出图，回归全靠人工。</li>
+              </ul>
+              <p>下一步只做两件：给折行加英文断词规则；把一组固定页的输出图做成可哈希比对的回归集，让回填逻辑的每次改动都有对照。</p>
+            </section>
+
+            <section class="pa-sec" id="scale" aria-labelledby="scaleT">
+              <h2 class="pa-sec__t" id="scaleT"><span class="pa-sec__n" aria-hidden="true">07</span>规模与复核</h2>
+              <p>数字口径固定：「文件数」用 <code>find</code> 计，「行数」在同一个范围上 <code>cat | wc -l</code>，排掉 <code>__pycache__</code>。</p>
+              <dl class="pa-scale">
+                <dt>Python 文件数</dt><dd>9</dd>
+                <dt>行数</dt><dd>969</dd>
+                <dt>主要文件</dt><dd>change.py 318 · block.py 147 · trans.py 132 · main.py 64 · units.py 59 · read.py 43 · config.py 38</dd>
+                <dt>依赖</dt><dd>RapidOCR · OpenCV · Pillow · numpy · requests · FastAPI + uvicorn</dd>
+                <dt>复核命令</dt><dd><code>find . -name "*.py" -not -path "*__pycache__*" | wc -l</code> → 9；同范围 <code>cat … | wc -l</code> → 969</dd>
+              </dl>
+            </section>
+
+          </div>
+
+          <aside class="pa__toc" data-toc aria-label="本文目录">
+            <p class="pa-toc__label">SECTIONS</p>
+            <nav class="pa-toc" data-scrollspy>
+              <a href="#task">01 任务与边界</a>
+              <a href="#arch">02 架构</a>
+              <a href="#decisions">03 关键决策与取舍</a>
+              <a href="#hard">04 难点与解法</a>
+              <a href="#code">05 代码走读</a>
+              <a href="#limits">06 失败与下一步</a>
+              <a href="#scale">07 规模与复核</a>
+            </nav>
+          </aside>
+        </div>
+
+        <nav class="pa-nav" aria-label="前后篇">
+          <a href="../projects.html">
+            <span class="pa-nav__k">PREV · INDEX</span>
+            <span class="pa-nav__t">工程档案（索引）</span>
+          </a>
+          <a href="./train-framework.html">
+            <span class="pa-nav__k">NEXT · 02</span>
+            <span class="pa-nav__t">自建 PyTorch 训练框架</span>
+          </a>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>实时姿态估计推理管线 · Minecraft-JoJo</title>
+  <meta name="description" content="实时姿态估计推理管线拆解：YOLO pose 权重经 ONNX 导出与 TensorRT 引擎缓存进入运行时，后处理反解关键点，Win32 分层窗口上屏；31 个 Python 文件 5,604 行，含每帧预算的实测值与出处。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="实时姿态估计推理管线 · Minecraft-JoJo">
+  <meta property="og:description" content="实时姿态估计推理管线拆解：YOLO pose 权重经 ONNX 导出与 TensorRT 引擎缓存进入运行时，后处理反解关键点，Win32 分层窗口上屏；31 个 Python 文件 5,604 行，含每帧预算的实测值与出处。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/project-page.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="../notes.html">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="pa wrap">
+      <header class="pa__head">
+        <nav class="pa__crumb" aria-label="面包屑">
+          <a href="../projects.html">Projects</a> <span aria-hidden="true">/</span> <span aria-current="page">04</span>
+        </nav>
+        <p class="eyebrow"><em>04</em> Archive <span aria-hidden="true">/</span> Pose inference</p>
+        <h1 class="pa__title">实时姿态估计推理管线</h1>
+        <p class="pa__tag">Real-time Inference · ONNX Runtime / TensorRT / Win32 / PySide6</p>
+        <p class="pa__lede">一条每帧十来毫秒的管线：抓屏拿 BGRA，预处理成 NCHW，TensorRT 出一组人体框与关键点，后处理反解回屏幕坐标，最后整张位图贴到 Win32 分层窗口上。这一页讲的是这条链怎么把固定开销一段段削掉，以及哪些地方现在仍然不稳。</p>
+        <dl class="pa__facts">
+          <dt>形态</dt>
+          <dd>桌面实时推理管线：抓屏 → 推理 → 后处理 → 透明覆盖层</dd>
+          <dt>规模</dt>
+          <dd>31 个 Python 文件 / 5,604 行（含 PySide6 控制台）</dd>
+          <dt>模型链</dt>
+          <dd>YOLO pose 权重 → ONNX → TensorRT 引擎（FP16）→ CUDA Graph 回放</dd>
+          <dt>标注</dt>
+          <dd>309 帧 pose 关键点，自定义 7 点顺序写在 <code>config.py</code></dd>
+          <dt>上屏</dt>
+          <dd>ctypes 直写 Win32 分层窗口：置顶、点击穿透、不进任务栏</dd>
+          <dt>复核</dt>
+          <dd><code>find . -name "*.py" -not -path "*__pycache__*" | wc -l</code></dd>
+        </dl>
+      </header>
+
+      <div class="pa__body">
+        <div class="pa__main">
+
+          <section class="pa-sec" id="task">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">01</span>任务与边界</h2>
+            <p>要交付的不是一个模型，而是一条<strong>每帧都压在预算内的管线</strong>。输入是抓屏拿到的 BGRA 帧，输出是屏幕上一组骨架线和每个人体框对应的关键点坐标。介于两者之间的每一步都在预算里：预处理、推理、后处理、上屏。</p>
+            <p>边界划得很清：</p>
+            <ul>
+              <li><strong>只管模型的那部分是 <code>pose_forward.py</code></strong>：它的 docstring 第一句就写着「只管模型，不管屏幕、不管画图」，输出形状固定为 <code>(1, 5 + NUM_KPT*3, 8400)</code>——4 个框参数、1 个人体分数、每个关键点 3 个通道。</li>
+              <li><strong>只管窗口的那部分是 <code>win32_overlay.py</code></strong>：它不知道什么叫关键点，只认一块 <code>(h, w, 4)</code> 的 BGRA 数组。</li>
+              <li><strong>只管串联的是 <code>pose_overlay.py</code></strong>：抓屏线程做「抓帧 + 预处理」，主线程做「推理 + 反解 + 画 + 贴窗口」，两片 blob 缓冲区交接。</li>
+              <li><strong>不做的事</strong>：不做模型结构创新，不训练这一个具体任务之外的主干；只把已有的 YOLO pose 权重导出、跑起来、稳住。</li>
+            </ul>
+            <p>关键点个数不硬编码在任何一行代码里——<code>NUM_KPT = len(KEYPOINT_NAMES)</code>（<code>pose_forward.py:45</code>）。换一套关键点定义只要改 <code>config.py</code>，推理文件里的数字一个都不用动；解码处还有一道断言，通道数对不上直接抛错而不是悄悄错位（<code>:353-355</code>）。</p>
+          </section>
+
+          <section class="pa-sec" id="arch">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">02</span>架构</h2>
+            <p>数据是单向流动的，能量守恒式的一进一出：屏幕上的像素进去，同一坐标系下的关键点出来。右侧两条支线是控制面（控制台启动与参数）和启动优化面（引擎缓存）。</p>
+            <figure class="pa-fig">
+              <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig04t">
+                <title id="fig04t">实时姿态估计推理管线的数据流：抓屏、预处理、TensorRT 推理、后处理、分层窗口，控制台与引擎缓存为两条支线</title>
+                <defs>
+                  <marker id="ar04" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B93A6"/></marker>
+                  <marker id="arc04" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#63D6CB"/></marker>
+                </defs>
+                <rect x="12" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="24" y="114" font-size="11" fill="#E3E7F0">抓屏 · dxcam</text>
+                <text x="24" y="128" font-size="11" fill="#8B93A6">REGION 1200×800</text>
+                <rect x="190" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="202" y="114" font-size="11" fill="#E3E7F0">预处理</text>
+                <text x="202" y="128" font-size="11" fill="#8B93A6">缩放 · 转色 · NCHW</text>
+                <rect x="368" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="380" y="114" font-size="11" fill="#E3E7F0">TensorRT 推理</text>
+                <text x="380" y="128" font-size="11" fill="#8B93A6">FP16 · CUDA Graph</text>
+                <rect x="546" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="558" y="114" font-size="11" fill="#E3E7F0">后处理</text>
+                <text x="558" y="128" font-size="11" fill="#8B93A6">反 letterbox · NMS</text>
+                <rect x="724" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="736" y="114" font-size="11" fill="#E3E7F0">分层窗口</text>
+                <text x="736" y="128" font-size="11" fill="#8B93A6">UpdateLayeredWindow</text>
+                <rect x="12" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="24" y="196" font-size="11" fill="#E3E7F0">控制台 · PySide6</text>
+                <text x="24" y="210" font-size="11" fill="#8B93A6">启动 / 参数</text>
+                <rect x="368" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="380" y="196" font-size="11" fill="#E3E7F0">引擎缓存</text>
+                <text x="380" y="210" font-size="11" fill="#8B93A6">trt_cache/*.engine</text>
+                <path d="M138 115 H190" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar04)"/>
+                <path d="M316 115 H368" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc04)"/>
+                <path d="M494 115 H546" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc04)"/>
+                <path d="M672 115 H724" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc04)"/>
+                <path d="M75 178 V134" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar04)"/>
+                <path d="M431 178 V134" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar04)"/>
+                <text x="12" y="232" font-size="11" fill="#D9AE79">每帧预算：整帧 10.76 → 7.80 ms（预处理进图）· 纯推理 6.5 → 2.0 ms（CUDA Graph）</text>
+              </svg>
+              <figcaption><b>图 04 —</b> 青色是受每帧预算约束的那一段：预处理 → 推理 → 后处理 → 上屏；灰色是控制面与启动优化面。引擎缓存只影响第二次启动要等多久，不影响单帧耗时。</figcaption>
+            </figure>
+            <p>线程模型的边界也在图上：抓屏线程只做能交给 CPU 又不碰 GPU 的那一段（<code>preprocess()</code>），主线程只做 GPU 与绘制。两条线程用 <code>NBUFS = 2</code> 组缓冲区交接（<code>pose_forward.py:138</code>），一边填第 N+1 帧的输入时，GPU 还在算第 N 帧。</p>
+          </section>
+
+          <section class="pa-sec" id="dec">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">03</span>关键决策与取舍</h2>
+            <div class="pa-dec">
+              <p><strong>D1 · 把预处理整体塞进模型</strong></p>
+              <p><span class="pa-dec__k">理由</span>缩放 640 + BGRA→RGB + /255 + NCHW 打包这一段是 3.45 ms 纯 CPU（<code>make_pre_model.py:5-6</code>）。用 <code>make_pre_model.py</code> 生成一个直接吃原始 BGRA 帧的 ONNX，这几步全交给 GPU，CPU 只剩一次内存拷贝（约 0.4 ms），整帧 10.76 ms → 7.80 ms（<code>config.py:22</code>）。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span> <code>cv2.dnn.blobFromImage</code> 的通用性与一份模型的通用性——现在每个 REGION 各生成一个带尺寸后缀的文件，改完 REGION 必须重跑一次脚本，否则尺寸对不上会在 <code>_alloc()</code> 里直接抛错（<code>pose_forward.py:268-274</code>）。文件不存在时自动退回普通模型，不会崩。</p>
+            </div>
+            <div class="pa-dec">
+              <p><strong>D2 · 后端降级写死顺序，且降级必须出声</strong></p>
+              <p><span class="pa-dec__k">理由</span>provider 列表固定为 TensorRT → CUDA → CPU（<code>pose_forward.py:60-81</code>），但降级不是默默的：<code>_has_nvinfer()</code> 先查 PATH 里有没有 <code>nvinfer*.dll</code>，因为一旦缺库，onnxruntime 会把 provider 降成 <strong>CPU 而不是 CUDA</strong>（<code>:48-57</code>），「悄悄变成 3 FPS」这种故障比启动失败更难查。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>「让框架自己决定」的省事：多写了三个分支和三条警告，换的是出问题时能从控制台输出直接读出实际 provider 列表（<code>:158-164</code>、<code>:204-206</code>）。</p>
+            </div>
+            <div class="pa-dec">
+              <p><strong>D3 · 覆盖层用 ctypes 写 Win32 分层窗口，而不是 UI 框架</strong></p>
+              <p><span class="pa-dec__k">理由</span>内容整张位图经 <code>UpdateLayeredWindow</code> 提交，<code>CreateDIBSection</code> 把位图内存指针直接交给 numpy（<code>win32_overlay.py:146-150</code>，零拷贝），窗口带 <code>WS_EX_TRANSPARENT</code> 点击穿透 + <code>WS_EX_TOOLWINDOW</code> 不进任务栏 + <code>WS_EX_NOACTIVATE</code> 不抢焦点（<code>:129-131</code>）。内容由系统常驻保存，不走 <code>WM_PAINT</code>，所以切走再切回不会闪。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>跨平台：这份代码只能在 Windows 上跑，<code>user32</code>/<code>gdi32</code> 是硬依赖。</p>
+            </div>
+          </section>
+
+          <section class="pa-sec" id="hard">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">04</span>难点与解法</h2>
+            <p><strong>一 · 每帧预算是逐项抠出来的，不是调出来的</strong></p>
+            <p>慢在哪里要能分开算。文件顶部记着一组实测差值：<em>先缩放再转色</em>比反过来省 1.3 ms，手写 NCHW 打包比 <code>blobFromImage</code> 省 4 ms 且结果一位不差，中间缓冲区按输入尺寸复用一次，否则每帧重新 <code>np.full</code> 一个画布又是 1 ms（<code>pose_forward.py:11-13</code>）。这三条都落在 <code>preprocess()</code> 的十行里（<code>:292-314</code>），任何人「顺手改回去」都会把它们加回来。</p>
+            <p><strong>二 · 纯推理 6.5 ms 里 GPU 只忙 28%</strong></p>
+            <p>剩下全是每次调用的固定开销：kernel 启动、显存拷贝、同步。解法是把整张计算图一次性录成 CUDA Graph 回放，代价是输入输出地址必须固定，于是绑一块常驻显存的输入、每帧 <code>update_inplace</code> 覆盖数据（<code>:208-227</code>）。有一个反直觉的副作用：开了图之后必须配 IOBinding 走 <code>run_with_iobinding</code>，普通 <code>run()</code> 取不到输出——所以录制失败时会重建一个不开图的会话（<code>:190-202</code>），而不是留一个只能启动不能推理的对象。</p>
+            <p><strong>三 · 定时器精度这类「不是算法的问题」</strong></p>
+            <p>Windows 默认定时器精度约 15.6 ms，抓屏线程按 FPS 节流时 <code>sleep</code> 会忽长忽短，表现成帧龄一阵一阵地变大——卡顿感最直接的来源其实在这里（<code>pose_overlay.py:31-34</code>）。启动时的一次性处理清单是：<code>timeBeginPeriod(1)</code> 把定时器精度压到 1 ms、进程优先级提到 HIGH、OpenCV 关线程池、开跑后 <code>gc.freeze()</code> 并把阈值调大（<code>:29-60</code>）。这些都是给「每几百次分配就来一次的小停顿」交的保护费。</p>
+          </section>
+
+          <section class="pa-sec" id="code">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">05</span>代码走读</h2>
+            <p>第一段是 provider 组装与回落。它决定了「这一次到底跑在什么上」，因此每一层都留了打印：</p>
+            <div class="pa-code">
+              <button class="pa-code__copy" type="button" data-copy>COPY</button>
+              <pre><code>def _make_providers(trt, cuda_graph=False):
+    """组装 provider 列表。trt=True: TensorRT -&gt; CUDA -&gt; CPU；否则 CUDA -&gt; CPU。"""
+    cuda = ("CUDAExecutionProvider", {"cudnn_conv_algo_search": "HEURISTIC"})
+    if not trt:
+        return [cuda, "CPUExecutionProvider"]
+    opts = {
+        "trt_engine_cache_enable": True,      # 不缓存的话每次启动都要重建引擎
+        "trt_engine_cache_path": cache,
+        "trt_timing_cache_enable": True,
+        "trt_fp16_enable": bool(TRT_FP16),
+        "trt_max_workspace_size": 2 &lt;&lt; 30,      # 2GB 显存工作区（试过 4G，反而让 EP 起不来）
+    }
+    if cuda_graph:
+        # 把整张图的 kernel 一次性录成 CUDA Graph，每次回放：纯推理 6.5ms -&gt; 2.0ms。
+        # 注意：开了这个就**必须**配 IOBinding 用 run_with_iobinding，普通 run() 会拿不到输出。
+        opts["trt_cuda_graph_enable"] = True
+    return [("TensorrtExecutionProvider", opts), cuda, "CPUExecutionProvider"]
+
+
+# 申请了但没生效：显式退回 CUDA 重开，不静默降速（pose_forward.py:159-163）
+used = s.get_providers()
+if trt and "TensorrtExecutionProvider" not in used:
+    print(f"[警告] TensorRT 申请了但没生效（实际 {used}），改用 CUDA 重开")
+    s = ort.InferenceSession(path, options, providers=_make_providers(False))</code></pre>
+            </div>
+            <p>第二段是每帧都要跑一次的预处理。写法上的刻意的：所有中间数组来自 <code>_alloc()</code> 建好的复用缓冲区，函数体里没有一次新的分配；几何参数跟着返回值一起走，不在 <code>infer()</code> 里读 <code>self</code>——因为两个线程同时在跑，不共享可变状态。</p>
+            <div class="pa-code">
+              <button class="pa-code__copy" type="button" data-copy>COPY</button>
+              <pre><code>def preprocess(self, frame, i=0):
+    """frame: uint8 (H, W, 4) BGRA（抓屏的原样输出）-&gt; (NCHW blob, 反 letterbox 参数)。
+    耗 CPU、不碰 GPU，所以单独拆出来给抓屏线程调用（和主线程的推理重叠）。"""
+    h, w = frame.shape[:2]
+    self._alloc(w, h)                      # 缓冲区按输入尺寸只建一次，之后每帧复用
+    buf = self._bufs[i]
+    if self.raw_input:
+        # 只拷原始 BGRA（约 0.4ms），缩放 / 转色 / 归一化都在 GPU 里
+        np.copyto(buf["raw"], frame)
+        return buf["raw"][None], self._geo
+    ratio, pad_x, pad_y = self._ratio, self._px, self._py
+    x, y = int(self._px), int(self._py)
+    # 先缩放到小图再转 RGB：转色只在小图上做，比"全尺寸转色再缩放"省一半
+    cv2.resize(frame, (self._nw, self._nh), dst=buf["small"], interpolation=cv2.INTER_LINEAR)
+    cv2.cvtColor(buf["small"], cv2.COLOR_BGRA2RGB, dst=buf["rgb"])
+    buf["canvas"][y:y + self._nh, x:x + self._nw] = buf["rgb"]
+    # HWC uint8 RGB -&gt; NCHW float32 /255：等价于 blobFromImage，但快 4ms（实测结果一位不差）
+    np.copyto(buf["blob"][0], buf["canvas"].transpose(2, 0, 1))
+    np.multiply(buf["blob"], 1 / 255.0, out=buf["blob"])
+    return buf["blob"], (ratio, pad_x, pad_y)</code></pre>
+            </div>
+            <p>后处理那段同样值得看：<code>_decode()</code>（<code>:349-383</code>）先把 <code>(1, 26, 8400)</code> 转置、按置信度过滤，再算 NMS，最后把框和关键点一起减去 pad、除以 ratio 反解回原图坐标并裁到图内。裁边界这一步不做，覆盖层会在屏幕边缘画出界外的线。</p>
+          </section>
+
+          <section class="pa-sec" id="next">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">06</span>失败与下一步</h2>
+            <ul>
+              <li><strong>缺 <code>nvinfer*.dll</code> 时静默降级到 CPU。</strong>这不是假想：<code>_has_nvinfer()</code> 的 docstring 直接写着「否则整个 demo 悄悄变成 3 FPS」（<code>pose_forward.py:52</code>）。现在的对策是事先查 PATH 再决定要不要申请 TensorRT，并把实际 provider 打出来。</li>
+              <li><strong>DLL 搜索路径只能改 <code>PATH</code>。</strong><code>os.add_dll_directory</code> 实测无效，于是启动时手工把 site-packages 里的 <code>nvidia/*/bin</code> 与 <code>tensorrt_libs</code> 前置进 <code>PATH</code>（<code>:22-36</code>）；打包成单目录后又得改读 <code>_internal/dlls</code>。同一件事两套路径逻辑，是最容易在换机器时散掉的地方。</li>
+              <li><strong>没有自动回归。</strong>目前验「没跑偏」的办法是录制回放加人工比对：抓屏区域固定、按 15 fps 节流，存成 mp4（<code>recorder.py:23-27</code>）。没有一条命令能告诉你「今天的关键点比上周差了多少」。</li>
+            </ul>
+            <p>下一步按代价从低到高：① 把 309 帧标注做成离线一致性回归——同一批帧跑两版引擎，输出人数、NMS 后框数、关键点偏移分布三张表，超过阈值就失败；② 把帧时间做成直方图而不是单值，记录 p50 / p95，因为「平均 7.8 ms」掩盖了抖动；③ 把 REGION 与 pre-model 尺寸的耦合收进一个生成步骤，改配置时自动重建而不是等运行期抛错。</p>
+          </section>
+
+          <section class="pa-sec" id="scale">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">07</span>规模与复核</h2>
+            <p>口径按站内约定：文件数只统计 <code>.py</code>，排除 <code>__pycache__</code>；行数是同一范围的 <code>cat | wc -l</code>。下面每个数字都能用一条命令重跑出来。</p>
+            <dl class="pa-scale">
+              <dt>Python 文件数</dt>
+              <dd>31（推理核心、录制器、导出脚本、Qt 控制台合计）</dd>
+              <dt>行数</dt>
+              <dd>5,604</dd>
+              <dt>推理核心</dt>
+              <dd><code>pose_forward.py</code> 383 行 · <code>pose_overlay.py</code> 270 行 · <code>win32_overlay.py</code> 183 行 · <code>make_pre_model.py</code> 144 行 · <code>recorder.py</code> 100 行</dd>
+              <dt>标注数据</dt>
+              <dd>309 帧 pose 关键点，7 点自定义顺序（<code>config.py:45</code>）</dd>
+              <dt>依赖</dt>
+              <dd>onnxruntime · TensorRT · CUDA · dxcam · OpenCV · numpy · PySide6 · ctypes</dd>
+              <dt>复核命令</dt>
+              <dd><code>find . -name "*.py" -not -path "*__pycache__*" | wc -l</code> → 31 · <code>cat $(find . -name "*.py" -not -path "*__pycache__*") | wc -l</code> → 5604</dd>
+              <dt>实测读数出处</dt>
+              <dd>整帧 10.76 / 7.80 ms 与纯推理 6.5 / 2.0 ms 均引自 <code>pose_forward.py:168</code>、<code>:211-212</code> 与 <code>config.py:18</code>、<code>:22</code> 的注释，非本页换算</dd>
+            </dl>
+            <p>这一页没有给准确率、召回率或帧率结论，因为仓库里没有对应的实测记录——只有上面几项在源码注释里留了值的数字可以引用。</p>
+          </section>
+
+        </div>
+        <aside class="pa__toc">
+          <p class="pa-toc__label">On this page</p>
+          <nav class="pa-toc" data-scrollspy aria-label="本页目录">
+            <a href="#task">01 任务与边界</a>
+            <a href="#arch">02 架构</a>
+            <a href="#dec">03 关键决策与取舍</a>
+            <a href="#hard">04 难点与解法</a>
+            <a href="#code">05 代码走读</a>
+            <a href="#next">06 失败与下一步</a>
+            <a href="#scale">07 规模与复核</a>
+          </nav>
+        </aside>
+      </div>
+
+      <nav class="pa-nav" aria-label="相邻项目">
+        <a href="./diffusion-lora.html">
+          <span class="pa-nav__k">← 上一篇</span>
+          <span class="pa-nav__t">03 扩散模型 LoRA 微调</span>
+        </a>
+        <a href="./vision-classifier.html">
+          <span class="pa-nav__k">下一篇 →</span>
+          <span class="pa-nav__t">05 图像分类实验台</span>
+        </a>
+      </nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+  <div class="progress" data-progress aria-hidden="true"></div>
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

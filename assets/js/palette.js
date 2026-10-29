@@ -44,7 +44,7 @@ function buildRecords() {
     records.push({
       label: PROJECTS[i].title,
       hint: "PROJECT",
-      href: BASE + "projects.html#" + PROJECTS[i].id
+      href: BASE + "projects/" + PROJECTS[i].id + ".html"
     });
   }
   for (let i = 0; i < NOTES.length; i += 1) {

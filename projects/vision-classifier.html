@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>图像分类实验台 · Minecraft-JoJo</title>
+  <meta name="description" content="图像分类实验台：ImageFolder 数据集、两套 transforms、迁移学习微调、ONNX 导出与单图推理的完整闭环；8 个 Python 文件 1,495 行，主干与分类头分离，装配只发生在一处。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="图像分类实验台 · Minecraft-JoJo">
+  <meta property="og:description" content="图像分类实验台：ImageFolder 数据集、两套 transforms、迁移学习微调、ONNX 导出与单图推理的完整闭环；8 个 Python 文件 1,495 行，主干与分类头分离，装配只发生在一处。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/project-page.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="../notes.html">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="pa wrap">
+      <header class="pa__head">
+        <nav class="pa__crumb" aria-label="面包屑">
+          <a href="../projects.html">Projects</a> <span aria-hidden="true">/</span> <span aria-current="page">05</span>
+        </nav>
+        <p class="eyebrow"><em>05</em> Archive <span aria-hidden="true">/</span> Classifier bench</p>
+        <h1 class="pa__title">图像分类实验台</h1>
+        <p class="pa__tag">CV · Transfer Learning · PyTorch / torchvision / ONNX</p>
+        <p class="pa__lede">换一个分类任务，最重复的动作是把 transforms、Dataset、训练循环、导出脚本各写一遍。这个工程把它们固定成一套骨架：主干与分类头分离，装配只在一处发生，训练、导出、单图推理调用同一份装配。</p>
+        <dl class="pa__facts">
+          <dt>形态</dt>
+          <dd>分类任务基准骨架：数据装配 → 微调 → 验证 → 导出 → 单图推理</dd>
+          <dt>规模</dt>
+          <dd>8 个 Python 文件 / 1,495 行</dd>
+          <dt>主干</dt>
+          <dd>torchvision <code>resnet18</code>（<code>config.py:8</code>）；<code>model.py</code> 另备 5 个主干，共用同一个分类数出口</dd>
+          <dt>数据</dt>
+          <dd><code>ImageFolder</code> 四个目录：train / val / test / single，50 类</dd>
+          <dt>训练</dt>
+          <dd>AdamW + 判别性学习率 · 交叉熵 · batch 128 · 10 epoch</dd>
+          <dt>复核</dt>
+          <dd><code>cat $(find . -maxdepth 1 -name "*.py") | wc -l</code></dd>
+        </dl>
+      </header>
+
+      <div class="pa__body">
+        <div class="pa__main">
+
+          <section class="pa-sec" id="task">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">01</span>任务与边界</h2>
+            <p>目标不是把某一个分类器训到多高，而是交付<strong>一套换数据集就能用的骨架</strong>：数据从哪读、增强怎么做、主干怎么换成自己的、分类头在哪一行被替换、权重怎么存、怎么导成 ONNX、导完之后怎么用一张图验证它没变味。</p>
+            <p>边界写在入口里。整个工程只有三个模式，用同一个 <code>LoadAll</code> 装配（<code>main.py:90-111</code>）：</p>
+            <ul>
+              <li><code>--mode 0</code> 训练：<code>train_data()</code> 里依次调用 <code>train_data_process</code> → <code>val_data_process</code> → <code>model_loader</code> → <code>switch()</code> → <code>weight_loader</code> → <code>trans_train_optimizer</code> → <code>trans_train_scheduler</code>，然后才进 <code>train(cfg, load)</code>（<code>main.py:8-35</code>）。顺序不是装饰——优化器必须建在「可训练参数集合」确定之后。</li>
+              <li><code>--mode 1</code> 验证：跑一遍 test 目录，输出总精确度（<code>pred.py:15-62</code>）。</li>
+              <li><code>--mode 2</code> 单图：对目录里每张图输出 <code>文件名 -&gt; 预测类别（置信度）</code>（<code>pred.py:79-112</code>）。</li>
+              <li><strong>不做的事</strong>：不做量化、不做蒸馏、不做推理服务化。导出就停在 <code>.onnx</code> 文件这一层。</li>
+            </ul>
+            <p>配置集中在一个类里：<code>setting()</code>（<code>config.py:5-89</code>）。数据路径、超参、保存策略、续训开关全在 <code>__init__</code> 的一次构造中定型，其余文件只读 <code>cfg.xxx</code>，不各自定义常量。</p>
+          </section>
+
+          <section class="pa-sec" id="arch">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">02</span>架构</h2>
+            <p>主链是产出一个权重文件；导出与推理是它的两条派生路径，复用同一份装配（同一个 <code>LoadAll</code>、同一次 <code>switch()</code>、同一份 <code>state_dict</code>）。这就是为什么 <code>out_onnx.py</code> 只有 45 行还能保证与训练一致。</p>
+            <figure class="pa-fig">
+              <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig05t">
+                <title id="fig05t">图像分类实验台的数据流：数据集、两套 transforms、主干加分类头、训练循环、checkpoint，以及派生的 ONNX 导出与单图推理</title>
+                <defs>
+                  <marker id="ar05" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B93A6"/></marker>
+                  <marker id="arc05" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#63D6CB"/></marker>
+                </defs>
+                <rect x="12" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="24" y="114" font-size="11" fill="#E3E7F0">数据集</text>
+                <text x="24" y="128" font-size="11" fill="#8B93A6">ImageFolder · 四目录</text>
+                <rect x="190" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="202" y="114" font-size="11" fill="#E3E7F0">transforms</text>
+                <text x="202" y="128" font-size="11" fill="#8B93A6">训练 / 验证两套</text>
+                <rect x="368" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="380" y="114" font-size="11" fill="#E3E7F0">主干 + 分类头</text>
+                <text x="380" y="128" font-size="11" fill="#8B93A6">switch() · layer4 解冻</text>
+                <rect x="546" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="558" y="114" font-size="11" fill="#E3E7F0">训练循环</text>
+                <text x="558" y="128" font-size="11" fill="#8B93A6">loss / acc → best_acc</text>
+                <rect x="724" y="96" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="736" y="114" font-size="11" fill="#E3E7F0">checkpoint</text>
+                <text x="736" y="128" font-size="11" fill="#8B93A6">model_state_dict</text>
+                <rect x="546" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="558" y="196" font-size="11" fill="#E3E7F0">ONNX 导出</text>
+                <text x="558" y="210" font-size="11" fill="#8B93A6">opset 12 · dynamic_axes</text>
+                <rect x="368" y="178" width="126" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="380" y="196" font-size="11" fill="#E3E7F0">单图推理</text>
+                <text x="380" y="210" font-size="11" fill="#8B93A6">pred.py · softmax/argmax</text>
+                <path d="M138 115 H190" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc05)"/>
+                <path d="M316 115 H368" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc05)"/>
+                <path d="M494 115 H546" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc05)"/>
+                <path d="M672 115 H724" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar05)"/>
+                <path d="M787 134 V197 H672" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar05)"/>
+                <path d="M546 197 H494" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar05)"/>
+                <text x="12" y="232" font-size="11" fill="#D9AE79">验证侧不做增强；两侧 resize 都取 cfg.input_size = 224（load.py:19 / :29）</text>
+              </svg>
+              <figcaption><b>图 05 —</b> 青色是产出权重的那条主链；灰色是派生路径。导出脚本不重新装配模型，它调用的是训练时同样的 <code>LoadAll</code> 与 <code>switch()</code>，只是把权重从 CPU 上读进来。</figcaption>
+            </figure>
+            <p>四个目录各有分工：train 与 val 进训练循环，test 只在 <code>--mode 1</code> 用于报告总精确度，single 是一批散图，用于 <code>--mode 2</code> 逐张看结果（<code>config.py:17-20</code>）。类名不是手写的清单说了算，而是 <code>ImageFolder(root=cfg.data_root).classes</code> 从目录名读出来的（<code>config.py:35</code>）。</p>
+          </section>
+
+          <section class="pa-sec" id="dec">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">03</span>关键决策与取舍</h2>
+            <div class="pa-dec">
+              <p><strong>D1 · 主干与分类头分离，分类数是一个出口</strong></p>
+              <p><span class="pa-dec__k">理由</span><code>model.py</code> 里 5 个主干（GoogLeNet / ResNet / VGG / LeNet / AlexNet）都接在同一个概念上：<code>num_classes</code>（<code>:100</code> / <code>:224</code> / <code>:355</code> / <code>:430</code> / <code>:508</code>）。换主干只改 <code>config.py:8</code> 的一行，换数据集类别数只改 <code>cfg.num_classes</code>。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>「一个主干一个文件、各自写死输出层」的直观排布。代价是 518 行挤在一个文件里，且分类头的取法被统一假定成 <code>.fc</code>——这条假设在 ResNet 以外不成立，见第四节。</p>
+            </div>
+            <div class="pa-dec">
+              <p><strong>D2 · 训练与验证两套 transforms</strong></p>
+              <p><span class="pa-dec__k">理由</span>训练侧 <code>Resize</code> + 水平翻转 + 旋转 + 颜色抖动 + 仿射 + 归一化；验证侧只有 <code>Resize</code> 与归一化（<code>load.py:18-26</code> / <code>:28-32</code>）。验证侧做增强，指标就不是在真实分布上量的了。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>两侧共用一套的省事。代价是两个 <code>Resize</code> 尺寸得手动对齐，改 <code>cfg.input_size</code> 时两处都要看，没有任何机制替你把关。</p>
+            </div>
+            <div class="pa-dec">
+              <p><strong>D3 · 迁移学习用判别性学习率，并锁住 BatchNorm</strong></p>
+              <p><span class="pa-dec__k">理由</span>分类头用 <code>cfg.learning_rate</code>，骨干用它的 1/100（<code>load.py:184-187</code>），因为随机初始化的头不该和 ImageNet 预训练的特征用同一个步长。<code>freeze_bn()</code> 把 BN 全部切到 eval 并停止统计（<code>:147-156</code>），训练循环每个 epoch 重新调一次（<code>train.py:102-103</code>）。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>全量微调的简单：现在只解冻 <code>layer4</code> 与 <code>fc</code>（<code>load.py:137-140</code>），模型容量被主动限制住，换到差异更大的数据集上会欠拟合。</p>
+            </div>
+          </section>
+
+          <section class="pa-sec" id="hard">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">04</span>难点与解法</h2>
+            <p><strong>一 · <code>switch()</code> 只对 ResNet 成立</strong></p>
+            <p>换分类头那几行写的是 <code>self.model.fc = nn.Sequential(...)</code>（<code>load.py:131-134</code>）。ResNet 的分类头确实叫 <code>fc</code>（<code>model.py:224</code>），但 VGG 与 AlexNet 把它放在 <code>classifier</code> 的最后一项里（<code>:355</code> / <code>:508</code>）。所以「5 个主干共用同一个出口」在模型定义这一层是成立的，在装配这一层只跑通了 ResNet——这是我事后才看清的边界，不是设计时就想好的分层。</p>
+            <p><strong>二 · 指标口径：不能把不满批当整批</strong></p>
+            <p>准确率不是「每批正确率的平均」，那样最后一批样本少就会把权重算歪。训练与验证两侧都是按<em>正确个数累加</em>再除以<em>本轮真实样本数</em>：<code>each_train_acc_total += torch.sum(pre_lab == b_y)</code>、<code>train_num += b_x.size(0)</code>，最后 <code>each_train_acc_total / train_num</code>（<code>train.py:144-146</code> / <code>:170-177</code>，验证侧 <code>:180</code>）。loss 同理先乘 <code>b_x.size(0)</code> 再加（<code>:137</code>），注释里写明了原因。</p>
+            <p><strong>三 · 改了可训练集合就得重建优化器</strong></p>
+            <p>解冻 <code>layer4</code> 之后，优化器里的参数组和第 0 轮时已经不是同一批对象了。所以每改变一次可训练集合就要新建优化器，并且<strong>不能</strong>加载旧的 <code>optimizer_state_dict</code>（<code>load.py:171-174</code>）；是否加载由 <code>cfg.new</code> 控制（<code>:189-191</code>）。续训时还要把优化器状态里的张量搬回模型所在设备（<code>:206-210</code>），否则 CPU 上训过再上 GPU 会直接报设备不一致。</p>
+          </section>
+
+          <section class="pa-sec" id="code">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">05</span>代码走读</h2>
+            <p>第一段是两套 transforms。它们是这个工程里唯一「两边必须长得不一样」的地方，差异本身就是设计：</p>
+            <div class="pa-code">
+              <button class="pa-code__copy" type="button" data-copy>COPY</button>
+              <pre><code>self.transforming_train = transforms.Compose([
+    transforms.Resize((cfg.input_size, cfg.input_size)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomRotation(20),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+    transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), scale=(0.8, 1.2)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],   # ImageNet 均值
+                         std=[0.229, 0.224, 0.225])])
+
+self.transforming_val = transforms.Compose([
+    transforms.Resize((cfg.input_size, cfg.input_size)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],   # ImageNet 均值
+                         std=[0.229, 0.224, 0.225])])</code></pre>
+            </div>
+            <p>第二段是导出。它短到可以整段读完，但把三个容易出事的地方都显式写了出来：权重从 CPU 上读、<code>model_state_dict</code> 取不到就直接抛错、导完的图带动态 batch 维。</p>
+            <div class="pa-code">
+              <button class="pa-code__copy" type="button" data-copy>COPY</button>
+              <pre><code>cfg = setting()
+checkpoint = torch.load(cfg.load_path, map_location='cpu')   # 加载到 CPU，用 CPU 版 onnxruntime
+
+load = LoadAll(cfg)
+load.model_loader(cfg.model)
+load.switch()                                                # 与训练用同一份装配：换掉分类头
+
+state_dict = checkpoint.get("model_state_dict")
+if state_dict is None:
+    raise ValueError("checkpoint 里没有 model_state_dict，检查 key 名称")
+
+load.model.load_state_dict(state_dict)
+load.model = load.model.cpu()
+load.model.eval()                                            # 必须 eval：BN 与 Dropout 才会定住
+
+dummy_input = torch.randn(1, 3, 224, 224)
+
+with torch.no_grad():
+    torch.onnx.export(
+        load.model, dummy_input, out_path, opset_version=12,
+        input_names=["input"], output_names=["output"],
+        dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}},
+    )</code></pre>
+            </div>
+            <p>注意 <code>eval()</code> 与 <code>no_grad()</code> 这两步：导出的是推理图，分类头里那个 <code>Dropout(0.3)</code>（<code>load.py:132</code>）如果在 train 模式下导出，ONNX 图里会带上随机性，推理端每次结果都不一样。</p>
+          </section>
+
+          <section class="pa-sec" id="next">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">06</span>失败与下一步</h2>
+            <ul>
+              <li><strong>类名有两份定义。</strong>一份是手写的 50 项 <code>cfg.class_names</code>（<code>config.py:34</code>），一份是 <code>ImageFolder(...).classes</code>（<code>:35</code>）。单图推理用的是后者（<code>pred.py:108</code>），所以真正决定标签的是目录名；两份清单一旦顺序不同，人眼看到的 <code>class_names</code> 会给出错误解释，而且没有任何断言会拦住它。</li>
+              <li><strong><code>num_classes</code> 被赋值两次。</strong><code>config.py:10</code> 写 10，<code>:38</code> 又覆盖成 50。后者生效，读代码的人先看到 10 会得出相反结论。</li>
+              <li><strong>续训是三个整数开关。</strong><code>train_mode</code>（0/1/2）、<code>transfer_mode</code>（0/1）、<code>save_mode</code>（0/1）决定加载哪份权重、要不要冻结 BN、覆盖还是追加保存（<code>config.py:47-51</code>，语义写在 <code>:52-63</code> 的注释里）。改错一个数字就换一种行为，没有校验。</li>
+            </ul>
+            <p>下一步三件事，按顺序做：① 类名收敛成单点派生——<code>class_names</code> 只用于显示，加载时断言 <code>len(class_names) == len(ImageFolder.classes)</code>；② <code>switch()</code> 按主干名取分类头（<code>fc</code> / <code>classifier[-1]</code>），把「5 个主干共用出口」从模型层补到装配层；③ 把 <code>--mode 0/1/2</code> 拆成 argparse 子命令，顺便把三个整数开关换成枚举式的显式参数。</p>
+          </section>
+
+          <section class="pa-sec" id="scale">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">07</span>规模与复核</h2>
+            <p>口径：只统计本目录 <code>.py</code>，排除 <code>__pycache__</code>；行数为 <code>wc -l</code>。下面逐文件数字加起来正是总数，可以自己核。</p>
+            <dl class="pa-scale">
+              <dt>Python 文件数</dt>
+              <dd>8</dd>
+              <dt>行数</dt>
+              <dd>1,495</dd>
+              <dt>逐文件</dt>
+              <dd><code>model.py</code> 518 · <code>load.py</code> 301 · <code>train.py</code> 252 · <code>pred.py</code> 125 · <code>main.py</code> 113 · <code>config.py</code> 98 · <code>out_onnx.py</code> 45 · <code>model_test.py</code> 43</dd>
+              <dt>数据</dt>
+              <dd>50 类（<code>config.py:38</code>），batch 128、<code>num_workers</code> 4、输入 224（<code>:30-33</code>）</dd>
+              <dt>训练超参</dt>
+              <dd>10 epoch · lr 1e-5 · weight_decay 5e-4（<code>config.py:41-43</code>）</dd>
+              <dt>依赖</dt>
+              <dd>torch · torchvision · onnx · onnxruntime · torchinfo · pandas · matplotlib · tqdm · argparse</dd>
+              <dt>复核命令</dt>
+              <dd><code>find . -maxdepth 1 -name "*.py" | wc -l</code> → 8 · <code>cat $(find . -maxdepth 1 -name "*.py") | wc -l</code> → 1495</dd>
+            </dl>
+            <p>这一页没有给准确率，尽管 <code>train_log/train.csv</code> 里确实有一次运行按 epoch 记下的 loss 与 acc（73 行含表头）。不引用的原因不是没有数字，而是那些数字缺上下文：没有对应的数据切分快照，也没有当时实际生效的超参记录，单独摘一行 <code>val_acc</code> 出来会被读成「这个实验台就能到这个水平」。要引用它，得先把那次运行的条件一起写进页里。</p>
+          </section>
+
+        </div>
+        <aside class="pa__toc">
+          <p class="pa-toc__label">On this page</p>
+          <nav class="pa-toc" data-scrollspy aria-label="本页目录">
+            <a href="#task">01 任务与边界</a>
+            <a href="#arch">02 架构</a>
+            <a href="#dec">03 关键决策与取舍</a>
+            <a href="#hard">04 难点与解法</a>
+            <a href="#code">05 代码走读</a>
+            <a href="#next">06 失败与下一步</a>
+            <a href="#scale">07 规模与复核</a>
+          </nav>
+        </aside>
+      </div>
+
+      <nav class="pa-nav" aria-label="相邻项目">
+        <a href="./pose-pipeline.html">
+          <span class="pa-nav__k">← 上一篇</span>
+          <span class="pa-nav__t">04 实时姿态估计推理管线</span>
+        </a>
+        <a href="./service-layer.html">
+          <span class="pa-nav__k">下一篇 →</span>
+          <span class="pa-nav__t">06 应用服务与数据层</span>
+        </a>
+      </nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+  <div class="progress" data-progress aria-hidden="true"></div>
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

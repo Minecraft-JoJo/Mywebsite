@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>应用服务与数据层 · Minecraft-JoJo</title>
+  <meta name="description" content="应用服务与数据层：SQLAlchemy 连接与会话、bcrypt 密码哈希、JWT 令牌签发、FastAPI 模板入口；服务代码 5 个文件 139 行，另 7,994 行 FastAPI 文档单列、不计入实现。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="应用服务与数据层 · Minecraft-JoJo">
+  <meta property="og:description" content="应用服务与数据层：SQLAlchemy 连接与会话、bcrypt 密码哈希、JWT 令牌签发、FastAPI 模板入口；服务代码 5 个文件 139 行，另 7,994 行 FastAPI 文档单列、不计入实现。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/project-page.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="../notes.html">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="pa wrap">
+      <header class="pa__head">
+        <nav class="pa__crumb" aria-label="面包屑">
+          <a href="../projects.html">Projects</a> <span aria-hidden="true">/</span> <span aria-current="page">06</span>
+        </nav>
+        <p class="eyebrow"><em>06</em> Archive <span aria-hidden="true">/</span> Service layer</p>
+        <h1 class="pa__title">应用服务与数据层</h1>
+        <p class="pa__tag">Backend · Data · Auth · FastAPI / SQLAlchemy / PostgreSQL</p>
+        <p class="pa__lede">这一份的体量最小，也最容易被讲错。它由两条互不相连的链组成：一条是 FastAPI 的模板入口，一条是「建用户 → 哈希 → 落库」的写入链。加起来 139 行，覆盖的是同一个问题——连接、会话与密钥该放在哪一层。</p>
+        <dl class="pa__facts">
+          <dt>形态</dt>
+          <dd>服务底座：连接与会话、密码哈希、令牌签发、模板入口</dd>
+          <dt>规模</dt>
+          <dd>5 个 Python 文件 / 139 行（<code>users/</code> 4 文件 125 行 + <code>main.py</code> 14 行）</dd>
+          <dt>栈</dt>
+          <dd>FastAPI · uvicorn · Jinja2 · SQLAlchemy 2.x · psycopg · PostgreSQL</dd>
+          <dt>鉴权</dt>
+          <dd>passlib bcrypt 存哈希，python-jose 签 JWT；密钥全部取自环境变量</dd>
+          <dt>连接</dt>
+          <dd><code>pool_pre_ping=True</code> 取连接前探活，<code>connect_timeout=3</code>（<code>auth_db.py:17</code>）</dd>
+          <dt>不计入</dt>
+          <dd>另有 7,994 行 FastAPI 文档，是笔记不是实现，本页规模只算上面 139 行</dd>
+        </dl>
+      </header>
+
+      <div class="pa__body">
+        <div class="pa__main">
+
+          <section class="pa-sec" id="task">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">01</span>任务与边界</h2>
+            <p>要交付的是<strong>一个可以照着搭的服务底座</strong>，不是一套业务系统。底座上只有四件事：怎么连数据库、一次请求用哪个会话、密码以什么形态落库、令牌怎么签发与解析；再加一个能跑起来的最小入口，用来确认前面四件事被正确装配。</p>
+            <p>先划清口径，因为这页最容易被误读：</p>
+            <ul>
+              <li><strong>服务代码 = 5 个文件 139 行。</strong><code>users/</code> 下 4 个文件合计 125 行（<code>auth_db.py</code> 52、<code>auth_utils.py</code> 49、<code>creat_user.py</code> 24、<code>__init__.py</code> 0），加 <code>live/main.py</code> 14 行。<code>live/1.py</code> 42 行是草稿，不计入。</li>
+              <li><strong>7,994 行是 FastAPI 文档，不是实现。</strong>那是学习时写的笔记体量，和上面 139 行是两回事。把两者放在同一个数字里说事，会让「我写了七千多行服务」这种误读成立——所以这一页从头到尾只把它们分开记。</li>
+              <li><strong>不做的</strong>：没有业务路由表，没有 ORM 关系的级联策略，没有迁移工具，没有部署编排。<code>live/main.py</code> 里只有一个 <code>&quot;/&quot;</code> 的模板路由（<code>:9-12</code>）。</li>
+            </ul>
+            <p>边界之内，代码是有主张的：连接串、账号、密钥一律通过 <code>load_dotenv()</code> + <code>os.getenv()</code> 读入，文件里没有一处硬编码的凭据（<code>auth_db.py:8-13</code>、<code>auth_utils.py:11-13</code>）。这一点比任何功能都重要，因为它决定了这份代码能不能被提交。</p>
+          </section>
+
+          <section class="pa-sec" id="arch">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">02</span>架构</h2>
+            <p>图上两条链是分开画的，因为它们真的没有连起来：请求链只走到模板，写库链只在建用户时走一次。这个「没有连起来」不是画图时的省略，而是当前的实情，第六节会说明它意味着什么。</p>
+            <figure class="pa-fig">
+              <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig06t">
+                <title id="fig06t">应用服务与数据层的两条链：请求链（HTTP、FastAPI 应用、Jinja2 模板、HTML 响应）与写库链（建用户脚本、bcrypt 哈希、会话、users 表）</title>
+                <defs>
+                  <marker id="ar06" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B93A6"/></marker>
+                  <marker id="arc06" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#63D6CB"/></marker>
+                </defs>
+                <text x="12" y="82" font-size="11" fill="#8B93A6">请求链</text>
+                <text x="12" y="164" font-size="11" fill="#8B93A6">写库链</text>
+                <rect x="12" y="96" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="24" y="114" font-size="11" fill="#E3E7F0">HTTP 请求</text>
+                <text x="24" y="128" font-size="11" fill="#8B93A6">uvicorn · :8000</text>
+                <rect x="240" y="96" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="252" y="114" font-size="11" fill="#E3E7F0">FastAPI 应用</text>
+                <text x="252" y="128" font-size="11" fill="#8B93A6">main.py · 单路由</text>
+                <rect x="468" y="96" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="480" y="114" font-size="11" fill="#E3E7F0">Jinja2 模板</text>
+                <text x="480" y="128" font-size="11" fill="#8B93A6">templates/index.html</text>
+                <rect x="696" y="96" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="708" y="114" font-size="11" fill="#E3E7F0">HTML 响应</text>
+                <text x="708" y="128" font-size="11" fill="#8B93A6">HTMLResponse</text>
+                <rect x="12" y="178" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="24" y="196" font-size="11" fill="#E3E7F0">建用户脚本</text>
+                <text x="24" y="210" font-size="11" fill="#8B93A6">creat_user.py</text>
+                <rect x="240" y="178" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="252" y="196" font-size="11" fill="#E3E7F0">bcrypt 哈希</text>
+                <text x="252" y="210" font-size="11" fill="#8B93A6">hash_password()</text>
+                <rect x="468" y="178" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="480" y="196" font-size="11" fill="#E3E7F0">会话</text>
+                <text x="480" y="210" font-size="11" fill="#8B93A6">SessionLocal / get_db</text>
+                <rect x="696" y="178" width="140" height="38" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                <text x="708" y="196" font-size="11" fill="#E3E7F0">users 表</text>
+                <text x="708" y="210" font-size="11" fill="#8B93A6">hashed_password 列</text>
+                <path d="M152 115 H240" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc06)"/>
+                <path d="M380 115 H468" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc06)"/>
+                <path d="M608 115 H696" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#arc06)"/>
+                <path d="M152 197 H240" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar06)"/>
+                <path d="M380 197 H468" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar06)"/>
+                <path d="M608 197 H696" fill="none" stroke="#D6E0FF" stroke-opacity=".24" stroke-width="1" marker-end="url(#ar06)"/>
+                <text x="12" y="232" font-size="11" fill="#D9AE79">密钥与连接串全部来自环境变量；令牌表用 user_id 关联，不塞进用户行</text>
+              </svg>
+              <figcaption><b>图 06 —</b> 青色是请求链，灰色是写库链。两条链共用同一套连接与会话定义（<code>auth_db.py</code>），但当前没有任何一条路由引用鉴权或 <code>get_db</code>——底座已经就位，业务还没接上去。</figcaption>
+            </figure>
+            <p>表结构只有两张：<code>users</code>（<code>id</code> / <code>username</code> 唯一索引 / <code>hashed_password</code>，<code>auth_db.py:23-27</code>）与 <code>user_config</code>（<code>user_id</code> 索引 + 一个 <code>JSONB</code> 列，<code>:29-33</code>）。用 <code>JSONB</code> 而不是把配置拆成列，是因为配置项的集合本身还会变；代价是这些字段不能靠 SQL 约束保证形状，校验只能放在写入之前。</p>
+          </section>
+
+          <section class="pa-sec" id="dec">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">03</span>关键决策与取舍</h2>
+            <div class="pa-dec">
+              <p><strong>D1 · 连接池探活交给驱动</strong></p>
+              <p><span class="pa-dec__k">理由</span><code>create_engine</code> 带 <code>pool_pre_ping=True</code> 与 <code>connect_timeout=3</code>（<code>auth_db.py:17</code>）。取连接前先探活，数据库重启后池里的旧连接不会再变成一批 500；超时压到 3 秒，是因为一个连不通的库不该让请求挂到网关超时。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>每个请求自己 ping 的确定性。代价是每取一次连接多一次往返，这笔固定开销在低并发时看得见。</p>
+            </div>
+            <div class="pa-dec">
+              <p><strong>D2 · 会话按请求生成，不共享全局会话</strong></p>
+              <p><span class="pa-dec__k">理由</span><code>sessionmaker(autocommit=False, autoflush=False)</code>（<code>auth_db.py:18</code>），<code>get_db()</code> 用 <code>yield</code> 把会话交给依赖，<code>finally</code> 里关掉（<code>:38-43</code>）。自动提交关掉意味着提交是显式的，自动 flush 关掉意味着查询顺序不会意外触发写入。全局会话会让并发请求的事务互相污染。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>少写两行代码的便利。代价是每个写路径都必须记得 <code>commit()</code>，忘了就是「接口返回 200 但库没变」。</p>
+            </div>
+            <div class="pa-dec">
+              <p><strong>D3 · 密码与令牌分表，令牌不塞进用户行</strong></p>
+              <p><span class="pa-dec__k">理由</span><code>hashed_password</code> 列只存 bcrypt 哈希（<code>auth_db.py:27</code>，写入在 <code>creat_user.py:13-16</code>）；用户相关的可配置数据单独一张 <code>user_config</code>，用 <code>user_id</code> 关联（<code>:31-33</code>）。一个用户多份配置时，加行而不是改行。</p>
+              <p><span class="pa-dec__k pa-dec__k--give">放弃</span>把令牌和配置都塞进用户行的省事。代价是取配置多一次查询，且没有外键约束——<code>user_id</code> 只是一个带索引的整数列，孤儿行由应用层负责。</p>
+            </div>
+          </section>
+
+          <section class="pa-sec" id="hard">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">04</span>难点与解法</h2>
+            <p><strong>一 · 生成器依赖不能当对象用</strong></p>
+            <p><code>get_db()</code> 是 <code>yield</code> 出来的生成器（<code>auth_db.py:38-43</code>），它只有在 FastAPI 的依赖注入里才被「变成一个会话」。文件末尾那段 <code>if __name__ == '__main__'</code> 里写的是 <code>db = get_db()</code> 然后直接 <code>db.add(user)</code>（<code>:48-50</code>）——<code>db</code> 拿到的是生成器对象，<code>add</code> 会在第一次调用时抛 <code>AttributeError</code>。这段「测试代码」跑不起来，正确的写法是 <code>db = SessionLocal()</code> 或 <code>next(get_db())</code>。留着它是因为它演示了类的用法，但它不是可执行的验证。</p>
+            <p><strong>二 · 密码怎么存与令牌怎么发是两件事</strong></p>
+            <p>哈希不可逆，令牌可解析——混在一处最容易写成「把密码塞进 JWT」。代码把它们分在两个函数群里：<code>hash_password</code> / <code>verify_password</code> 走 <code>CryptContext(schemes=[&quot;bcrypt&quot;])</code>（<code>auth_utils.py:18</code>、<code>:22-28</code>）；<code>create_access_token</code> 把 <code>sub</code>（用户 ID）、<code>username</code> 与 <code>exp</code> 放进载荷再签名（<code>:32-41</code>）。令牌里的内容是<strong>明文可读的</strong>，签名只保证它没被篡改，这一点在载荷里只放 ID 而不放敏感信息时才算安全。</p>
+            <p><strong>三 · 解析失败要返回空值而不是抛异常</strong></p>
+            <p><code>decode_token</code> 用 <code>try/except JWTError</code> 包住 <code>jwt.decode</code>，过期或伪造一律返回 <code>None</code>（<code>:43-50</code>）。调用方只需要判空，不必区分「过期」与「签名不对」——把这两种情况都暴露给客户端，等于给攻击者一个试探签名的信道。</p>
+          </section>
+
+          <section class="pa-sec" id="code">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">05</span>代码走读</h2>
+            <p>第一段是连接与会话。注意连接串那一行只留了占位——四段凭据全部来自环境变量，代码里不出现任何值：</p>
+            <div class="pa-code">
+              <button class="pa-code__copy" type="button" data-copy>COPY</button>
+              <pre><code>load_dotenv()
+
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+SERVER_IP   = os.getenv("SERVER_IP")
+DATA_BASE   = os.getenv("DATA_BASE")
+OWNER_NAME  = os.getenv("OWNER_NAME")
+
+# 四段取自环境变量，这里不展开
+SQLALCHEMY_DATABASE_URL = "postgresql+psycopg://…"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL,
+                       pool_pre_ping=True,                       # 取连接前探活
+                       connect_args={"connect_timeout": 3})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+
+def get_db():
+    db = SessionLocal()          # 每个请求一个会话
+    try:
+        yield db
+    finally:
+        db.close()               # 无论成功失败都关</code></pre>
+            </div>
+            <p>第二段是鉴权工具。两个函数群各自完整，但共用同一个密钥来源：</p>
+            <div class="pa-code">
+              <button class="pa-code__copy" type="button" data-copy>COPY</button>
+              <pre><code>SECRET_KEY  = os.getenv('SECRET_KEY')
+ALGORITHM   = os.getenv('ALGORITHM')
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str) -&gt; str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -&gt; bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(user_id: int, username: str) -&gt; str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {
+        "sub": str(user_id),     # 只放 ID，不放密码或权限
+        "username": username,
+        "exp": expire,           # 过期时间
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+def decode_token(token: str) -&gt; dict:
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        return None              # 过期或伪造都返回空，不向客户端区分</code></pre>
+            </div>
+            <p>写入路径只有一条，在 <code>creat_user.py:5-19</code>：先 <code>create_all</code> 建表，再开一个会话，按用户名查重，查不到才哈希并插入，最后在 <code>finally</code> 里关闭。查重与插入之间没有加锁——并发建同名用户时由 <code>users.username</code> 的唯一索引兜底，代价是其中一个请求会拿到 <code>IntegrityError</code> 而不是干净的提示。</p>
+          </section>
+
+          <section class="pa-sec" id="next">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">06</span>失败与下一步</h2>
+            <ul>
+              <li><strong><code>auth_db.py</code> 末尾的测试块跑不起来。</strong><code>db = get_db()</code> 得到的是生成器，<code>db.add(user)</code> 直接 <code>AttributeError</code>（<code>:46-53</code>）。它看起来像可运行的验证，实际上只是一段演示；真要验证得用 <code>SessionLocal()</code>。</li>
+              <li><strong>两种导入风格并存。</strong><code>creat_user.py:1-2</code> 用的是扁平导入 <code>from auth_db import ...</code>，也就是说这个文件只能在该目录下直接 <code>python creat_user.py</code> 跑；而同一个人的另一个工程用的是包路径（<code>project.fruit2.xxx</code>）。同一批文件被两种约定切成了两半，谁都不能从仓库根一次性 <code>python -m</code>。</li>
+              <li><strong>鉴权层还没有被任何路由引用。</strong><code>live/main.py</code> 只有一个 <code>&quot;/&quot;</code> 的模板路由（<code>:9-12</code>），没有 <code>Depends(get_db)</code>，也没有取 <code>verify_password</code>。125 行的鉴权与数据层目前是「可被引用的工具」，不是「被引用的能力」——图上两条链没有连起来，说的就是这件事。</li>
+              <li><strong>没有测试。</strong>139 行里没有一行断言。上面三个问题，任何一个都能被一个 pytest 文件在几秒内盯住。</li>
+            </ul>
+            <p>下一步按性价比排序：① 写 <code>tests/test_auth.py</code>：哈希-校验往返、过期令牌返回 <code>None</code>、同名用户重复创建抛 <code>IntegrityError</code>——三个用例就能把第 1、3 条钉死；② 把 <code>creat_user.py</code> 换成包内相对导入，让它既能被 <code>-m</code> 调用也能被测试 import；③ 把 FastAPI 文档里的接口片段收敛成一个真正的 <code>api.py</code>：<code>/register</code> 与 <code>/login</code> 两条，用 <code>Depends(get_db)</code> 接上现有的会话与鉴权，至此两条链才真正连成一条。</p>
+          </section>
+
+          <section class="pa-sec" id="scale">
+            <h2 class="pa-sec__t"><span class="pa-sec__n" aria-hidden="true">07</span>规模与复核</h2>
+            <p>这一节的每个数字都分开列，因为这一页最容易混淆的就是「实现」与「笔记」：</p>
+            <dl class="pa-scale">
+              <dt>服务代码</dt>
+              <dd>5 个 Python 文件 / 139 行</dd>
+              <dt>users/</dt>
+              <dd>4 个文件 / 125 行 = <code>auth_db.py</code> 52 · <code>auth_utils.py</code> 49 · <code>creat_user.py</code> 24 · <code>__init__.py</code> 0</dd>
+              <dt>入口</dt>
+              <dd><code>live/main.py</code> 14 行（FastAPI + Jinja2 模板路由 + uvicorn 启动）</dd>
+              <dt>不计入</dt>
+              <dd><code>live/1.py</code> 42 行（草稿，未接入）</dd>
+              <dt>文档</dt>
+              <dd>7,994 行 FastAPI 文档 —— 单列。这是笔记的体量，不是服务实现的体量，两者不相加</dd>
+              <dt>依赖</dt>
+              <dd>fastapi · uvicorn · jinja2 · sqlalchemy · psycopg · python-dotenv · passlib[bcrypt] · python-jose</dd>
+              <dt>复核命令</dt>
+              <dd><code>find users -name "*.py" -not -path "*__pycache__*" | wc -l</code> → 4 · <code>cat $(find users -name "*.py" -not -path "*__pycache__*") | wc -l</code> → 125 · <code>wc -l main.py</code> → 14</dd>
+              <dt>口径</dt>
+              <dd>文件数为 <code>.py</code> 计数（排除 <code>__pycache__</code>），行数为同范围 <code>cat | wc -l</code>；不使用「模块数」这类有歧义的说法</dd>
+            </dl>
+            <p>没有写出来的数字：并发量、QPS、响应时间。仓库里没有压测记录，任何这类读数都无法被复核，所以一律不写。</p>
+          </section>
+
+        </div>
+        <aside class="pa__toc">
+          <p class="pa-toc__label">On this page</p>
+          <nav class="pa-toc" data-scrollspy aria-label="本页目录">
+            <a href="#task">01 任务与边界</a>
+            <a href="#arch">02 架构</a>
+            <a href="#dec">03 关键决策与取舍</a>
+            <a href="#hard">04 难点与解法</a>
+            <a href="#code">05 代码走读</a>
+            <a href="#next">06 失败与下一步</a>
+            <a href="#scale">07 规模与复核</a>
+          </nav>
+        </aside>
+      </div>
+
+      <nav class="pa-nav" aria-label="相邻项目">
+        <a href="./vision-classifier.html">
+          <span class="pa-nav__k">← 上一篇</span>
+          <span class="pa-nav__t">05 图像分类实验台</span>
+        </a>
+        <a href="../projects.html">
+          <span class="pa-nav__k">返回索引 →</span>
+          <span class="pa-nav__t">全部六份工程档案</span>
+        </a>
+      </nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+  <div class="progress" data-progress aria-hidden="true"></div>
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>自建 PyTorch 训练框架 · Minecraft-JoJo</title>
+  <meta name="description" content="自建 PyTorch 训练框架：cfg / predata / model / train / logs 五层解耦，参数对象贯通训练与导出，附 ONNX 导出、TensorBoard 日志、断点续训与 29 个文件 3,012 行的复核方式。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="自建 PyTorch 训练框架 · Minecraft-JoJo">
+  <meta property="og:description" content="五层解耦的 PyTorch 骨架：参数对象贯通训练、导出与推理；29 个 Python 文件 3,012 行。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/project-page.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
+  <div class="pointer-glow" data-pointer-glow aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html" aria-current="page">Projects</a>
+        <a class="nav-link" href="../notes.html">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="true" title="开启动效 / 关闭动效">
+      <span class="motion-toggle__dot" aria-hidden="true"></span><span class="motion-toggle__label">动效</span>
+    </button>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="pa">
+      <div class="wrap">
+        <nav class="pa__crumb" aria-label="面包屑">
+          <a href="../projects.html">PROJECTS</a>
+          <span aria-hidden="true">/</span>
+          <span>02</span>
+        </nav>
+
+        <header class="pa__head">
+          <p class="eyebrow">PROJECTS / 02 · TRAINING</p>
+          <h1 class="pa__title">自建 PyTorch 训练框架</h1>
+          <p class="pa__tag">PyTorch · ONNX · TensorBoard · PyYAML · SQLAlchemy + jose · PySide6 · CUDA / CPU</p>
+          <p class="pa__lede">手写训练脚本的通病是每换一个数据集就复制一份 train.py：增强、断点续训、日志路径全散在循环里，第二次实验就开始对不上。这里要解决的是「换数据集不碰训练循环」——配置、数据、模型、循环四者只通过一个参数对象通信。代价写在同一句话里：任何一处字段改名都要同步四处。全套骨架 29 个 Python 文件 3,012 行。</p>
+          <dl class="pa__facts">
+            <dt>形态</dt><dd>五层骨架（cfg / predata / model / train / logs），另带 users 鉴权与 main_ui 的 PySide6 面板</dd>
+            <dt>依赖</dt><dd>PyTorch · ONNX · TensorBoard · PyYAML · SQLAlchemy + jose/passlib · PySide6</dd>
+            <dt>运行环境</dt><dd>构造参数对象时选设备：有 CUDA 用 GPU，否则回落 CPU；WSL 上的本地工作副本</dd>
+            <dt>仓库</dt><dd>未单独公开；站点仓库见 <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">github.com/Minecraft-JoJo/Mywebsite</a></dd>
+            <dt>规模</dt><dd>29 个 Python 文件 / 3,012 行</dd>
+            <dt>复核方式</dt><dd>find 与 wc -l 计数，命令见本文第 7 节</dd>
+          </dl>
+        </header>
+
+        <div class="pa__body">
+          <div class="pa__main">
+
+            <section class="pa-sec" id="task" aria-labelledby="taskT">
+              <h2 class="pa-sec__t" id="taskT"><span class="pa-sec__n" aria-hidden="true">01</span>任务与边界</h2>
+              <p>这套骨架的产出不是某个模型，而是「换数据集只改配置」这件事本身。目录按职责分开：<code>cfg/</code> 造参数对象，<code>predata/</code> 给 Dataset 与 DataLoader，<code>model/</code> 装配网络，<code>train/</code> 是唯一写权重的地方，<code>logs/</code> 收 TensorBoard 事件文件，<code>load/</code> 负责把前四者组装成一个可训练对象。</p>
+              <p>它明确不做的事：</p>
+              <ul>
+                <li>不做分布式训练：单进程单卡，循环里没有 rank 与 all-reduce。</li>
+                <li>不做超参搜索或实验管理服务，多组实验靠多次启动与时间戳目录。</li>
+                <li>不做模型库（zoo）：<code>model/build.py</code> 按名字装配，没有预置权重仓库。</li>
+                <li>不做服务端指标与上报，训练过程的唯一输出是日志文件与 checkpoint。</li>
+                <li>不做数据标注工具：数据集进来之前已经是干净的。</li>
+              </ul>
+              <p>边界换来的代价也很具体：四层之间只靠字段名约定，没有类型层，字段拼错要等运行到那一步才报。</p>
+            </section>
+
+            <section class="pa-sec" id="arch" aria-labelledby="archT">
+              <h2 class="pa-sec__t" id="archT"><span class="pa-sec__n" aria-hidden="true">02</span>架构</h2>
+              <p>数据流是单向的，train 是唯一写权重的节点；日志、ONNX 与 checkpoint 各走一条出边。下图青色是从权重到产物的主路径，灰色是装配与读入。</p>
+              <figure class="pa-fig">
+                <svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig2t">
+                  <title id="fig2t">训练框架的数据流：参数对象经数据与模型装配进入训练循环，输出 TensorBoard 日志、checkpoint 与 ONNX</title>
+                  <defs>
+                    <marker id="pa-ar2" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#8B93A6"/></marker>
+                    <marker id="pa-arc2" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 .5 L8 4 L0 7.5 Z" fill="#63D6CB"/></marker>
+                  </defs>
+                  <rect x="0" y="0" width="880" height="240" fill="none"/>
+                  <rect x="10" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="22" y="105" font-size="12" fill="#E3E7F0">cfg · setting</text>
+                  <text x="22" y="120" font-size="11" fill="#8B93A6">参数对象 · 设备选择</text>
+                  <rect x="190" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="202" y="105" font-size="12" fill="#E3E7F0">predata</text>
+                  <text x="202" y="120" font-size="11" fill="#8B93A6">Dataset · DataLoader</text>
+                  <rect x="370" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="382" y="105" font-size="12" fill="#E3E7F0">model</text>
+                  <text x="382" y="120" font-size="11" fill="#8B93A6">build.py 装配网络</text>
+                  <rect x="550" y="88" width="150" height="40" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="562" y="105" font-size="12" fill="#E3E7F0">train · 训练循环</text>
+                  <text x="562" y="120" font-size="11" fill="#8B93A6">唯一写权重的地方</text>
+                  <rect x="730" y="40" width="140" height="40" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="742" y="57" font-size="12" fill="#E3E7F0">logs / TB</text>
+                  <text x="742" y="72" font-size="11" fill="#8B93A6">时间戳 log_dir</text>
+                  <rect x="730" y="136" width="140" height="40" rx="1" fill="#222736" stroke="#D6E0FF" stroke-opacity=".22"/>
+                  <text x="742" y="153" font-size="12" fill="#E3E7F0">out_onnx</text>
+                  <text x="742" y="168" font-size="11" fill="#8B93A6">opset 12 · batch 动态</text>
+                  <rect x="370" y="176" width="150" height="40" rx="1" fill="#222736" stroke="#63D6CB" stroke-opacity=".55"/>
+                  <text x="382" y="193" font-size="12" fill="#E3E7F0">ckpt / 续训</text>
+                  <text x="382" y="208" font-size="11" fill="#8B93A6">start_epoch 起算</text>
+                  <path d="M160 108 H190" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar2)"/>
+                  <path d="M340 108 H370" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar2)"/>
+                  <path d="M520 108 H550" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc2)"/>
+                  <path d="M700 102 H716 V60 H730" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc2)"/>
+                  <path d="M700 116 H716 V156 H730" fill="none" stroke="#D6E0FF" stroke-opacity=".22" stroke-width="1" marker-end="url(#pa-ar2)"/>
+                  <path d="M625 128 V196 H520" fill="none" stroke="#63D6CB" stroke-width="1" marker-end="url(#pa-arc2)"/>
+                  <text x="10" y="234" font-size="11" fill="#D9AE79">SummaryWriter 写 Loss/train · Loss/val · Accuracy/train · Accuracy/val</text>
+                </svg>
+                <figcaption>图 02 — 参数对象由 cfg 造出，predata 与 model 只读它；train 是唯一写权重的地方，日志、checkpoint、ONNX 各走一条出边，续训时 start_epoch 从 checkpoint 读回。</figcaption>
+              </figure>
+            </section>
+
+            <section class="pa-sec" id="decisions" aria-labelledby="decT">
+              <h2 class="pa-sec__t" id="decT"><span class="pa-sec__n" aria-hidden="true">03</span>关键决策与取舍</h2>
+              <p>三个决策分别管「层间怎么通信」「日志怎么隔离」「导出放在哪」。</p>
+
+              <div class="pa-dec">
+                <p><strong>D1 · 配置做成参数对象（cfg/build_cfg.py 的 setting 类）</strong></p>
+                <p><span class="pa-dec__k">理由</span>训练、导出、推理拿到同一个对象，字段名一致；设备在构造时就选定 cuda 或 cpu，后面几层不再各自判断。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>dataclass 那层类型检查：字段拼错要等运行时才报，代价是调试一轮的时间。</p>
+              </div>
+
+              <div class="pa-dec">
+                <p><strong>D2 · 日志目录按启动时间戳切分</strong></p>
+                <p><span class="pa-dec__k">理由</span><code>train/train_rnn.py</code> 用 <code>logs/tensorboard/{时间戳}</code> 作 <code>log_dir</code>，同一份配置跑多次不互相覆盖，TensorBoard 里每条曲线都能追回一次启动。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>「一个实验一个固定目录」的整洁：目录数随实验数线性增长，清理靠手。</p>
+              </div>
+
+              <div class="pa-dec">
+                <p><strong>D3 · 导出独立成 train/out_onnx.py</strong></p>
+                <p><span class="pa-dec__k">理由</span>训练进程不负责导出，checkpoint 是两者之间唯一的接口；导出失败不用重训，换个导出参数也不用碰训练脚本。</p>
+                <p><span class="pa-dec__k pa-dec__k--give">放弃</span>训练结束自动导出的顺带便利：每次都要多执行一条命令。</p>
+              </div>
+            </section>
+
+            <section class="pa-sec" id="hard" aria-labelledby="hardT">
+              <h2 class="pa-sec__t" id="hardT"><span class="pa-sec__n" aria-hidden="true">04</span>难点与解法</h2>
+              <p><strong>ONNX 导出对 checkpoint 结构敏感。</strong>torch.save 存的是字典而不是裸权重，键名一变导出就失败。做法是先 <code>map_location="cpu"</code> 载入，再 <code>checkpoint.get("model_state_dict")</code>，取不到直接抛 <code>ValueError</code> 并写明检查键名；然后 <code>cpu()</code>、<code>eval()</code>、<code>no_grad</code> 一条路导出，<code>opset_version=12</code>，<code>dynamic_axes</code> 只放开 batch 维，输入输出按名固定。</p>
+              <p><strong>断点续训的轮次换算。</strong>循环写成 <code>range(start_epoch, num_epochs + start_epoch)</code>，屏幕上的轮次同源换算；两个 interrupted 权重路径分开写（<code>train/train.py</code>），避免中断时两份都不可用。<code>load/load.py</code> 负责把 cfg 装成 model、优化器、调度器与 <code>start_epoch</code> 四件套，循环本身不认识模型细节——这是「换数据集不碰循环」能成立的原因。</p>
+              <ul>
+                <li>三种模型形态各有一份循环：<code>train.py</code>、<code>train_rnn.py</code>、<code>train_seqs.py</code>；结构相同，差别在批数据形状与损失。</li>
+                <li>参数对象里同时有 <code>save_path</code>（按模型名加时间戳拼出的 .pth）与 <code>log_path</code>（CSV 路径），两者来源不同，见第 6 节。</li>
+              </ul>
+            </section>
+
+            <section class="pa-sec" id="code" aria-labelledby="codeT">
+              <h2 class="pa-sec__t" id="codeT"><span class="pa-sec__n" aria-hidden="true">05</span>代码走读</h2>
+              <p>参数对象的全部作用是「把散落在脚本里的名字收成一份」。这一段来自 <code>cfg/build_cfg.py</code>，省略了与展示无关的字段。</p>
+              <div class="pa-code"><pre><code># cfg/build_cfg.py — 训练 / 导出 / 推理共用的参数对象
+class setting:
+    def __init__(self, params, path):
+        self.work_path = path
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.batch_size = params["batchsize"]
+        self.num_workers = params["num_workers"]
+        self.epochs = params["epochs"]
+        self.model_name = params["model"]
+        self.lr = params["learning_rate"]
+
+        save_path = f"{self.work_path}/save"
+        self.save_path = f"{save_path}/{self.model_name}_{time.strftime('%Y_%m_%d_%H_%M_%S')}.pth"
+        self.log_path = "./train_log/train.csv"</code></pre><button class="pa-code__copy" type="button" data-copy>COPY</button></div>
+              <p>导出脚本只认 checkpoint，不认训练过程：载入失败与键名缺失都被挡在导出之前。</p>
+              <div class="pa-code"><pre><code># train/out_onnx.py — 导出吃 checkpoint，不吃训练进程
+checkpoint = torch.load(cfg.load_path, map_location="cpu")
+load = LoadAll(cfg)
+load.model_loader(cfg.model)
+
+state_dict = checkpoint.get("model_state_dict")
+if state_dict is None:
+    raise ValueError("checkpoint 里没有 model_state_dict，检查 key 名称")
+
+load.model.load_state_dict(state_dict)
+load.model = load.model.cpu()
+load.model.eval()
+
+dummy_input = torch.randn(1, 3, 224, 224)
+with torch.no_grad():
+    torch.onnx.export(
+        load.model, dummy_input, onnx_path,
+        opset_version=12,
+        input_names=["input"], output_names=["output"],
+        dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}},
+    )</code></pre><button class="pa-code__copy" type="button" data-copy>COPY</button></div>
+            </section>
+
+            <section class="pa-sec" id="limits" aria-labelledby="limT">
+              <h2 class="pa-sec__t" id="limT"><span class="pa-sec__n" aria-hidden="true">06</span>失败与下一步</h2>
+              <p>这套骨架的债务是复制，不是设计。已知缺陷按影响排序：</p>
+              <ul>
+                <li>三份训练循环并存：<code>train/train.py</code> 252 行、<code>train/train_rnn.py</code> 305 行、<code>train/train_seqs.py</code>，改一个策略要改三处，改漏一处三个模型的曲线就不可比。</li>
+                <li><code>cfg/build_cfg.py</code> 里留了一段写死的默认参数分支，由一个布尔量 <code>selefUse</code> 切换（拼写错误还在），默认值包含 epochs 60、lr 0.0003 和一条绝对数据集路径；这条分支绕过 params 入参，是「配置唯一」的最大例外。</li>
+                <li>日志有两套口径：<code>log_path</code> 指向 <code>./train_log/train.csv</code>（相对启动目录），TensorBoard 却写在 <code>work_path</code> 派生的时间戳目录里；换目录启动会得到一个位置漂移的 CSV。</li>
+                <li><code>users/</code> 的鉴权代码与训练框架同仓，<code>main_ui/</code> 的 PySide6 面板也在里面；训练相关文件只占目录的一部分。</li>
+                <li>没有单元测试；<code>out_onnx.py</code> 几乎是唯一带显式错误分支的脚本，其余靠运行时异常暴露。</li>
+              </ul>
+              <p>下一步三件：把三份循环合并成「模型暴露 step 接口、循环只调用」的一处实现；删掉 <code>selefUse</code> 分支，让 params 成为唯一入口；把 <code>log_path</code> 改成由 <code>work_path</code> 派生。</p>
+            </section>
+
+            <section class="pa-sec" id="scale" aria-labelledby="scaleT">
+              <h2 class="pa-sec__t" id="scaleT"><span class="pa-sec__n" aria-hidden="true">07</span>规模与复核</h2>
+              <p>口径与全站一致：「文件数」用 <code>find</code> 计，「行数」在同一范围上 <code>cat | wc -l</code>，排掉 <code>__pycache__</code>。</p>
+              <dl class="pa-scale">
+                <dt>Python 文件数</dt><dd>29</dd>
+                <dt>行数</dt><dd>3,012</dd>
+                <dt>主要文件</dt><dd>load/load.py 351 · train/train_rnn.py 305 · train/train.py 252 · cfg/build_cfg.py 86</dd>
+                <dt>目录</dt><dd>cfg · predata · model · train · load · logs · users · main_ui · pre · save</dd>
+                <dt>依赖</dt><dd>PyTorch · ONNX · TensorBoard · PyYAML · SQLAlchemy + jose/passlib · PySide6</dd>
+                <dt>复核命令</dt><dd><code>find . -name "*.py" -not -path "*__pycache__*" | wc -l</code> → 29；同范围 <code>cat … | wc -l</code> → 3012</dd>
+              </dl>
+            </section>
+
+          </div>
+
+          <aside class="pa__toc" data-toc aria-label="本文目录">
+            <p class="pa-toc__label">SECTIONS</p>
+            <nav class="pa-toc" data-scrollspy>
+              <a href="#task">01 任务与边界</a>
+              <a href="#arch">02 架构</a>
+              <a href="#decisions">03 关键决策与取舍</a>
+              <a href="#hard">04 难点与解法</a>
+              <a href="#code">05 代码走读</a>
+              <a href="#limits">06 失败与下一步</a>
+              <a href="#scale">07 规模与复核</a>
+            </nav>
+          </aside>
+        </div>
+
+        <nav class="pa-nav" aria-label="前后篇">
+          <a href="./ocr-pipeline.html">
+            <span class="pa-nav__k">PREV · 01</span>
+            <span class="pa-nav__t">漫画 OCR 翻译管线</span>
+          </a>
+          <a href="./diffusion-lora.html">
+            <span class="pa-nav__k">NEXT · 03</span>
+            <span class="pa-nav__t">扩散模型 LoRA 微调</span>
+          </a>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -28,4 +28,10 @@
     <loc>https://minecraft-jojo.github.io/Mywebsite/contact.html</loc>
     <lastmod>2025-10-29</lastmod>
   </url>
+  <url><loc>https://minecraft-jojo.github.io/Mywebsite/projects/ocr-pipeline.html</loc><lastmod>2026-10-29</lastmod></url>
+  <url><loc>https://minecraft-jojo.github.io/Mywebsite/projects/train-framework.html</loc><lastmod>2026-10-29</lastmod></url>
+  <url><loc>https://minecraft-jojo.github.io/Mywebsite/projects/diffusion-lora.html</loc><lastmod>2026-10-29</lastmod></url>
+  <url><loc>https://minecraft-jojo.github.io/Mywebsite/projects/pose-pipeline.html</loc><lastmod>2026-10-29</lastmod></url>
+  <url><loc>https://minecraft-jojo.github.io/Mywebsite/projects/vision-classifier.html</loc><lastmod>2026-10-29</lastmod></url>
+  <url><loc>https://minecraft-jojo.github.io/Mywebsite/projects/service-layer.html</loc><lastmod>2026-10-29</lastmod></url>
 </urlset>
