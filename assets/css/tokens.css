@@ -1,36 +1,54 @@
 /* ============================================================
-   tokens.css — 设计令牌（唯一真相源，禁止在任何页面内覆盖变量）
+   tokens.css — 设计令牌（唯一真相源，页面内禁止覆盖）
+   v3 · 低色差深色：底色抬到 slate 灰蓝（不再近黑），
+   强调色降饱和并与底色同族；表面色之间只差一档亮度，
+   避免"黑底 + 霓虹"的硬切。琥珀只留作语义警示，不进视觉主体。
    ============================================================ */
 :root{
-  /* —— 色彩 —— */
-  --void:#07080A;
-  --void-2:#0C0E11;
-  --void-3:#12151A;
-  --ink:#E9EBEE;
-  --ink-2:#C3C8CE;
-  --muted:#8B9199;
-  --muted-2:#5E656E;
-  --line:rgba(233,235,238,.08);
-  --line-2:rgba(233,235,238,.15);
-  --cyan:#57E3D2;
-  --cyan-dim:rgba(87,227,210,.13);
-  --amber:#F2B441;
-  --amber-dim:rgba(242,180,65,.12);
-  --danger:#FF6B5E;
+  /* —— 底色（slate，非纯黑；相邻层只差一档） —— */
+  --void:#1B1F2A;
+  --void-2:#222736;
+  --void-3:#2A3040;
+  --void-4:#333A4C;
 
-  /* —— 字体栈 —— */
+  /* —— 文字（最大亮度压到 92%，减少眩光） —— */
+  --ink:#E3E7F0;
+  --ink-2:#BEC5D4;
+  --muted:#8B93A6;
+  --muted-2:#727B90;
+
+  /* —— 线 —— */
+  --line:rgba(214,224,255,.12);
+  --line-2:rgba(214,224,255,.22);
+
+  /* —— 强调色（同族：青绿 → 蓝 → 紫，全部降饱和） —— */
+  --cyan:#63D6CB;
+  --cyan-dim:rgba(99,214,203,.12);
+  --violet:#8F88D8;
+  --violet-dim:rgba(143,136,216,.14);
+  --amber:#D9AE79;
+  --amber-dim:rgba(217,174,121,.12);
+  --danger:#E58A83;
+
+  /* —— 光（减弱一半，避免"霓虹感"） —— */
+  --glow-cyan:0 0 34px rgba(99,214,203,.16);
+  --glow-violet:0 0 40px rgba(143,136,216,.16);
+  --glow-soft:0 18px 46px rgba(8,10,18,.42);
+  --spot:radial-gradient(320px circle at var(--mx,50%) var(--my,0%), rgba(99,214,203,.09), transparent 64%);
+
+  /* —— 字体 —— */
   --font-sans:"Inter Tight",Inter,system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
   --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,"PingFang SC",monospace;
 
-  /* —— 字号（流体） —— */
-  --t-display:clamp(38px,7.2vw,112px);
-  --t-h1:clamp(30px,4.4vw,68px);
-  --t-h2:clamp(23px,2.6vw,42px);
-  --t-h3:clamp(17px,1.5vw,26px);
-  --t-lede:clamp(15px,1.15vw,19px);
-  --t-body:15px;
-  --t-sm:13px;
-  --t-xs:11px;
+  /* —— 字号 —— */
+  --t-display:clamp(40px,7.4vw,112px);
+  --t-h1:clamp(32px,4.6vw,68px);
+  --t-h2:clamp(26px,3vw,44px);
+  --t-h3:clamp(19px,1.7vw,27px);
+  --t-lede:clamp(17px,1.25vw,20px);
+  --t-body:16px;
+  --t-sm:14px;
+  --t-xs:12px;
 
   /* —— 间距 —— */
   --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px;
@@ -40,9 +58,10 @@
   --maxw:1440px;
   --rhythm:clamp(72px,9vh,128px);
 
-  /* —— 形状（锐角＝工程感） —— */
-  --r-1:2px;
-  --r-2:3px;
+  /* —— 形状 —— */
+  --r-1:3px;
+  --r-2:6px;
+  --r-3:14px;
 
   /* —— 动效 —— */
   --e:cubic-bezier(.16,1,.3,1);
@@ -51,6 +70,8 @@
   --t-slow:800ms;
 
   /* —— 层级 —— */
+  --z-aurora:0;
+  --z-content:1;
   --z-hud:35;
   --z-header:40;
   --z-grain:60;

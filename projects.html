@@ -16,6 +16,11 @@
   <link rel="stylesheet" href="./assets/css/projects.css">
 </head>
 <body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora__blob aurora__blob--a"></span>
+    <span class="aurora__blob aurora__blob--b"></span>
+    <span class="aurora__blob aurora__blob--c"></span>
+  </div>
   <div class="grain" aria-hidden="true"></div>
   <div class="scanline" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -103,28 +108,28 @@
         </defs>
         <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="24" y="114" font-size="11" fill="#E9EBEE">输入图 / RAW</text>
-        <text x="24" y="128" font-size="9" fill="#8B9199">漫画页 · 任意尺寸</text>
+        <text x="24" y="128" font-size="11" fill="#8B9199">漫画页 · 任意尺寸</text>
         <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="114" font-size="11" fill="#E9EBEE">RapidOCR</text>
-        <text x="202" y="128" font-size="9" fill="#8B9199">文本框 + 文本识别</text>
+        <text x="202" y="128" font-size="11" fill="#8B9199">文本框 + 文本识别</text>
         <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="114" font-size="11" fill="#E9EBEE">版面分块重组</text>
-        <text x="380" y="128" font-size="9" fill="#8B9199">block.py 并查集分组</text>
+        <text x="380" y="128" font-size="11" fill="#8B9199">block.py 并查集分组</text>
         <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="114" font-size="11" fill="#E9EBEE">批量翻译 API</text>
-        <text x="558" y="128" font-size="9" fill="#8B9199">trans.py 行级对齐</text>
+        <text x="558" y="128" font-size="11" fill="#8B9199">trans.py 行级对齐</text>
         <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="114" font-size="11" fill="#E9EBEE">输出图</text>
-        <text x="736" y="128" font-size="9" fill="#8B9199">output/final.jpg</text>
+        <text x="736" y="128" font-size="11" fill="#8B9199">output/final.jpg</text>
         <rect x="190" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="196" font-size="11" fill="#E9EBEE">擦除原字</text>
-        <text x="202" y="210" font-size="9" fill="#8B9199">mask → cv2.inpaint</text>
+        <text x="202" y="210" font-size="11" fill="#8B9199">mask → cv2.inpaint</text>
         <rect x="368" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="196" font-size="11" fill="#E9EBEE">字体宽度测量</text>
-        <text x="380" y="210" font-size="9" fill="#8B9199">textlength → 二分缩放</text>
+        <text x="380" y="210" font-size="11" fill="#8B9199">textlength → 二分缩放</text>
         <rect x="546" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="196" font-size="11" fill="#E9EBEE">回填重绘</text>
-        <text x="558" y="210" font-size="9" fill="#8B9199">change.py 二分字号</text>
+        <text x="558" y="210" font-size="11" fill="#8B9199">change.py 二分字号</text>
         <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
         <path d="M316 115 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
         <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
@@ -133,7 +138,7 @@
         <path d="M316 197 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar1)"/>
         <path d="M494 197 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
         <path d="M672 197 H700 V115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc1)"/>
-        <text x="12" y="228" font-size="9" fill="#F2B441">字号 = 二分（折行后总高 ≤ 框高）· 单行按框宽 94% 折行</text>
+        <text x="12" y="228" font-size="11" fill="#F2B441">字号 = 二分（折行后总高 ≤ 框高）· 单行按框宽 94% 折行</text>
       </svg>
                 <figcaption class="proj-fig__cap"><b>图 01 —</b>输入图在一次调用里走完识别、分块与批量翻译；擦除与回填在同一帧上重建页面，回填字号由二分搜索决定，最后写回 output/final.jpg。</figcaption>
               </figure>
@@ -236,32 +241,32 @@
         </defs>
         <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="24" y="114" font-size="11" fill="#E9EBEE">cfg / yaml</text>
-        <text x="24" y="128" font-size="9" fill="#8B9199">build_cfg.py 参数对象</text>
+        <text x="24" y="128" font-size="11" fill="#8B9199">build_cfg.py 参数对象</text>
         <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="114" font-size="11" fill="#E9EBEE">predata</text>
-        <text x="202" y="128" font-size="9" fill="#8B9199">Dataset · DataLoader</text>
+        <text x="202" y="128" font-size="11" fill="#8B9199">Dataset · DataLoader</text>
         <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="114" font-size="11" fill="#E9EBEE">model</text>
-        <text x="380" y="128" font-size="9" fill="#8B9199">build.py 装配</text>
+        <text x="380" y="128" font-size="11" fill="#8B9199">build.py 装配</text>
         <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="114" font-size="11" fill="#E9EBEE">train</text>
-        <text x="558" y="128" font-size="9" fill="#8B9199">循环 · 日志 · ckpt</text>
+        <text x="558" y="128" font-size="11" fill="#8B9199">循环 · 日志 · ckpt</text>
         <rect x="724" y="48" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="66" font-size="11" fill="#E9EBEE">logs / TB</text>
-        <text x="736" y="80" font-size="9" fill="#8B9199">TensorBoard · Loss/Acc</text>
+        <text x="736" y="80" font-size="11" fill="#8B9199">TensorBoard · Loss/Acc</text>
         <rect x="724" y="146" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="164" font-size="11" fill="#E9EBEE">out_onnx</text>
-        <text x="736" y="178" font-size="9" fill="#8B9199">opset 12 · 动态 batch</text>
+        <text x="736" y="178" font-size="11" fill="#8B9199">opset 12 · 动态 batch</text>
         <rect x="368" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="196" font-size="11" fill="#E9EBEE">ckpt / 续训</text>
-        <text x="380" y="210" font-size="9" fill="#8B9199">start_epoch 起算</text>
+        <text x="380" y="210" font-size="11" fill="#8B9199">start_epoch 起算</text>
         <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
         <path d="M316 115 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
         <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc2)"/>
         <path d="M672 115 H700 V67 H724" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
         <path d="M672 115 H700 V165 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc2)"/>
         <path d="M609 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar2)"/>
-        <text x="12" y="228" font-size="9" fill="#F2B441">add_scalar：Loss/train · Loss/val · Accuracy/train · Accuracy/val</text>
+        <text x="12" y="228" font-size="11" fill="#F2B441">add_scalar：Loss/train · Loss/val · Accuracy/train · Accuracy/val</text>
       </svg>
                 <figcaption class="proj-fig__cap"><b>图 02 —</b>cfg 提供参数对象，predata 与 model 只读它；train 是唯一写权重的地方，日志与 ONNX 各走一条出边，断点续训回流到下一轮。</figcaption>
               </figure>
@@ -364,29 +369,29 @@
         </defs>
         <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="24" y="114" font-size="11" fill="#E9EBEE">数据集 + tag</text>
-        <text x="24" y="128" font-size="9" fill="#8B9199">dataset/images · tag</text>
+        <text x="24" y="128" font-size="11" fill="#8B9199">dataset/images · tag</text>
         <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="114" font-size="11" fill="#E9EBEE">配置模板</text>
-        <text x="202" y="128" font-size="9" fill="#8B9199">TOML · toml.dump 落盘</text>
+        <text x="202" y="128" font-size="11" fill="#8B9199">TOML · toml.dump 落盘</text>
         <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="114" font-size="11" fill="#E9EBEE">kohya_ss 训练</text>
-        <text x="380" y="128" font-size="9" fill="#8B9199">train_network.py</text>
+        <text x="380" y="128" font-size="11" fill="#8B9199">train_network.py</text>
         <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="114" font-size="11" fill="#E9EBEE">LoRA 权重</text>
-        <text x="558" y="128" font-size="9" fill="#8B9199">按 run 目录归集</text>
+        <text x="558" y="128" font-size="11" fill="#8B9199">按 run 目录归集</text>
         <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="114" font-size="11" fill="#E9EBEE">采样验证</text>
-        <text x="736" y="128" font-size="9" fill="#8B9199">sdxl_gen_img.py</text>
+        <text x="736" y="128" font-size="11" fill="#8B9199">sdxl_gen_img.py</text>
         <rect x="368" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="196" font-size="11" fill="#E9EBEE">运行记录 json</text>
-        <text x="380" y="210" font-size="9" fill="#8B9199">last_*.json 快照</text>
+        <text x="380" y="210" font-size="11" fill="#8B9199">last_*.json 快照</text>
         <path d="M138 115 H190" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
         <path d="M316 115 H368" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
         <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
         <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc3)"/>
         <path d="M431 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar3)"/>
         <path d="M368 197 H253 V134" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar3)"/>
-        <text x="12" y="228" font-size="9" fill="#F2B441">训练与采样读同一份 TOML；运行记录里留一份配置快照</text>
+        <text x="12" y="228" font-size="11" fill="#F2B441">训练与采样读同一份 TOML；运行记录里留一份配置快照</text>
       </svg>
                 <figcaption class="proj-fig__cap"><b>图 03 —</b>数据集与 tag 只进入配置生成；训练读取同一份 TOML 并落一条运行记录，权重交给采样端验证，记录回流到下一轮配置。</figcaption>
               </figure>
@@ -505,32 +510,32 @@
         </defs>
         <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="24" y="114" font-size="11" fill="#E9EBEE">pose 标注</text>
-        <text x="24" y="128" font-size="9" fill="#8B9199">309 帧关键点</text>
+        <text x="24" y="128" font-size="11" fill="#8B9199">309 帧关键点</text>
         <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="114" font-size="11" fill="#E9EBEE">训练</text>
-        <text x="202" y="128" font-size="9" fill="#8B9199">YOLO pose 权重</text>
+        <text x="202" y="128" font-size="11" fill="#8B9199">YOLO pose 权重</text>
         <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="114" font-size="11" fill="#E9EBEE">ONNX 导出</text>
-        <text x="380" y="128" font-size="9" fill="#8B9199">make_pre_model.py</text>
+        <text x="380" y="128" font-size="11" fill="#8B9199">make_pre_model.py</text>
         <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="114" font-size="11" fill="#E9EBEE">引擎缓存</text>
-        <text x="558" y="128" font-size="9" fill="#8B9199">trt_cache · 缓存落盘</text>
+        <text x="558" y="128" font-size="11" fill="#8B9199">trt_cache · 缓存落盘</text>
         <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="114" font-size="11" fill="#E9EBEE">运行时推理</text>
-        <text x="736" y="128" font-size="9" fill="#8B9199">ORT · CUDA Graph</text>
+        <text x="736" y="128" font-size="11" fill="#8B9199">ORT · CUDA Graph</text>
         <rect x="546" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="196" font-size="11" fill="#E9EBEE">覆盖层渲染</text>
-        <text x="558" y="210" font-size="9" fill="#8B9199">分层窗口 · 点击穿透</text>
+        <text x="558" y="210" font-size="11" fill="#8B9199">分层窗口 · 点击穿透</text>
         <rect x="190" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="196" font-size="11" fill="#E9EBEE">录制回归</text>
-        <text x="202" y="210" font-size="9" fill="#8B9199">dxcam → mp4v</text>
+        <text x="202" y="210" font-size="11" fill="#8B9199">dxcam → mp4v</text>
         <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
         <path d="M316 115 H368" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
         <path d="M494 115 H546" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
         <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc4)"/>
         <path d="M787 134 V197 H672" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc4)"/>
         <path d="M546 197 H316" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar4)"/>
-        <text x="12" y="228" font-size="9" fill="#F2B441">每帧预算：整帧 10.76 → 7.80 ms · 纯推理 6.5 → 2.0 ms</text>
+        <text x="12" y="228" font-size="11" fill="#F2B441">每帧预算：整帧 10.76 → 7.80 ms · 纯推理 6.5 → 2.0 ms</text>
       </svg>
                 <figcaption class="proj-fig__cap"><b>图 04 —</b>权重经 ONNX 与 TensorRT 引擎缓存进入运行时；推理结果直接写进分层窗口的位图，录制器用同一段输入做回归比对。</figcaption>
               </figure>
@@ -637,29 +642,29 @@
         </defs>
         <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="24" y="114" font-size="11" fill="#E9EBEE">数据集</text>
-        <text x="24" y="128" font-size="9" fill="#8B9199">train / val 目录</text>
+        <text x="24" y="128" font-size="11" fill="#8B9199">train / val 目录</text>
         <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="114" font-size="11" fill="#E9EBEE">加载器</text>
-        <text x="202" y="128" font-size="9" fill="#8B9199">transforms · 增强</text>
+        <text x="202" y="128" font-size="11" fill="#8B9199">transforms · 增强</text>
         <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="114" font-size="11" fill="#E9EBEE">迁移学习微调</text>
-        <text x="380" y="128" font-size="9" fill="#8B9199">主干 + 新分类头</text>
+        <text x="380" y="128" font-size="11" fill="#8B9199">主干 + 新分类头</text>
         <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="114" font-size="11" fill="#E9EBEE">验证指标</text>
-        <text x="558" y="128" font-size="9" fill="#8B9199">best_acc 选优</text>
+        <text x="558" y="128" font-size="11" fill="#8B9199">best_acc 选优</text>
         <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="114" font-size="11" fill="#E9EBEE">ONNX 导出</text>
-        <text x="736" y="128" font-size="9" fill="#8B9199">opset 12 · 动态 batch</text>
+        <text x="736" y="128" font-size="11" fill="#8B9199">opset 12 · 动态 batch</text>
         <rect x="724" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="196" font-size="11" fill="#E9EBEE">单图推理</text>
-        <text x="736" y="210" font-size="9" fill="#8B9199">pred.py · argmax</text>
+        <text x="736" y="210" font-size="11" fill="#8B9199">pred.py · argmax</text>
         <path d="M138 115 H190" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc5)"/>
         <path d="M316 115 H368" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc5)"/>
         <path d="M494 115 H546" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar5)"/>
         <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc5)"/>
         <path d="M787 134 V178" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar5)"/>
         <path d="M609 134 V197 H431 V134" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar5)"/>
-        <text x="12" y="228" font-size="9" fill="#F2B441">验证侧不做增强；训练与验证两侧的 resize 尺寸必须一致</text>
+        <text x="12" y="228" font-size="11" fill="#F2B441">验证侧不做增强；训练与验证两侧的 resize 尺寸必须一致</text>
       </svg>
                 <figcaption class="proj-fig__cap"><b>图 05 —</b>数据加载与增强只作用于训练侧，验证侧只做 resize 与归一化；导出后的图与训练用的是同一份权重装配。</figcaption>
               </figure>
@@ -762,29 +767,29 @@
         </defs>
         <rect x="12" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="24" y="114" font-size="11" fill="#E9EBEE">HTTP 请求</text>
-        <text x="24" y="128" font-size="9" fill="#8B9199">uvicorn · :8000</text>
+        <text x="24" y="128" font-size="11" fill="#8B9199">uvicorn · :8000</text>
         <rect x="190" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="114" font-size="11" fill="#E9EBEE">FastAPI 路由</text>
-        <text x="202" y="128" font-size="9" fill="#8B9199">api.py · /docs</text>
+        <text x="202" y="128" font-size="11" fill="#8B9199">api.py · /docs</text>
         <rect x="368" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="380" y="114" font-size="11" fill="#E9EBEE">Pydantic 校验</text>
-        <text x="380" y="128" font-size="9" fill="#8B9199">Body → 响应模型</text>
+        <text x="380" y="128" font-size="11" fill="#8B9199">Body → 响应模型</text>
         <rect x="546" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="558" y="114" font-size="11" fill="#E9EBEE">SQLAlchemy</text>
-        <text x="558" y="128" font-size="9" fill="#8B9199">sessionmaker 会话</text>
+        <text x="558" y="128" font-size="11" fill="#8B9199">sessionmaker 会话</text>
         <rect x="724" y="96" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="736" y="114" font-size="11" fill="#E9EBEE">PostgreSQL</text>
-        <text x="736" y="128" font-size="9" fill="#8B9199">pool_pre_ping 探活</text>
+        <text x="736" y="128" font-size="11" fill="#8B9199">pool_pre_ping 探活</text>
         <rect x="190" y="178" width="126" height="38" rx="1" fill="#0C0E11" stroke="#E9EBEE" stroke-opacity=".24"/>
         <text x="202" y="196" font-size="11" fill="#E9EBEE">JWT / passlib</text>
-        <text x="202" y="210" font-size="9" fill="#8B9199">hashed_password 列</text>
+        <text x="202" y="210" font-size="11" fill="#8B9199">hashed_password 列</text>
         <path d="M138 115 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar6)"/>
         <path d="M316 115 H368" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
         <path d="M494 115 H546" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
         <path d="M672 115 H724" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
         <path d="M75 134 V197 H190" fill="none" stroke="#E9EBEE2E" stroke-width="1" marker-end="url(#proj-ar6)"/>
         <path d="M253 178 V134" fill="none" stroke="#57E3D2" stroke-width="1" marker-end="url(#proj-arc6)"/>
-        <text x="12" y="228" font-size="9" fill="#F2B441">passlib bcrypt 哈希 · jose JWT · 密钥取自环境变量</text>
+        <text x="12" y="228" font-size="11" fill="#F2B441">passlib bcrypt 哈希 · jose JWT · 密钥取自环境变量</text>
       </svg>
                 <figcaption class="proj-fig__cap"><b>图 06 —</b>请求先过路由再进校验与数据层；鉴权在进入业务前完成，失败即拦截，密码只以哈希形式落库。</figcaption>
               </figure>
@@ -883,7 +888,7 @@
       <div class="site-footer__grid">
         <div>
           <p class="eyebrow">End of document</p>
-          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
         </div>
         <div class="site-footer__links">
           <span class="mono xs muted">INDEX</span>

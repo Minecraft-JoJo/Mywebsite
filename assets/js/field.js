@@ -1,9 +1,13 @@
 /* field.js — Latent Field：首页 hero 的背景场。
    固定种子 + 预分配缓冲：循环里不新建对象；页面隐藏或 canvas 离开视口时 rAF 完全停下。
-   兜底由 HTML 里那层内联 SVG 承担，data-poster 只是标识它存在，不加载它。 */
+   兜底由 HTML 里那层内联 SVG 承担。v2：整帧 lighter 绘制，交点自然叠亮；注意力边
+   3px 弱光 + 1px 亮线；1/5 节点套一张只生成一次的光斑贴图（逐帧仅 drawImage）。 */
 
-const COUNT = 46;
+const COUNT = 60;
 const TAU = Math.PI * 2;
+/* 贴图边长（CSS px，绘制时按节点半径缩放）；每 GLOW_EVERY 个节点挑一个套光斑。 */
+const GLOW_SIZE = 96;
+const GLOW_EVERY = 5;
 
 function mulberry32(seed) {
   let a = seed >>> 0;
@@ -16,6 +20,23 @@ function mulberry32(seed) {
   };
 }
 
+/* 光斑贴图只建一次：渐变对象是这类循环里最贵的分配，烤进离屏 canvas 后逐帧只剩 drawImage。 */
+function makeGlow() {
+  const pad = document.createElement("canvas");
+  pad.width = GLOW_SIZE;
+  pad.height = GLOW_SIZE;
+  const glowCtx = pad.getContext("2d");
+  if (!glowCtx) return pad;
+  const half = GLOW_SIZE / 2;
+  const grad = glowCtx.createRadialGradient(half, half, 0, half, half, half);
+  grad.addColorStop(0, "rgba(99,214,203,0.16)");
+  grad.addColorStop(0.55, "rgba(99,214,203,0.05)");
+  grad.addColorStop(1, "rgba(99,214,203,0)");
+  glowCtx.fillStyle = grad;
+  glowCtx.fillRect(0, 0, GLOW_SIZE, GLOW_SIZE);
+  return pad;
+}
+
 export function initField() {
   const canvas = document.querySelector("#fieldCanvas[data-field]");
   if (!canvas) return;
@@ -24,6 +45,7 @@ export function initField() {
   if (!ctx) return;
 
   const fpsEl = document.querySelector("[data-fps]");
+  const glow = makeGlow();
 
   const nx = new Float32Array(COUNT);
   const ny = new Float32Array(COUNT);
@@ -31,6 +53,10 @@ export function initField() {
   const sy = new Float32Array(COUNT);
   const depth = new Float32Array(COUNT);
   const radius = new Float32Array(COUNT);
+  const glowR = new Float32Array(COUNT);
+  /* 每帧算一次的屏幕坐标，四个绘制循环共用，避免同一串乘加重复四遍。 */
+  const rx = new Float32Array(COUNT);
+  const ry = new Float32Array(COUNT);
   const nearA = new Int32Array(COUNT);
   const nearB = new Int32Array(COUNT);
 
@@ -42,6 +68,8 @@ export function initField() {
     sy[i] = (random() - 0.5) * 0.014;
     depth[i] = 0.45 + random() * 1.15;
     radius[i] = 0.8 + random() * 0.8;
+    /* 光斑半径 26–40px：未选中的为 0，绘制时跳过。 */
+    glowR[i] = i % GLOW_EVERY === 0 ? 26 + random() * 14 : 0;
   }
 
   /* 邻居只在初始化时算一次：漂移速度极慢，拓扑变化肉眼不可见。 */
@@ -107,52 +135,72 @@ export function initField() {
       else if (nx[i] > 1.05) nx[i] -= 1.1;
       if (ny[i] < -0.05) ny[i] += 1.1;
       else if (ny[i] > 1.05) ny[i] -= 1.1;
+      rx[i] = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
+      ry[i] = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
     }
 
     ctx.clearRect(0, 0, cssW, cssH);
 
+    /* 混合模式一帧只切两次：lighter 让交叉处累加变亮（"有光源"的来源），收尾必须复原。 */
+    ctx.globalCompositeOperation = "lighter";
+
     ctx.beginPath();
     for (let i = 0; i < COUNT; i += 1) {
       const j = nearB[i];
-      const x1 = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
-      const y1 = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
-      const x2 = (nx[j] + easeX * 0.02 * depth[j]) * cssW;
-      const y2 = (ny[j] + easeY * 0.02 * depth[j]) * cssH;
+      const x1 = rx[i];
+      const y1 = ry[i];
+      const x2 = rx[j];
+      const y2 = ry[j];
       if ((x1 < 0 && x2 < 0) || (x1 > cssW && x2 > cssW)) continue;
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
     }
-    ctx.strokeStyle = "rgba(233,235,238,0.10)";
+    ctx.strokeStyle = "rgba(200,240,255,0.10)";
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    /* 每个节点一条注意力边。 */
+    /* 注意力边：同一条批量 path 描两遍 —— 先 3px 弱青做外发光，再 1px 亮青压中心。 */
     ctx.beginPath();
     for (let i = 0; i < COUNT; i += 1) {
       const j = nearA[i];
-      const x1 = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
-      const y1 = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
-      const x2 = (nx[j] + easeX * 0.02 * depth[j]) * cssW;
-      const y2 = (ny[j] + easeY * 0.02 * depth[j]) * cssH;
+      const x1 = rx[i];
+      const y1 = ry[i];
+      const x2 = rx[j];
+      const y2 = ry[j];
       if ((x1 < 0 && x2 < 0) || (x1 > cssW && x2 > cssW)) continue;
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
     }
-    ctx.strokeStyle = "rgba(87,227,210,0.22)";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(99,214,203,0.06)";
+    ctx.stroke();
     ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(99,214,203,0.30)";
     ctx.stroke();
 
     ctx.beginPath();
     for (let i = 0; i < COUNT; i += 1) {
-      const x = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
-      const y = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
+      const x = rx[i];
+      const y = ry[i];
       const r = radius[i];
       if (x < -4 || y < -4 || x > cssW + 4 || y > cssH + 4) continue;
       ctx.moveTo(x + r, y);
       ctx.arc(x, y, r, 0, TAU);
     }
-    ctx.fillStyle = "rgba(233,235,238,0.42)";
+    ctx.fillStyle = "rgba(200,240,255,0.55)";
     ctx.fill();
+
+    /* 光斑：贴图早就烤好，这里只按半径 drawImage，不新建渐变。 */
+    for (let i = 0; i < COUNT; i += 1) {
+      const gr = glowR[i];
+      if (!gr) continue;
+      const x = rx[i];
+      const y = ry[i];
+      if (x < -gr || y < -gr || x > cssW + gr || y > cssH + gr) continue;
+      ctx.drawImage(glow, x - gr, y - gr, gr * 2, gr * 2);
+    }
+
+    ctx.globalCompositeOperation = "source-over";
   }
 
   function frame(now) {

@@ -1,41 +1,52 @@
 /* ============================================================
-   home.css — 首页专属样式
-   tokens.css 的变量只读；base.css 的类不重定义。
-   本页新增选择器一律 .home-* 前缀；少数需要改 base 组件间距的地方，
-   一律用 .home-* 祖先限定作用域（.home-project .tag-row 这种），
-   不写裸类名，避免污染其他页面。
+   home.css — 首页专属样式（v2：四块，少而强）
+   tokens.css 只读；base.css 的类不重定义，必须覆盖时一律用 .home-* 祖先限定。
+   层级约定：hero 内 poster(1) → field(2) → 文案(3)；body 的极光层在内容之下，
+   所以 hero 自身不给不透明底色，光才透得出来。
+   字号下限按契约执行：正文 ≥13px，等宽标签 ≥12px，卡片标题 ≥19px。
    ============================================================ */
 
-/* ---------- A · HERO ------------------------------------- */
+/* ============================================================
+   1 · HERO
+   背景三层（极光 / 内联 SVG 兜底 / 场画布）+ 一层背后光，
+   文字在最上层。整段不含不透明底色，光才能从底下透上来。
+   ============================================================ */
 
-/* 88vh 而不是 100vh：让下一段 boot 日志在首屏边缘露出一条，
-   页面读起来是连续读数，而不是一张海报。 */
+/* 92vh 而不是 100vh：下一段的卡片边缘露出一点，页面读起来是连续的，不是一张海报。 */
 .home-hero{
   position:relative;
-  min-height:88vh;
+  min-height:92vh;
   display:grid;
+  grid-template-rows:1fr auto;
   align-items:center;
-  padding-block:clamp(56px,9vh,108px) clamp(84px,12vh,140px);
+  padding-block:clamp(56px,9vh,112px) clamp(28px,4vh,52px);
   overflow:hidden;
   border-bottom:1px solid var(--line);
 }
 
-/* 兜底层：无 JS 或开启"减少动态"时，hero 的图形只剩这一层内联 SVG。
-   它必须在画布下面，因为画布在 JS 启动前是透明的。 */
-.home-hero__poster{
+/* 背后打光：两层径向光叠在极光之上，图层顺序是光 → 兜底图 → 场画布 → 文字。 */
+.home-hero::before{
+  content:"";
   position:absolute;
   inset:0;
   z-index:0;
-  opacity:.75;
   pointer-events:none;
+  background:
+    radial-gradient(760px 520px at 22% 30%,rgba(99,214,203,.14),transparent 68%),
+    radial-gradient(900px 560px at 80% 4%,rgba(143,136,216,.18),transparent 72%),
+    linear-gradient(180deg,transparent 58%,rgba(8,10,20,.66) 100%);
 }
+
+/* 兜底层：无 JS 或降低动态时，hero 的图形只剩这一层内联 SVG。
+   它必须在画布下面，因为画布在 JS 启动前是透明的。 */
+.home-hero__poster{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.9}
 .home-hero__poster svg{display:block;width:100%;height:100%}
 
-/* 场画布：透明时兜底层自然透出，所以两层之间不需要切换逻辑。 */
+/* 场画布：JS 未启动时是透明画布，兜底层自然透出，两层之间不需要切换逻辑。 */
 .home-hero__field{
   position:absolute;
   inset:0;
-  z-index:1;
+  z-index:2;
   width:100%;
   height:100%;
   pointer-events:none;
@@ -43,582 +54,369 @@
 
 .home-hero__inner{
   position:relative;
-  z-index:2;
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  gap:var(--s-7);
-  align-items:end;
+  z-index:3;
+  align-self:center;
+  min-width:0;
 }
 
-/* 栅格子项默认 min-width:auto，长串 filename 会把列撑破，这里显式收住。 */
-.home-hero__copy{min-width:0}
+/* 文案列限宽：一行标题在 1440 下约 800px，右侧留出光的位置。 */
+.home-hero__copy{max-width:62rem;min-width:0}
 
-/* 字号跟随 4.1vw 而不是 4.9vw：两列布局下文案列只有约 620–790px，
-   13 个字的第二行必须整行放下，否则受控换行会退化成一截断句。 */
 .home-hero__title{
   margin-top:var(--s-4);
-  font-size:clamp(30px,4.1vw,68px);
-  line-height:1.06;
+  font-size:clamp(30px,4.4vw,72px);
+  line-height:1.08;
   letter-spacing:-.045em;
   text-wrap:balance;
+  /* 渐变按文字自身宽度铺开：base 的 180% 会把青→紫推到字以外，只剩白。
+     再叠两层投影，让字形轮廓本身发光。 */
+  width:fit-content;
+  max-width:100%;
+  background-size:100% 100%;
+  filter:drop-shadow(0 0 26px rgba(99,214,203,.34)) drop-shadow(0 12px 64px rgba(143,136,216,.30));
 }
 
-/* 逗号是语义停点，受控换行在任何宽度都成立：放不下的是字号，不是换行。
-   窄屏一律靠收字号让第二行整行落下（见文件末尾 <=560 断点）。 */
+/* 逗号是语义停点：受控换行在任何宽度都成立，放不下的是字号，不是换行。 */
 .home-hero__br{display:inline}
 
-.home-hero__lede{margin-top:var(--s-5);max-width:52ch}
+.home-hero__lede{margin-top:var(--s-5);max-width:54ch;color:var(--ink-2)}
 
-.home-hero__actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:var(--s-3);
-  margin-top:var(--s-6);
-}
+.home-hero__actions{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-6)}
 
-/* HUD 只有边框和数字：读数区不需要阴影、不需要渐变，它应该像贴在玻璃上。 */
-.home-hud{
-  display:grid;
-  gap:var(--s-2);
-  align-self:end;
-  justify-self:start;
-  min-width:236px;
-  padding:var(--s-4);
-  border:1px solid var(--line-2);
-  border-radius:var(--r-1);
-  background:rgba(7,8,10,.42);
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
-  font-size:10px;
-  line-height:1.5;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--muted-2);
-}
-.home-hud__row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-4)}
-.home-hud__key{color:var(--muted-2)}
-.home-hud__val{color:var(--cyan);font-variant-numeric:tabular-nums}
-.home-hud__note{
-  margin:0;
-  padding-top:var(--s-2);
-  border-top:1px solid var(--line);
-  font-size:10px;
-  color:var(--muted-2);
-}
+/* 按钮的可点区域单独给高度：mono 12px 的行高撑不满 44px。 */
+.home-hero__actions .btn{min-height:44px}
 
-/* 滚动提示贴着 hero 的下沿，与 .wrap 同一个水平缩进，保证和标题左对齐。 */
+/* 滚动提示：一条会淡出的发丝线把它和正文分开，语气上像"接下来还有"。 */
 .home-hero__scroll{
-  position:absolute;
-  z-index:2;
-  bottom:var(--s-5);
-  left:clamp(20px,5vw,64px);
-  right:clamp(20px,5vw,64px);
+  position:relative;
+  z-index:3;
+  align-self:end;
   display:flex;
+  align-items:center;
   justify-content:space-between;
   gap:var(--s-4);
-  color:var(--muted-2);
+  margin-top:var(--s-6);
+  padding-top:var(--s-4);
+  border-top:1px solid var(--line);
   letter-spacing:.18em;
   text-transform:uppercase;
+  color:var(--muted-2);
 }
-.home-hero__caret{display:inline-block;animation:homeCaret 2.4s var(--e) infinite}
-@keyframes homeCaret{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
 
-/* ---------- B · BOOT LOG --------------------------------- */
+/* ============================================================
+   2 · STACK
+   六张能力卡 + 一张跨两列的可交互卡。卡片本身的外观由 base 的
+   .card / .card--glow 负责（边框、玻璃、指针聚光、hover 抬起），
+   这里只排内部顺序与顶边的一道光。
+   ============================================================ */
 
-.home-boot{
-  position:relative;
-  z-index:1;
-  padding-block:var(--s-4);
-  border-bottom:1px solid var(--line);
-  background:rgba(7,8,10,.55);
-}
-.home-boot__inner{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:var(--s-5);
-}
-.home-boot__log{
+.home-stack{position:relative}
+
+.home-stack .section__head{margin-bottom:var(--s-6)}
+
+.home-stack__grid{
   display:grid;
-  gap:2px;
-  overflow:hidden;
-  font-family:var(--font-mono);
-  font-size:10px;
-  line-height:1.9;
-  letter-spacing:.05em;
-  color:var(--muted-2);
+  gap:var(--gutter);
+  grid-template-columns:repeat(2,minmax(0,1fr));
 }
 
-/* .boot__line 是契约里点名的钩子类名；为了让样式不外泄，规则一律挂在
-   .home-boot 祖先下。默认状态就是完全可见——JS 不在时这四行必须读得到。 */
-.home-boot .boot__line{
-  opacity:1;
-  transform:none;
-  transition:opacity var(--t-mid) var(--e),transform var(--t-mid) var(--e);
-}
-/* B1 开始逐行点亮时才加 .is-booting；没有这个类就维持静态全显。 */
-.home-boot.is-booting .boot__line{opacity:0;transform:translateY(3px)}
-.home-boot.is-booting .boot__line.is-on{opacity:1;transform:none}
-
-/* 窄屏下 "assets/css/tokens.css" 这类长 token 必须能断，否则会顶穿容器。 */
-.home-boot__line{overflow-wrap:break-word}
-
-.home-boot__skip{
-  flex:none;
-  padding:0 0 2px;
-  border-bottom:1px solid var(--line-2);
-  font-family:var(--font-mono);
-  font-size:10px;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  color:var(--muted-2);
-  transition:color var(--t-fast) var(--e),border-color var(--t-fast) var(--e);
-}
-.home-boot__skip:hover,.home-boot__skip:focus-visible{
-  color:var(--cyan);
-  border-color:rgba(87,227,210,.5);
-}
-
-/* ---------- 共用：区块头 ---------------------------------- */
-
-/* .section__head 是两端对齐；左侧再包一层 grid，让 eyebrow 与 h2 有固定节奏，
-   右侧那段 lede 才不会贴到标题基线上去。 */
-.home-sec__lead{display:grid;gap:var(--s-3);min-width:0}
-.home-sec__note{max-width:46ch;font-size:var(--t-sm);line-height:1.7}
-.home-sec__stat{
-  font-family:var(--font-mono);
-  font-size:var(--t-xs);
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--muted-2);
-  white-space:nowrap;
-}
-/* 区块唯一的出口链接（"全部 6 个 →"）：下划线比按钮轻，不抢 h2。 */
-.home-sec__all{
-  display:inline-flex;
-  align-items:center;
-  gap:var(--s-2);
-  padding-bottom:2px;
-  border-bottom:1px solid var(--line-2);
-  font-family:var(--font-mono);
-  font-size:var(--t-xs);
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--muted);
-  transition:color var(--t-fast) var(--e),border-color var(--t-fast) var(--e);
-}
-.home-sec__all:hover,.home-sec__all:focus-visible{color:var(--cyan);border-color:rgba(87,227,210,.45)}
-.home-sec__all span{transition:transform var(--t-fast) var(--e)}
-.home-sec__all:hover span{transform:translateX(4px)}
-
-/* ---------- I · MARQUEE ---------------------------------- */
-
-/* 轨道、遮罩、动画全在 base.css，这里只补分隔点的颜色；
-   抬到 z-index:1 与 .wrap 同层，免得被 body 的固定网格盖住。 */
-.home-marquee{position:relative;z-index:1}
-.home-marquee__dot{letter-spacing:0;color:var(--muted-2)}
-
-/* ---------- C · CAPABILITY MATRIX ------------------------ */
-
-.home-matrix{
-  border-top:1px solid var(--line);
-  border-bottom:1px solid var(--line);
-}
-.home-matrix__row{
-  position:relative;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 92px minmax(0,2fr);
-  gap:var(--s-3) var(--s-5);
-  align-items:start;
-  padding:var(--s-4) var(--s-4) var(--s-4) var(--s-5);
-  border-bottom:1px solid var(--line);
-  transition:background-color var(--t-fast) var(--e);
-}
-.home-matrix__row:last-child{border-bottom:0}
-
-/* 左侧 2px 竖条用 scaleY 出现：只动 transform，不触发重排。 */
-.home-matrix__row::before{
+/* 卡片顶边的一道细光：hover 时点亮，呼应 hero 的那束光。 */
+.home-skill::before{
   content:"";
   position:absolute;
-  left:0;
-  top:0;
-  bottom:0;
-  width:2px;
-  background:var(--cyan);
-  transform:scaleY(0);
-  transform-origin:50% 0;
-  transition:transform var(--t-fast) var(--e);
+  inset:0 0 auto;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(99,214,203,.55),transparent);
+  opacity:0;
+  transition:opacity var(--t-mid) var(--e);
+  pointer-events:none;
 }
-.home-matrix__row:hover{background:rgba(233,235,238,.035)}
-.home-matrix__row:hover::before{transform:scaleY(1)}
+.home-skill:hover::before{opacity:1}
 
-.home-matrix__domain{font-size:var(--t-body);color:var(--ink);letter-spacing:-.01em}
-.home-matrix__level{justify-self:start;padding-top:2px}
-.home-matrix__detail{font-size:var(--t-sm);line-height:1.75;color:var(--muted)}
-
-/* 三档标记只有颜色不同：build 训练侧 / deploy 上线侧 / operate 维护侧。 */
-.home-chip--build{color:var(--cyan);border-color:rgba(87,227,210,.4);background:var(--cyan-dim)}
-.home-chip--deploy{color:var(--amber);border-color:rgba(242,180,65,.4);background:var(--amber-dim)}
-.home-chip--operate{color:var(--muted);border-color:var(--line-2);background:transparent}
-
-.home-matrix__foot{
-  margin-top:var(--s-4);
-  font-size:10px;
-  line-height:1.9;
-  letter-spacing:.04em;
-  color:var(--muted-2);
-  word-break:break-word;
-}
-
-/* ---------- D · METRICS WALL ----------------------------- */
-
-.home-metrics{
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  gap:var(--s-4);
-}
-.home-metric{
+.home-skill{
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
-  gap:var(--s-4);
-  min-height:158px;
-}
-.home-metric__main{display:grid;gap:var(--s-2)}
-/* 复核命令贴卡片底边：数字在上、命令在下，卡片高度一致时命令自然对齐。 */
-.home-metric__cmd{
-  display:block;
-  margin-top:auto;
-  font-family:var(--font-mono);
-  font-size:10px;
-  line-height:1.6;
-  color:var(--muted-2);
-  opacity:.9;
-  white-space:normal;
-  word-break:break-word;
+  gap:var(--s-1);
+  padding:clamp(20px,1.7vw,28px);
 }
 
-/* ---------- E · FEATURED WORK ---------------------------- */
-
-.home-work{
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  gap:var(--s-4);
-}
-.home-project{
-  display:flex;
-  flex-direction:column;
-  transition:border-color var(--t-fast) var(--e);
-}
-.home-project:hover{border-color:var(--line-2)}
-.home-project__summary{
-  margin-top:var(--s-3);
-  font-size:var(--t-sm);
-  line-height:1.72;
-  color:var(--muted);
-}
-/* PROJECT 03 没有行数可当卖点，这一行等宽训练实参就是它的复核锚点。 */
-.home-project__meta{
-  margin-top:var(--s-2);
-  font-size:10px;
-  line-height:1.7;
-  letter-spacing:.04em;
-  color:var(--muted-2);
-}
-.home-project .tag-row{margin-top:var(--s-4)}
-/* 出口链接压在卡片底部：三张卡等高时，这一行必须齐平。 */
-.home-project__more{
-  margin-top:auto;
-  display:inline-flex;
-  align-items:center;
-  gap:var(--s-2);
-  padding-top:var(--s-5);
-  font-family:var(--font-mono);
+/* 编号低对比：它是目录号，不是强调。 */
+.home-skill__num{
   font-size:var(--t-xs);
-  letter-spacing:.14em;
+  letter-spacing:.2em;
+  color:var(--muted-2);
+}
+
+.home-skill__title{margin-top:var(--s-2);font-size:clamp(19px,1.35vw,23px)}
+
+/* 英文小标是同一件事的第二行，不另起语义层级。 */
+.home-skill__en{
+  font-size:var(--t-xs);
+  letter-spacing:.16em;
   text-transform:uppercase;
-  color:var(--muted);
+  color:var(--cyan);
   transition:color var(--t-fast) var(--e);
 }
-.home-project__more:hover,.home-project__more:focus-visible{color:var(--cyan)}
-.home-project__arrow{transition:transform var(--t-fast) var(--e)}
-.home-project__more:hover .home-project__arrow{transform:translateX(4px)}
+.home-skill:hover .home-skill__en{color:var(--ink)}
 
-/* 4 节点流程条：viewBox 定比例、宽度交给容器，节点坐标写死在 index.html。 */
-.home-flow{margin:var(--s-5) 0 var(--s-4)}
-.home-flow__svg{display:block;width:100%;height:auto;overflow:visible}
-.home-flow__node{fill:rgba(7,8,10,.6);stroke:var(--line-2);stroke-width:1}
-.home-flow__node--first{stroke:rgba(87,227,210,.45)}
-.home-flow__node--last{stroke:rgba(242,180,65,.4)}
-.home-flow__label{
-  fill:var(--ink-2);
-  font-family:var(--font-sans);
-  font-size:13px;
-  letter-spacing:.02em;
-  text-anchor:middle;
+.home-skill__body{
+  margin-top:var(--s-2);
+  font-size:var(--t-sm);
+  line-height:1.68;
+  color:var(--ink-2);
 }
-.home-flow__meta{
-  fill:var(--muted-2);
-  font-family:var(--font-mono);
-  font-size:9px;
-  letter-spacing:.13em;
-  text-anchor:middle;
-}
-.home-flow__axis{
-  fill:var(--muted-2);
-  font-family:var(--font-mono);
-  font-size:9px;
-  letter-spacing:.16em;
-}
-.home-flow__link{fill:none;stroke:rgba(87,227,210,.4);stroke-width:1}
-.home-flow__head{fill:var(--cyan)}
 
-/* ---------- F · ATTENTION PROBE -------------------------- */
+/* 标签行贴底：同一行里卡片高度一致时，标签落在同一条基线上。 */
+.home-skill .tag-row{margin-top:auto;padding-top:var(--s-4)}
 
-.home-probe{
+/* —— 可交互卡 —— */
+
+/* 宽屏跨两列，窄屏整行（见第 5–7 节）。 */
+.home-attn{
+  grid-column:1/-1;
   display:grid;
-  grid-template-columns:minmax(0,1fr);
-  gap:var(--s-6);
-  align-items:start;
+  align-content:start;
+  gap:var(--s-1);
+  padding:clamp(22px,2vw,30px);
 }
-.home-probe__copy{display:grid;gap:var(--s-4);min-width:0}
 
-/* 常数矩阵放在 details 里：默认收起，需要核对时才展开，不占首读位置。 */
-.home-probe__spec{
-  padding:var(--s-3) var(--s-4);
-  border:1px solid var(--line);
-  border-radius:var(--r-1);
-  background:var(--void-2);
-}
-.home-probe__spec summary{
-  cursor:pointer;
-  list-style:none;
-  font-family:var(--font-mono);
+.home-attn__title{margin-top:var(--s-2);font-size:clamp(19px,1.5vw,24px)}
+
+.home-attn__en{
   font-size:var(--t-xs);
-  letter-spacing:.1em;
-  color:var(--muted);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--violet);
 }
-.home-probe__spec summary::-webkit-details-marker{display:none}
-.home-probe__spec summary::before{content:"+ ";color:var(--cyan)}
-.home-probe__spec[open] summary::before{content:"- "}
-.home-probe__mat{
-  margin-top:var(--s-3);
-  padding:var(--s-3) 0 0;
-  border:0;
-  background:transparent;
-  font-size:10px;
-  line-height:1.55;
-  color:var(--muted);
-  overflow-x:auto;
+
+.home-attn__body{
+  margin-top:var(--s-2);
+  font-size:var(--t-sm);
+  line-height:1.68;
+  color:var(--ink-2);
+  max-width:58ch;
 }
-.home-probe__foot{
-  font-size:10px;
-  line-height:1.8;
-  color:var(--muted-2);
-  word-break:break-word;
-}
-.home-probe__stage{
+
+/* 画布按 480×320 的绘制分辨率，显示尺寸交给 CSS，避免拉伸以后线宽失真。 */
+.home-attn__stage{
   display:grid;
   gap:var(--s-3);
-  padding:var(--s-3);
-  border:1px solid var(--line);
-  border-radius:var(--r-1);
-  background:var(--void-2);
+  margin-top:var(--s-4);
+  max-width:520px;
+  width:100%;
 }
-.home-probe__canvas{
+
+.home-attn canvas{
   width:100%;
   height:auto;
   border:1px solid var(--line);
   border-radius:var(--r-1);
-  background:var(--void);
+  background:rgba(21,26,46,.55);
 }
-.home-probe__ctrl{
-  display:flex;
-  align-items:center;
-  gap:var(--s-3);
-  font-family:var(--font-mono);
-  font-size:10px;
+
+.home-attn__ctrl{display:flex;align-items:center;gap:var(--s-3)}
+.home-attn__ctrl input[type="range"]{flex:1;min-width:0}
+
+/* 读数等宽右对齐：τ 从 1.00 拖到 10.00 时数字不跳位。 */
+.home-attn__ctrl [data-heat-readout]{
+  flex:none;
+  min-width:5.5em;
+  text-align:right;
   color:var(--muted);
 }
-/* 原生滑杆被压成一根 1px 轨道：控件本身也是仪表的一部分。 */
-.home-probe__range{
-  -webkit-appearance:none;
-  appearance:none;
-  flex:1;
-  min-width:80px;
-  height:14px;
-  background:transparent;
-  cursor:pointer;
-}
-/* 轨道 2px + 实心滑块：1px 的 --line-2 在 1280 下几乎不可见，
-   空心描边滑块会被读成一个坏掉的控件，而不是"温度可调"。 */
-.home-probe__range::-webkit-slider-runnable-track{height:2px;background:rgba(233,235,238,.22);border-radius:2px}
-.home-probe__range::-moz-range-track{height:2px;background:rgba(233,235,238,.22);border-radius:2px}
-.home-probe__range::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  appearance:none;
-  width:12px;
-  height:12px;
-  margin-top:-5px;
-  border:0;
-  border-radius:1px;
-  background:var(--cyan);
-  box-shadow:0 0 0 3px rgba(87,227,210,.16);
-}
-.home-probe__range:hover::-webkit-slider-thumb{box-shadow:0 0 0 5px rgba(87,227,210,.24)}
-.home-probe__range::-moz-range-thumb{
-  width:12px;
-  height:12px;
-  border:0;
-  border-radius:1px;
-  background:var(--cyan);
-  box-shadow:0 0 0 3px rgba(87,227,210,.16);
+
+/* ============================================================
+   3 · PROJECTS
+   整张卡是 <a>，六个工程都只给一句总结；量化指标一律留在详情页。
+   ============================================================ */
+
+/* 说明行贴着标题：head 的默认下距在这块会让说明悬空。 */
+.home-work .section__head{margin-bottom:var(--s-3)}
+
+.home-work__note{
+  margin-bottom:var(--s-6);
+  font-size:var(--t-sm);
+  color:var(--muted);
 }
 
-/* ---------- G · KNOWLEDGE PREVIEW ------------------------ */
-
-.home-notes{border-top:1px solid var(--line)}
-.home-notes__link{
+.home-work__grid{
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:var(--s-2) var(--s-4);
-  align-items:center;
-  padding:var(--s-4) var(--s-3) var(--s-4) 0;
-  border-bottom:1px solid var(--line);
-  transition:background-color var(--t-fast) var(--e);
+  gap:var(--gutter);
+  grid-template-columns:minmax(0,1fr);
 }
-.home-notes__link:hover{background:rgba(233,235,238,.03)}
-.home-notes__title{
-  font-size:var(--t-body);
-  letter-spacing:-.01em;
-  color:var(--ink-2);
+
+.home-card{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-1);
+  padding:clamp(20px,1.8vw,28px);
+  color:inherit;
+}
+
+.home-card__num{font-size:var(--t-xs);letter-spacing:.2em;color:var(--muted-2)}
+
+.home-card__title{
+  margin-top:var(--s-2);
+  font-size:clamp(19px,1.4vw,23px);
   transition:color var(--t-fast) var(--e);
 }
-.home-notes__link:hover .home-notes__title{color:var(--cyan)}
-.home-notes__domain{
-  font-size:10px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--muted-2);
+.home-card:hover .home-card__title{color:var(--cyan)}
+
+.home-card__body{
+  margin-top:var(--s-2);
+  font-size:var(--t-sm);
+  line-height:1.68;
+  color:var(--ink-2);
 }
-/* 行数徽章：窄边框、等宽，和 .tag 区分开，避免两套标签视觉打架。 */
-.home-notes__lines{
-  justify-self:start;
-  padding:1px 7px;
-  border:1px solid var(--line);
-  border-radius:var(--r-1);
-  font-size:10px;
-  letter-spacing:.06em;
-  color:var(--muted-2);
-  font-variant-numeric:tabular-nums;
-}
-.home-notes__arrow{
+
+/* 右下的箭头占住角落，标签行让出一段距离，两者不会叠在一起。 */
+.home-card .tag-row{margin-top:auto;padding-top:var(--s-4);padding-right:var(--s-6)}
+
+.home-card__arrow{
+  position:absolute;
+  right:clamp(18px,1.6vw,26px);
+  bottom:clamp(16px,1.5vw,24px);
   font-family:var(--font-mono);
+  font-size:var(--t-sm);
   color:var(--muted-2);
-  transition:transform var(--t-fast) var(--e),color var(--t-fast) var(--e);
+  transition:color var(--t-fast) var(--e),transform var(--t-fast) var(--e);
 }
-.home-notes__link:hover .home-notes__arrow{transform:translateX(4px);color:var(--cyan)}
-.home-notes__more{margin-top:var(--s-6)}
+.home-card:hover .home-card__arrow,
+.home-card:focus-visible .home-card__arrow{color:var(--cyan);transform:translateX(3px)}
 
-/* ---------- H · CTA -------------------------------------- */
-
-.home-cta{padding-block:var(--rhythm)}
-.home-cta__inner{
-  display:grid;
-  justify-items:start;
-  gap:var(--s-5);
-  padding-top:var(--s-7);
-  border-top:1px solid var(--line);
-}
-.home-cta__title{
-  font-size:clamp(28px,3.8vw,54px);
-  line-height:1.12;
-  letter-spacing:-.04em;
-  max-width:22ch;
-  text-wrap:balance;
-}
-.home-cta__line{
-  font-size:var(--t-lede);
-  line-height:1.6;
+/* 章节头右侧的小链接：13px 是等宽可读的下限，不再往下收。 */
+.home-sec__all{
+  font-family:var(--font-mono);
+  font-size:13px;
+  letter-spacing:.06em;
   color:var(--muted);
-  max-width:48ch;
+  white-space:nowrap;
+  transition:color var(--t-fast) var(--e);
+}
+.home-sec__all:hover,
+.home-sec__all:focus-visible{color:var(--cyan)}
+
+.home-sec__note{max-width:44ch;font-size:var(--t-sm);color:var(--muted)}
+
+/* ============================================================
+   4 · CTA
+   只有标题、一句副文、两个按钮；背景再打一次光，颜色比 hero 偏紫。
+   ============================================================ */
+
+.home-cta{position:relative;overflow:hidden}
+
+.home-cta::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(620px 380px at 76% 22%,rgba(143,136,216,.16),transparent 70%),
+    radial-gradient(520px 320px at 12% 96%,rgba(99,214,203,.10),transparent 72%);
 }
 
-/* ---------- 断点 · 768–1099 ------------------------------ */
-
-/* 平板宽度下横向塞不下文字 + HUD，HUD 下移到文字下方但仍然保留：
-   这一档是唯一能看到"面板 ＋ 说明"叠放关系的尺寸。 */
-@media (min-width:768px) and (max-width:1099px){
-  .home-hud{justify-self:start;min-width:0}
-  .home-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .home-matrix__row{grid-template-columns:minmax(0,1fr) 96px minmax(0,1.8fr)}
-  .home-notes__link{grid-template-columns:minmax(0,1fr) 132px auto 20px}
-  /* 三张卡在这一档并排会把流程条压成看不清的小图，所以先单列排满。 */
-  .home-work{grid-template-columns:minmax(0,1fr)}
-  .home-probe__stage{max-width:520px}
+.home-cta__inner{
+  position:relative;
+  display:grid;
+  gap:var(--s-4);
+  justify-items:start;
+  max-width:56rem;
 }
 
-/* ---------- 断点 · ≥1100 --------------------------------- */
+.home-cta__title{max-width:26ch;font-size:clamp(24px,2.8vw,40px);text-wrap:balance}
+
+.home-cta__line{font-size:var(--t-body);color:var(--ink-2)}
+
+/* 副文里的两处链接：下划线用 1px 的青色，不和正文抢注意力。 */
+.home-cta__mail{
+  color:var(--cyan);
+  border-bottom:1px solid rgba(99,214,203,.35);
+  transition:color var(--t-fast) var(--e),border-color var(--t-fast) var(--e);
+}
+.home-cta__mail:hover,
+.home-cta__mail:focus-visible{color:var(--ink);border-bottom-color:var(--ink)}
+
+.home-cta__actions{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-3)}
+.home-cta__actions .btn{min-height:44px}
+
+/* ============================================================
+   5 · 档位一：≥1100
+   ============================================================ */
 
 @media (min-width:1100px){
-  .home-hero__inner{grid-template-columns:minmax(0,1fr) auto;align-items:end}
-  .home-hud{justify-self:end}
-  .home-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .home-work{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .home-matrix__row{
-    grid-template-columns:minmax(0,1fr) 108px minmax(0,2.4fr);
-    padding-block:var(--s-5);
-  }
-  .home-notes__link{grid-template-columns:minmax(0,1fr) 152px 96px 24px}
-  .home-probe{grid-template-columns:minmax(0,1fr) minmax(0,520px);gap:var(--s-7)}
+  /* 三列：六张能力卡铺满两行，跨两列的可交互卡独占一行。
+     这样画布能按 480×320 的原生尺寸显示，坐标标签不会被缩小糊掉，
+     也不会把同一行的能力卡拉成两个空盒子。 */
+  .home-stack__grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .home-attn{grid-column:span 2}
+
+  /* 项目卡三列，卡片高度靠 flex 拉齐，标签行自然对齐。 */
+  .home-work__grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+  .home-hero__title{letter-spacing:-.05em}
+  .home-hero__copy{max-width:64rem}
+
+  .home-cta__inner{max-width:60rem}
 }
 
-/* ---------- 断点 · <768 ---------------------------------- */
+/* ============================================================
+   6 · 档位二：760–1099
+   ============================================================ */
 
-@media (max-width:767px){
-  /* 手机上一屏放不下两支读数：HUD 直接收起，文字优先。 */
-  .home-hud{display:none}
-  .home-hero{padding-block:var(--s-8) var(--s-9)}
-  .home-hero__scroll{font-size:10px;letter-spacing:.12em}
-
-  /* 三列压成两行：域名 + 标记在第一行，描述独占第二行。 */
-  .home-matrix__row{
-    grid-template-columns:minmax(0,1fr) auto;
-    grid-template-areas:
-      "domain level"
-      "detail detail";
-    gap:var(--s-2) var(--s-3);
-    padding:var(--s-4) var(--s-3) var(--s-4) var(--s-4);
-  }
-  .home-matrix__domain{grid-area:domain}
-  .home-matrix__level{grid-area:level;justify-self:end;padding-top:0}
-  .home-matrix__detail{grid-area:detail}
-
-  /* 列表行同理：标题 + 箭头一行，领域与行数一行。 */
-  .home-notes__link{
-    grid-template-columns:minmax(0,1fr) auto;
-    grid-template-areas:
-      "title arrow"
-      "domain lines";
-    gap:var(--s-2) var(--s-3);
-    padding:var(--s-4) var(--s-2) var(--s-4) 0;
-  }
-  .home-notes__title{grid-area:title;font-size:var(--t-sm)}
-  .home-notes__domain{grid-area:domain}
-  .home-notes__lines{grid-area:lines;justify-self:end}
-  .home-notes__arrow{grid-area:arrow;justify-self:end}
-
-  .home-cta__title{font-size:clamp(26px,7vw,34px)}
-  .home-probe__ctrl{gap:var(--s-2)}
+@media (min-width:760px) and (max-width:1099px){
+  /* 项目卡降到两列；可交互卡整行铺满，六张能力卡排成三行。 */
+  .home-work__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-stack__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-attn{grid-column:1/-1}
+  .home-hero{min-height:84vh}
+  .home-hero__title{font-size:clamp(30px,4.8vw,54px)}
+  .home-hero__lede{max-width:48ch}
 }
 
-/* ---------- 断点 · <=560 --------------------------------- */
+/* ============================================================
+   7 · 档位三：<760
+   ============================================================ */
 
-/* 第二行固定 12 个字（一直做到能跑起来的那一步），所以这一档只调字号：
-   12 字 × 字号 × (1 - .03) 必须 <= 视口 - 2×20px 内边距。 */
+@media (max-width:759px){
+  .home-hero{
+    min-height:auto;
+    padding-block:clamp(44px,8vh,72px) var(--s-6);
+  }
+  .home-hero__title{font-size:clamp(27px,6.4vw,40px);letter-spacing:-.035em}
+  .home-hero__lede{margin-top:var(--s-4);font-size:var(--t-body);line-height:1.7}
+  .home-hero__actions{margin-top:var(--s-5);gap:var(--s-2)}
+  .home-hero__actions .btn{flex:1 1 auto;justify-content:space-between}
+  .home-hero__scroll{margin-top:var(--s-5)}
+
+  /* 单列：能力卡、可交互卡、项目卡全部一列。 */
+  .home-stack__grid{grid-template-columns:minmax(0,1fr)}
+  .home-attn{grid-column:auto}
+  .home-attn__stage{max-width:none}
+
+  .home-work__grid{grid-template-columns:minmax(0,1fr)}
+  .home-sec__note,.home-work__note{max-width:none}
+
+  .home-cta__actions{width:100%}
+  .home-cta__actions .btn{flex:1 1 auto;justify-content:space-between}
+}
+
+/* 420 一带：第二行 11 个字，靠字号收进来，不靠拆词。 */
 @media (max-width:560px){
-  .home-hero__title{
-    font-size:clamp(23px,7.4vw,30px);
-    letter-spacing:-.03em;
-  }
+  .home-hero__title{font-size:clamp(23px,7.2vw,34px)}
+  .home-hero__scroll{letter-spacing:.12em}
+  .home-cta__title{max-width:none}
+  .home-skill,.home-card,.home-attn{padding:var(--s-5)}
+}
+
+/* ============================================================
+   8 · 降级
+   base.css 已在 reduced-motion 下全局关停动画与过渡，
+   这里只去掉依赖位移的装饰，避免静止后仍停在偏移位。
+   ============================================================ */
+
+@media (prefers-reduced-motion:reduce){
+  .home-card:hover{transform:none}
+  .home-card:hover .home-card__arrow{transform:none}
+  .home-card:hover .home-card__title{color:inherit}
+  .home-skill::before{opacity:1}
 }

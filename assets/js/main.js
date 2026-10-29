@@ -99,6 +99,98 @@ function initCursor() {
   window.addEventListener("blur", hide, { passive: true });
 }
 
+/* —— 2b · 卡片指针聚光（钩子 data-glow） ——
+   聚光本身在 CSS（.card::after 用 var(--spot)），这里只把指针换算成卡片内坐标写进
+   --mx/--my；document 上一个 pointermove 委托全部卡片，写样式按帧合并。 */
+function initGlow() {
+  if (REDUCED.matches) return;
+  if (!window.matchMedia("(pointer: fine)").matches) return;
+
+  let card = null;
+  let px = 0;
+  let py = 0;
+  let queued = false;
+
+  function flush() {
+    queued = false;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty("--mx", (px - rect.left).toFixed(1) + "px");
+    card.style.setProperty("--my", (py - rect.top).toFixed(1) + "px");
+  }
+
+  function pick(event) {
+    const node = event.target;
+    if (!node || node.nodeType !== 1) return null;
+    return node.closest("[data-glow]");
+  }
+
+  document.addEventListener("pointermove", function (event) {
+    if (event.pointerType === "touch") return;
+    const el = pick(event);
+    if (!el) return;
+    card = el;
+    px = event.clientX;
+    py = event.clientY;
+    if (queued) return;
+    queued = true;
+    window.requestAnimationFrame(flush);
+  }, { passive: true });
+
+  /* pointerleave 不冒泡，委托挂会冒泡的 pointerout：relatedTarget 仍在卡内就不算离开。 */
+  document.addEventListener("pointerout", function (event) {
+    const el = pick(event);
+    if (!el) return;
+    const to = event.relatedTarget;
+    if (to && to.nodeType === 1 && el.contains(to)) return;
+    el.style.removeProperty("--mx");
+    el.style.removeProperty("--my");
+    if (card === el) card = null;
+  }, { passive: true });
+}
+
+/* —— 2c · 标题指针视差（data-parallax，缺省回落到 hero 的 h1） ——
+   位移写在 translate 而非 transform：若之后有人给标题加 CSS transform，两者相乘而不是
+   互相覆盖。±6px，rAF 插值，停稳后自停。 */
+function initParallax() {
+  if (REDUCED.matches) return;
+  if (!window.matchMedia("(pointer: fine)").matches) return;
+  if (!("translate" in document.documentElement.style)) return;
+  const el = document.querySelector("[data-parallax]") || document.querySelector(".home-hero__title");
+  if (!el) return;
+
+  const RANGE = 6;
+  const EASE = 0.14;
+  const EPS = 0.05;
+  let tx = 0;
+  let ty = 0;
+  let x = 0;
+  let y = 0;
+  let raf = 0;
+
+  function tick() {
+    x += (tx - x) * EASE;
+    y += (ty - y) * EASE;
+    const done = Math.abs(tx - x) < EPS && Math.abs(ty - y) < EPS;
+    if (done) {
+      x = tx;
+      y = ty;
+      raf = 0;
+    }
+    el.style.translate = x.toFixed(2) + "px " + y.toFixed(2) + "px";
+    if (!done) raf = window.requestAnimationFrame(tick);
+  }
+
+  window.addEventListener("pointermove", function (event) {
+    if (event.pointerType === "touch") return;
+    const w = window.innerWidth || 1;
+    const h = window.innerHeight || 1;
+    tx = (event.clientX / w - 0.5) * 2 * RANGE;
+    ty = (event.clientY / h - 0.5) * 2 * RANGE;
+    if (!raf) raf = window.requestAnimationFrame(tick);
+  }, { passive: true });
+}
+
 /* —— 4 · 阅读进度 —— */
 function initProgress() {
   const bar = document.querySelector("[data-progress]");
@@ -438,6 +530,8 @@ function safe(run) {
 safe(initNav);
 safe(initPalette);
 safe(initCursor);
+safe(initGlow);
+safe(initParallax);
 safe(initProgress);
 safe(initReveal);
 safe(initBoot);

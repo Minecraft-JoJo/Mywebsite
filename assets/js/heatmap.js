@@ -111,8 +111,8 @@ export function initHeatmap() {
 
   const rootStyles = getComputedStyle(document.documentElement);
   const low = hexToRgb(tokenColor(rootStyles, "--void-3", "#12151A"));
-  const mid = hexToRgb(tokenColor(rootStyles, "--cyan", "#57E3D2"));
-  const high = hexToRgb(tokenColor(rootStyles, "--amber", "#F2B441"));
+  const mid = hexToRgb(tokenColor(rootStyles, "--cyan", "#63D6CB"));
+  const high = hexToRgb(tokenColor(rootStyles, "--amber", "#D9AE79"));
   const labelColor = tokenColor(rootStyles, "--muted", "#8B9199");
   const faintColor = tokenColor(rootStyles, "--muted-2", "#5E656E");
 
