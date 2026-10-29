@@ -13,7 +13,7 @@ import { initTelemetry } from "./telemetry.js";
 const MOTION_KEY = "motion:";
 
 function storedMotion() {
-  /* 只有明确存过 "off" 才算关；读不到（首次访问、隐私模式抛错）一律按开。 */
+  /* 只有明确存过 "off" 才算关；读不到（首次访问、隐私模式）一律按开。 */
   try {
     return window.localStorage.getItem(MOTION_KEY) !== "off";
   } catch (ignored) {
@@ -48,7 +48,7 @@ function watchPointer() {
     pointer.seen = true;
     emit();
   }, { passive: true });
-  /* 离开文档：先置空再通知，跟随者据此收尾（摘下 .is-live）。 */
+  /* 离开文档：先置空再通知，跟随者据此摘掉 .is-live。 */
   document.documentElement.addEventListener("mouseleave", function () {
     pointer.seen = false;
     emit();
@@ -290,7 +290,6 @@ function initParallax(motion) {
     if (!raf) raf = window.requestAnimationFrame(tick);
   }, { passive: true });
 
-  /* 关掉时把标题放回原位，别留一个冻住的偏移。 */
   motion.onChange(function () {
     if (motion.isOn()) return;
     window.cancelAnimationFrame(raf);

@@ -162,7 +162,7 @@ export function initField(motion) {
       ry[i] = by;
       nearP[i] = 0;
       if (!live) continue;
-      /* 靠近指针的节点朝它偏移，位移按距离线性收到 6px 以内。 */
+      /* 朝指针偏移，位移按距离线性收到 6px 以内。 */
       const dx = gx - bx;
       const dy = gy - by;
       const d2 = dx * dx + dy * dy;
