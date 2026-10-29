@@ -218,6 +218,83 @@ function initHud() {
   for (let i = 0; i < targets.length; i += 1) io.observe(targets[i]);
 }
 
+/* —— 12 · 指标数字滚动（CONTRACT §7 的 data-count） ——
+   静态文本就是最终值：只在运行时覆盖，动画结束逐字符还原成初始化时抓到的那串字符。 */
+function formatCount(value) {
+  const whole = String(Math.round(value));
+  let out = "";
+  let digits = 0;
+  for (let i = whole.length - 1; i >= 0; i -= 1) {
+    out = whole.charAt(i) + out;
+    digits += 1;
+    if (digits % 3 === 0 && i > 0) out = "," + out;
+  }
+  return out;
+}
+
+function initCounters() {
+  const nodes = document.querySelectorAll("[data-count]");
+  if (!nodes.length) return;
+  if (REDUCED.matches) return;
+  if (typeof window.IntersectionObserver !== "function") return;
+
+  const items = [];
+  for (let i = 0; i < nodes.length; i += 1) {
+    const target = Number(nodes[i].getAttribute("data-count"));
+    if (!Number.isFinite(target)) continue;
+    items.push({ el: nodes[i], target: target, final: nodes[i].textContent });
+  }
+  if (!items.length) return;
+
+  function run(item) {
+    if (item.target <= 0) return;
+    if (document.visibilityState === "hidden") return;
+    const target = item.target;
+    const duration = 900;
+    let begin = 0;
+    let settled = false;
+
+    function restore() {
+      if (settled) return;
+      settled = true;
+      item.el.textContent = item.final;
+    }
+
+    function frame(now) {
+      if (settled) return;
+      if (!begin) begin = now;
+      const elapsed = now - begin;
+      if (elapsed < duration) {
+        const eased = 1 - Math.pow(1 - elapsed / duration, 3);
+        item.el.textContent = formatCount(target * eased);
+        window.requestAnimationFrame(frame);
+        return;
+      }
+      restore();
+    }
+
+    item.el.textContent = formatCount(0);
+    window.requestAnimationFrame(frame);
+    /* rAF 被节流（切到后台等）时兜底：静态值一定会回来 */
+    window.setTimeout(restore, duration + 1500);
+  }
+
+  const io = new IntersectionObserver(function (entries, observer) {
+    for (let i = 0; i < entries.length; i += 1) {
+      if (!entries[i].isIntersecting) continue;
+      observer.unobserve(entries[i].target);
+      for (let j = 0; j < items.length; j += 1) {
+        if (items[j].el === entries[i].target) {
+          run(items[j]);
+          break;
+        }
+      }
+    }
+  }, { threshold: 0.35 });
+
+  for (let i = 0; i < items.length; i += 1) io.observe(items[i].el);
+}
+
 /* —— 8 · 知识库过滤（仅 notes.html） —— */
 function initNotesFilter() {
   const input = document.getElementById("notesFilter");
@@ -365,6 +442,7 @@ safe(initProgress);
 safe(initReveal);
 safe(initBoot);
 safe(initHud);
+safe(initCounters);
 safe(initNotesFilter);
 safe(initScrollSpy);
 safe(initCopy);
