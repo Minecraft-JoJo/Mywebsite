@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>知识库 · Minecraft-JoJo</title>
+  <meta name="description" content="83 篇技术笔记 / 52,594 行的知识库索引：深度学习、后端、系统、桌面、语言、前端六组，每条给出 wc -l 实测行数。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="知识库 · Minecraft-JoJo">
+  <meta property="og:description" content="83 篇技术笔记 / 52,594 行的知识库索引：深度学习、后端、系统、桌面、语言、前端六组，每条给出 wc -l 实测行数。">
+  <meta property="og:image" content="./assets/svg/favicon.svg">
+  <link rel="icon" href="./assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/tokens.css">
+  <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/notes.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="./index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="./index.html">Index</a>
+        <a class="nav-link" href="./projects.html">Projects</a>
+        <a class="nav-link" href="./notes.html" aria-current="page">Knowledge</a>
+        <a class="nav-link" href="./about.html">About</a>
+        <a class="nav-link" href="./contact.html">Contact</a>
+      </nav>
+      <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="wrap notes-head">
+      <p class="eyebrow">KNOWLEDGE BASE</p>
+      <h1 class="h1 notes-head__title">知识库</h1>
+      <p class="lede notes-head__lede">83 篇文档 / 52,594 行 Markdown，按领域分成六组。下面列出的是其中 24 条最有代表性的条目，合计 48,711 行——每个数字都是对源文件跑 <code>wc -l</code> 的结果，不是估算。</p>
+      <p class="notes-head__stats">
+        <span class="notes-head__stat">TOTAL <b>83</b> DOCS · <b>52,594</b> LINES</span>
+        <span class="notes-head__stat">INDEXED <b>24</b> ENTRIES · <b>48,711</b> LINES</span>
+        <span class="notes-head__stat">MEASURED BY <b>wc -l</b></span>
+      </p>
+    </section>
+
+    <div class="wrap">
+      <div class="notes-toolbar">
+        <span class="notes-toolbar__mark" aria-hidden="true">FILTER</span>
+        <input id="notesFilter" type="search" class="notes-filter" placeholder="过滤：领域 / 关键词…" aria-label="过滤文档">
+        <p class="notes-count"><span id="notesCount">24</span> / 24 ENTRIES</p>
+      </div>
+      <noscript>
+        <p class="notes-noscript">未加载 JS：过滤输入不生效，下面 24 条全部可见。</p>
+      </noscript>
+    </div>
+
+    <div class="wrap notes-groups">
+
+      <section class="notes-group" id="dl">
+        <div class="notes-group__head">
+          <h2 class="notes-group__name">深度学习 <span class="notes-group__en">DEEP LEARNING &amp; VISION</span></h2>
+          <p class="notes-group__lines">9 篇 · 7,149 行</p>
+        </div>
+        <p class="notes-group__note">源目录 main/pytorch/ · 两个条目已整理成站内长文</p>
+
+        <a class="note-row" data-note-row data-note-live href="notes/attention.html" data-keywords="attention transformer self-attention 注意力 multi-head 位置编码 深度学习">
+          <span class="notes-row__title">Attention（注意力机制）完全教程</span>
+          <span class="notes-row__summary">从 Seq2Seq 的固定向量瓶颈推到多头与位置编码，含五个打分函数、形状账与可跑脚本；已精编为本站长文。</span>
+          <span class="notes-row__badge">2010</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row data-note-live href="notes/ocr-pipeline.html" data-keywords="ocr rapidocr 漫画 翻译 opencv 版面 分块 回填 管线 深度学习">
+          <span class="notes-row__title">漫画 OCR 翻译管线复盘</span>
+          <span class="notes-row__summary">RapidOCR 识别 → 版面分块 → 批量翻译 → 字块擦除与译文回填；每段的输入输出、失败模式与三个取舍。</span>
+          <span class="notes-row__badge">969</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="深度学习 全景 map 路线 transformer rnn cnn transformer 概览">
+          <span class="notes-row__title">现代深度学习全景地图<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">面向“已学完 CNN / RNN、准备进入现代深度学习”的入口文档，开头就列出它要回答的三个问题。</span>
+          <span class="notes-row__badge">457</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="seq2seq encoder decoder rnn 机器翻译 序列 深度学习">
+          <span class="notes-row__title">Seq2Seq 网络介绍<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">Encoder-Decoder 全教程：把 RNN / LSTM 单元接到“源句进、目标句出”的翻译任务上。</span>
+          <span class="notes-row__badge">1382</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="lstm rnn 门控 长短期记忆 序列 深度学习">
+          <span class="notes-row__title">LSTM 网络介绍<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">讲清 LSTM 相对 RNN 新增了哪些门、为什么这样设计，以及这些设计在前向传播里算出来是什么数。</span>
+          <span class="notes-row__badge">647</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="迁移学习 transfer resnet cnn 微调 预训练 深度学习">
+          <span class="notes-row__title">CNN 迁移学习实战（ResNet）<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">以 ResNet 为例把一个预训练模型改成解决自己问题的模型，每一步都说明为什么这么做、踩坑往哪看。</span>
+          <span class="notes-row__badge">1021</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="rnn 循环神经网络 bptt 隐状态 深度学习">
+          <span class="notes-row__title">RNN 网络介绍<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">隐状态怎么沿时间步传递、BPTT 怎么把误差展开回每个时间步。</span>
+          <span class="notes-row__badge">282</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="rnn 前向传播 算例 手工计算 深度学习">
+          <span class="notes-row__title">RNN 前向传播算例<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">用一个能手工算出每一位数字的极小 RNN，逐步走完前向传播，用来对照框架输出。</span>
+          <span class="notes-row__badge">286</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="cnn 卷积 池化 感受野 深度学习">
+          <span class="notes-row__title">卷积网络介绍<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">从“为什么全连接层不够用”开始，讲卷积核、参数共享与池化的形状变化。</span>
+          <span class="notes-row__badge">95</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="notes-group" id="backend">
+        <div class="notes-group__head">
+          <h2 class="notes-group__name">后端与数据 <span class="notes-group__en">BACKEND / DATA</span></h2>
+          <p class="notes-group__lines">4 篇 · 18,628 行</p>
+        </div>
+        <p class="notes-group__note">源目录 更多教程/ · 单篇最大的四份都在这一组</p>
+
+        <a class="note-row" data-note-row href="#" data-keywords="fastapi python 后端 api 异步 pydantic 路由 依赖注入">
+          <span class="notes-row__title">FastAPI 教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">7,994 行的全量教程：路由、请求体模型、依赖注入、异步、数据库接入与部署阶段的问题。</span>
+          <span class="notes-row__badge">7994</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="postgresql 数据库 sql 索引 备份 角色 后端">
+          <span class="notes-row__title">PostgreSQL 教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">在 Ubuntu（WSL 或云服务器）上从装好到能扛事：安装、角色与权限、索引、备份与恢复。</span>
+          <span class="notes-row__badge">4449</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="数据库 sql 入门 事务 关系模型 范式 后端">
+          <span class="notes-row__title">数据库入门教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">从“前端 + FastAPI 已经能跑通、但一多人使用就崩”的处境出发，把一堆 SQL 名词一次理清。</span>
+          <span class="notes-row__badge">3609</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="http 报文 状态码 缓存 头部 协议 网络安全 后端">
+          <span class="notes-row__title">HTTP 系统教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">按基础 → 报文 → 方法 → 状态码 → 头部 → 连接 → 缓存 → 安全 → API 设计的顺序递进。</span>
+          <span class="notes-row__badge">2576</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="notes-group" id="systems">
+        <div class="notes-group__head">
+          <h2 class="notes-group__name">系统与工具链 <span class="notes-group__en">SYSTEMS / TOOLCHAIN</span></h2>
+          <p class="notes-group__lines">5 篇 · 8,892 行</p>
+        </div>
+        <p class="notes-group__note">源目录 工具使用/、更多教程/ruff/</p>
+
+        <a class="note-row" data-note-row href="#" data-keywords="linux bash shell 服务器 ssh 权限 进程 系统">
+          <span class="notes-row__title">Linux 教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">从第一条命令到管好一台服务器，末尾附一份原笔记勘误表，逐条对照写了什么、改成了什么。</span>
+          <span class="notes-row__badge">6019</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="ruff linter formatter python 静态检查 工具链">
+          <span class="notes-row__title">Ruff 使用教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">用 Rust 写的 Python linter + formatter，讲规则集选择、配置项与接入到提交前的检查流程。</span>
+          <span class="notes-row__badge">1882</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="git github 分支 提交 版本控制 工具链">
+          <span class="notes-row__title">Git / GitHub 使用手册<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">上半部分是按场景分组的命令速查，下半部分才讲 Git 的对象模型与它为什么这么设计。</span>
+          <span class="notes-row__badge">535</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="npm node 包管理 依赖 脚本 工具链">
+          <span class="notes-row__title">npm 使用教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">npm 与 pip 的差别、项目级依赖怎么落到 node_modules、npm run 脚本怎么接起来。</span>
+          <span class="notes-row__badge">350</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="conda 环境 python 包管理 cuda 工具链">
+          <span class="notes-row__title">conda 使用教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">环境隔离与 CUDA 版本绑定的最小笔记：建环境、装轮子、导出依赖清单。</span>
+          <span class="notes-row__badge">106</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="notes-group" id="desktop">
+        <div class="notes-group__head">
+          <h2 class="notes-group__name">桌面应用 <span class="notes-group__en">DESKTOP / GUI</span></h2>
+          <p class="notes-group__lines">1 篇 · 3,148 行</p>
+        </div>
+        <p class="notes-group__note">源目录 pyside6/intro/</p>
+
+        <a class="note-row" data-note-row href="#" data-keywords="pyside6 qt 桌面 控件 信号槽 gui python">
+          <span class="notes-row__title">PySide6 学习手册<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">Qt 控件族逐个过一遍：布局、信号与槽、模型视图、资源打包，到 Windows 上的分发。</span>
+          <span class="notes-row__badge">3148</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="notes-group" id="language">
+        <div class="notes-group__head">
+          <h2 class="notes-group__name">语言与标准库 <span class="notes-group__en">LANGUAGE / STDLIB</span></h2>
+          <p class="notes-group__lines">2 篇 · 3,595 行</p>
+        </div>
+        <p class="notes-group__note">源目录 更多教程/、常见库的使用教程/</p>
+
+        <a class="note-row" data-note-row href="#" data-keywords="python 语法 基础 数据类型 面向对象 语言">
+          <span class="notes-row__title">Python 基础教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">按原有 py 文件顺序整理的语法主线，原笔记里说错、说反、写法过时的地方都直接改在正文里。</span>
+          <span class="notes-row__badge">3039</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="python os 路径 目录 环境变量 进程 标准库">
+          <span class="notes-row__title">os 模块使用教程<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">路径拼接、目录遍历、文件属性、环境变量与执行外部命令，按用途分组而不是按函数名排序。</span>
+          <span class="notes-row__badge">556</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="notes-group" id="frontend">
+        <div class="notes-group__head">
+          <h2 class="notes-group__name">前端 <span class="notes-group__en">FRONTEND</span></h2>
+          <p class="notes-group__lines">3 篇 · 7,299 行</p>
+        </div>
+        <p class="notes-group__note">源目录 更多教程/前端/ · 这一站本身也是零构建手写的结果</p>
+
+        <a class="note-row" data-note-row href="#" data-keywords="javascript js 练习 前端 dom 异步 断言">
+          <span class="notes-row__title">JavaScript 练习册<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">10 个阶段闯关，每题都有验收标准和参考答案，答案代码都跑过真实断言。</span>
+          <span class="notes-row__badge">3333</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="javascript js 前端 语法 浏览器 dom">
+          <span class="notes-row__title">JavaScript 入门<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">承接 HTML 骨架，讲变量与作用域、函数与闭包、对象、DOM 操作和事件流。</span>
+          <span class="notes-row__badge">2207</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="note-row" data-note-row href="#" data-keywords="css 布局 选择器 flex grid 响应式 前端">
+          <span class="notes-row__title">CSS 入门<span class="tag">未整理</span></span>
+          <span class="notes-row__summary">同样承接 HTML 骨架：选择器与优先级、盒模型、Flex / Grid 以及断点怎么选。</span>
+          <span class="notes-row__badge">1759</span>
+          <span class="notes-row__arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section class="notes-ledger" aria-label="数字出处">
+        <p class="notes-ledger__title">数字出处 / LEDGER</p>
+        <div class="notes-ledger__list">
+          <div><span>Markdown 总量</span><b>52,594 行 / 83 篇</b></div>
+          <div><span>深度学习 &amp; 视觉</span><b>9 条 / 7,149 行</b></div>
+          <div><span>后端与数据</span><b>4 条 / 18,628 行</b></div>
+          <div><span>系统与工具链</span><b>5 条 / 8,892 行</b></div>
+          <div><span>桌面应用</span><b>1 条 / 3,148 行</b></div>
+          <div><span>语言与标准库</span><b>2 条 / 3,595 行</b></div>
+          <div><span>前端</span><b>3 条 / 7,299 行</b></div>
+          <div><span>本页索引合计</span><b>24 条 / 48,711 行</b></div>
+        </div>
+        <p class="notes-ledger__foot">每条的徽章是对源文件跑 <code>wc -l</code> 的结果；两份已整理的长文按正文 HTML 计，其中 OCR 一条的 969 是 Python 代码行数（全项目 9 个 Python 文件，本文引用的 7 个文件合计 801 行）。总量口径：<code>find . -name '*.md' | xargs cat | wc -l</code>。</p>
+      </section>
+    </div>
+
+    <section class="wrap notes-why">
+      <p class="eyebrow">Why publish</p>
+      <h2 class="h2">为什么把这些笔记公开</h2>
+      <div class="notes-why__body">
+        <p>这些文件原本只是自己写给自己看的：查一个命令、记一次踩坑、把一段推导算到能复现。写的时候没人审核，所以里面既有算过的例子，也有写错后被自己回头改掉的段落——比如 Linux 那份末尾的勘误表，就是把原文里说反的地方逐条列出来，而不是悄悄改掉。</p>
+        <p>公开的目的是让它们可被复核。每一条都给出行数、文件名和能重跑的命令，读者可以自己量一遍；两个整理成长文的条目（Attention、漫画 OCR 管线）保留了源文件的行数标注，方便对照原始笔记判断我删掉了什么、为什么删。</p>
+        <p>也因此，这里不写“读过什么”，只写“留下了什么”。剩下的 59 篇没有单独成篇，仍以源文件形式存在：内容在，只是没有排版。整理它们的成本是每篇都要重写一遍例子并重新验算，这件事会按顺序做，不会一次补齐。</p>
+      </div>
+      <p class="notes-why__rule">事实 · 数字 · 取舍 · 一句结论</p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="./projects.html">Projects</a>
+          <a href="./notes.html">Knowledge</a>
+          <a href="./about.html">About</a>
+          <a href="./contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="./assets/js/main.js"></script>
+</body>
+</html>

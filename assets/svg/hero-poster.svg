@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="静态蓝图网格，九个节点与十条连线">
+  <!-- hero-poster.svg — 首页 hero 的静态兜底图。
+       用途：无 JS 或开启"减少动态"时，由 #fieldCanvas 的 data-poster 指向本文件。
+       坐标系写死在 1600×900 上，节点位置与连线和场画布的初始分布一致。 -->
+  <defs>
+    <pattern id="grid480" width="480" height="480" patternUnits="userSpaceOnUse">
+      <path d="M480 0H0V480" fill="none" stroke="#E9EBEE" stroke-opacity="0.1" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="fieldFade" cx="50%" cy="18%" r="74%">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="fieldMask">
+      <rect width="1600" height="900" fill="url(#fieldFade)"/>
+    </mask>
+  </defs>
+
+  <rect width="1600" height="900" fill="#07080A"/>
+
+  <g mask="url(#fieldMask)">
+    <rect width="1600" height="900" fill="url(#grid480)"/>
+
+    <!-- 连线：n1..n9 = (1230,170) (1420,300) (1010,250) (1330,520) (1080,640)
+         (820,420) (600,620) (450,300) (1500,720) -->
+    <g stroke="#57E3D2" stroke-opacity="0.22" stroke-width="1" fill="none">
+      <path d="M1230 170 L1420 300"/>
+      <path d="M1230 170 L1010 250"/>
+      <path d="M1230 170 L1330 520"/>
+      <path d="M1010 250 L820 420"/>
+      <path d="M1330 520 L1080 640"/>
+      <path d="M1080 640 L600 620"/>
+      <path d="M820 420 L450 300"/>
+      <path d="M600 620 L450 300"/>
+      <path d="M1330 520 L1500 720"/>
+      <path d="M1420 300 L1500 720"/>
+    </g>
+
+    <!-- 次级节点：空心方块，避免全场都是圆点 -->
+    <g fill="none" stroke="#E9EBEE" stroke-opacity="0.18" stroke-width="1">
+      <rect x="445" y="295" width="10" height="10"/>
+      <rect x="815" y="415" width="10" height="10"/>
+      <rect x="595" y="615" width="10" height="10"/>
+    </g>
+
+    <g fill="#57E3D2" fill-opacity="0.8">
+      <circle cx="1230" cy="170" r="3.5"/>
+      <circle cx="1010" cy="250" r="3"/>
+      <circle cx="820" cy="420" r="3"/>
+      <circle cx="1080" cy="640" r="3"/>
+      <circle cx="600" cy="620" r="3"/>
+    </g>
+    <g fill="#F2B441" fill-opacity="0.85">
+      <circle cx="1420" cy="300" r="2.5"/>
+      <circle cx="1330" cy="520" r="2.5"/>
+      <circle cx="1500" cy="720" r="2.5"/>
+    </g>
+
+    <!-- 刻度：贴着 480 网格的十字，只画三个，避免噪声 -->
+    <g stroke="#E9EBEE" stroke-opacity="0.16" stroke-width="1">
+      <path d="M960 476 H966 M963 473 V479"/>
+      <path d="M1436 476 H1442 M1439 473 V479"/>
+      <path d="M476 476 H482 M479 473 V479"/>
+    </g>
+  </g>
+
+  <g font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="11" letter-spacing="2" fill="#5E656E">
+    <text x="48" y="56">STATIC POSTER · NO JS</text>
+    <text x="48" y="862">FIELD / assets/svg/hero-poster.svg</text>
+  </g>
+  <g stroke="#E9EBEE" stroke-opacity="0.14" stroke-width="1">
+    <path d="M48 68 H128"/>
+    <path d="M48 838 H248"/>
+  </g>
+</svg>

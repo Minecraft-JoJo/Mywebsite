@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>漫画 OCR 翻译管线：四段拆解、三个取舍与已知缺陷 · Minecraft-JoJo</title>
+  <meta name="description" content="漫画 OCR 翻译管线复盘：RapidOCR 识别、版面分块（并查集）、批量翻译对齐、字块擦除与译文回填，含失败模式、真实代码走读与三个工程取舍。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="漫画 OCR 翻译管线：四段拆解、三个取舍与已知缺陷 · Minecraft-JoJo">
+  <meta property="og:description" content="漫画 OCR 翻译管线复盘：RapidOCR 识别、版面分块（并查集）、批量翻译对齐、字块擦除与译文回填，含失败模式、真实代码走读与三个工程取舍。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/article.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html">Projects</a>
+        <a class="nav-link" href="../notes.html" aria-current="page">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article>
+
+      <header class="wrap art-head">
+        <nav class="art-crumb" aria-label="面包屑">
+          <a href="../notes.html">Knowledge</a>
+          <span class="art-crumb__sep" aria-hidden="true">/</span>
+          <span>Note 02</span>
+          <span class="art-crumb__sep" aria-hidden="true">/</span>
+          <span>Engineering</span>
+        </nav>
+        <p class="eyebrow">NOTE / ENGINEERING</p>
+        <h1 class="h1 art-head__title">漫画 OCR 翻译管线：识别、分块、翻译、回填</h1>
+        <p class="art-head__sub">一条一次跑完的 CLI 管线，输入一张漫画，输出一张已经换好文字的图。真正难的不是识别，是“把译文放回原来的位置而且看起来不别扭”——这一步吃掉了大半的代码量。本文按四段拆开，每段给输入输出与失败模式，然后说三个必须做的取舍。</p>
+        <dl class="kv art-meta">
+          <dt>源文件</dt>
+          <dd>project/OCR/ · main.py · block.py · change.py · units.py · trans.py · read.py · config.py</dd>
+          <dt>行数</dt>
+          <dd>本次走读 7 个文件合计 801 行；整个项目 9 个文件合计 969 行</dd>
+          <dt>阅读指引</dt>
+          <dd>按 §2 的四段顺序读；§3 是三段真实代码，§4 解释为什么这么写，§5 是不打算糊过去的部分。</dd>
+          <dt>脱敏</dt>
+          <dd>文中代码删去了密钥、服务端点与所有本机路径，只保留逻辑。</dd>
+        </dl>
+      </header>
+
+      <div class="wrap">
+        <div class="art-grid">
+          <div class="art-body">
+
+            <section class="art-sec" id="task">
+              <p class="art-sec__n">SECTION 01</p>
+              <h2 class="h2">任务定义：为什么漫画比公文难</h2>
+              <p>公文 OCR 的目标是“把字变成字符”，坐标只需粗略保真；漫画翻译的目标是“把字换成另一种字，还要看着像原图”。前者的误差可以用置信度容忍，后者的误差一像素就能看见。四个具体的难点，每一个都能在代码里找到对应的补丁：</p>
+
+              <ul class="art-list">
+                <li><b>气泡</b>——文字被包在圆形或不规则轮廓里，底色是白的，边框是画的一部分。擦字必须停在边框内侧，但 OCR 给的框是一个矩形或四点框，不会沿着轮廓走。所以 <code>Erase</code> 只能按框涂阈值 mask 再修复（<code>change.py</code>，318 行）。</li>
+                <li><b>竖排</b>——日文气泡里是竖排、从右往左读，中文译文通常横排。同一张图上两种方向都可能有，因此方向必须先判断再决定画法：<code>block.py</code>（147 行）用“框的高宽比中位数 &gt; 1.5”判定整图竖排，结果写进每个块的 <code>vertical</code> 标记，供 <code>Replace</code> 选择画法。</li>
+                <li><b>拟声词</b>——手写体、艺术字、带透视旋转，识别置信度天然低于正文气泡。这类框要么识别不到（不擦不译，原样保留），要么被识别成一个奇怪的字串后翻成更奇怪的东西。</li>
+                <li><b>字体</b>——中文字符比西班牙语、英语字符更宽，同样字号放不下原文的框。所以回填不能按“字数 × 字号”估算，必须用真实字体的度量值逐字测量（<code>change.py</code> 的 <code>_char_wrap</code>）。</li>
+              </ul>
+
+              <div class="art-note">
+                <p class="art-note__label">结论</p>
+                <p>这条管线的重心不在模型，而在“坐标的搬运”：识别给的框是 4 点、分块要的是矩形、擦除要的是二值 mask、回填要的是字号与折行。四段之间每一次坐标转换都可能丢信息，丢在哪里，后面就得用规则补回来。</p>
+              </div>
+            </section>
+
+            <section class="art-sec" id="pipeline">
+              <p class="art-sec__n">SECTION 02</p>
+              <h2 class="h2">管线四段：输入、输出与各自的失败模式</h2>
+              <p>主流程只有十几行（<code>main.py</code>，64 行）：识别 → 擦除 → 分块 → 切句 → 批量翻译 → 拼回块 → 回填 → 存盘。注意顺序里有一个容易忽略的点：<strong>擦除发生在分块之前</strong>，因为擦除只需要框，不需要段落。</p>
+
+              <h3>① 识别 · read.py（43 行）</h3>
+              <p><strong>输入</strong>图片路径。<strong>输出</strong>四个量：<code>boxes</code>（每行文字一个四点框，转成 <code>int32</code>）、<code>txts</code>、<code>scores</code>、<code>elapse</code>。实现是把引擎参数外置成一份 YAML（配置路径写在构造器里），并先调用 <code>onnxruntime.preload_dlls()</code> 把推理后端依赖载入，避免在 Windows 上第一次推理时找不到动态库。</p>
+              <p><strong>失败模式</strong>：小字号或低对比度的拟声词整条漏掉；艺术字被切成两半，得到两个都不完整的框。这两种失败不会报错，只会安静地少一行译文。</p>
+
+              <h3>② 分块 · block.py（147 行）</h3>
+              <p><strong>输入</strong>识别给的框与文本。<strong>输出</strong>按阅读顺序排列的段落块 <code>[{box, text, vertical}]</code>。做法四步：先把四点框压成轴对齐矩形；再两两判断“是否同段”；用并查集把框归组；最后组内排序拼字、组间按阅读顺序排。</p>
+              <p>“是否同段”不是学习出来的，是两条几何判据：竖排时看垂直重叠比例 <code>ov_ratio ≥ 0.5</code> 且水平间距 <code>≤ 1.5 × min(ha, hb)</code>；横排时看水平重叠比例 <code>ov_ratio ≥ 0.3</code> 且垂直间距 <code>≤ 1.8 × 平均行高</code>。阈值写死，所以它对排版风格很敏感。</p>
+              <p><strong>失败模式</strong>：两个挨得近的气泡被并成一段，译文于是跨气泡；或者拟声词恰好落在判据范围内，被吞进对话里一起翻译。第一种会让回填时文字撑满一个跨越两气泡的大框。</p>
+
+              <h3>③ 翻译 · trans.py（132 行）与 units.py（59 行）</h3>
+              <p><strong>输入</strong>块文本。<strong>输出</strong>与块数等长的译文列表。中间多了一层 <code>units</code>：先把每块按句末标点切句，单句超过 1,500 字符再按逗号分号兜底切，切完的行拼成一次请求发出去；返回后按 <code>block_idx</code> 归位到原块。</p>
+              <p><strong>失败模式</strong>：接口可能一行对一行返回，也可能把整段译文揉成一条返回。后者如果直接按序对齐，第 2 块之后全部错位——这类错误在成品图上看不出来（文字都在框里），但内容全错了。所以 <code>trans.py</code> 写了三条对齐策略，见 §3。</p>
+
+              <h3>④ 回填 · change.py（318 行）</h3>
+              <p><strong>输入</strong>原图 + 块坐标 + 每块译文。<strong>输出</strong>一张新图。两步：<code>Erase</code> 按所有识别框涂二值 mask、膨胀 5×5 后做 TELEA 修复（修复半径 3，写在 <code>config.py</code> 的 <code>inpaintRadius</code>），结果写到输出图；<code>Replace</code> 再逐个块二分字号、按字符折行、按背景亮度选黑字或白字画上去。</p>
+              <p><strong>失败模式</strong>：修复半径偏大时，白底气泡会留下灰色块；偏小时，笔画残留会变成脏点。字体缺失时会降级到默认位图字体，中文全部变成方框。</p>
+
+              <div class="art-table">
+                <table class="table">
+                  <caption>四段的输入输出与失败模式（行数为 wc -l 实测）</caption>
+                  <thead><tr><th>段</th><th>文件 / 行数</th><th>输入 → 输出</th><th>典型失败</th></tr></thead>
+                  <tbody>
+                    <tr><td>识别</td><td>read.py / 43</td><td>图片 → 四点框 + 文本 + 置信度</td><td>艺术字漏检或切半</td></tr>
+                    <tr><td>分块</td><td>block.py / 147</td><td>框 + 文本 → 按阅读顺序的块</td><td>相邻气泡误并、拟声词被吞</td></tr>
+                    <tr><td>翻译</td><td>units.py 59 + trans.py 132</td><td>块文本 → 等长译文列表</td><td>条数不符导致错位</td></tr>
+                    <tr><td>回填</td><td>change.py / 318</td><td>原图 + 块 + 译文 → 成图</td><td>修复残留、字体降级、字号过小</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="art-sec" id="walk">
+              <p class="art-sec__n">SECTION 03</p>
+              <h2 class="h2">代码走读：三段真正在解决问题的片段</h2>
+
+              <h3>① 切句与归位：为什么翻译的单位不是“块”</h3>
+              <p>整段丢给翻译接口，得到的是一整段译文：如果它比原文长，回填时字号会被压到很小；接口也可能把两句话合成一句，再想拆回原块就没依据了。把单位降成句子，一是长度可控，二是每句都带着 <code>block_idx</code>，回来后一定能拼回原块——即使某一句翻译失败，也能退回原文而不破坏结构。</p>
+
+              <div class="art-code">
+                <div class="art-code__bar">
+                  <span>python · units.py 切句与归位</span>
+                  <button class="code__copy" type="button" data-copy>COPY</button>
+                </div>
+                <pre><code>def _split_sentences(text):
+    """按句末标点切句（标点保留在句尾）。
+    (?![0-9]) 防止把 3.14 / v1.2 的数字点当句号切"""
+    parts = re.split(r"(?<=[。！？.!?])(?![0-9])", text)
+    return [p.strip() for p in parts if p.strip()]
+
+
+def _chunk_long(sent, max_len=1500):
+    """单句超长（&gt;1500 字符）时按逗号/分号兜底再切，防止接口单行超限"""
+    if len(sent) &lt;= max_len:
+        return [sent]
+    parts = re.split(r"(?<=[,，;；])", sent)
+    out, cur = [], ""
+    for p in parts:
+        if cur and len(cur) + len(p) &gt; max_len:
+            out.append(cur)
+            cur = p
+        else:
+            cur += p
+    if cur.strip():
+        out.append(cur)
+    return out
+
+
+def regroup_blocks(units, translated, n_blocks):
+    """输出长度 = n_blocks，每块拼成一段；翻译失败则保留原文"""
+    holder = {}
+    for u, t in zip(units, translated):
+        holder.setdefault(u["block_idx"], []).append(t if t else u["text"])
+    return ["".join(holder.get(i, [])) for i in range(n_blocks)]</code></pre>
+                <p class="art-code__cap">units.py 全文 59 行。第二个正则的 (?![0-9]) 是踩过坑之后加的：没有它，&quot;v1.2&quot; 会在小数点处被切成两段。</p>
+              </div>
+
+              <h3>② 字号自适配：用字体度量而不是估算法</h3>
+              <p>回填最直接的做法是“字数 × 字号 ≈ 框宽”，中英混排时一定会错，因为每个字形的宽度不一样。这里改成两级搜索：外层对字号做二分，内层用 <code>draw.textlength</code> 逐字符累加折行。理由是单调性——字号越大，每行装的字越少、行数越多、行高越大，总高度单调上升，所以“总高 ≤ 框高”的最大字号可以二分求。</p>
+
+              <div class="art-code">
+                <div class="art-code__bar">
+                  <span>python · change.py 字号二分 + 折行</span>
+                  <button class="code__copy" type="button" data-copy>COPY</button>
+                </div>
+                <pre><code>    def _char_wrap(self, text, font, draw, max_w):
+        """按字符贪心折行：中文没有空格可作断点，只能逐字试"""
+        lines, cur = [], ""
+        for ch in text:
+            if draw.textlength(cur + ch, font=font) &lt;= max_w or not cur:
+                cur += ch
+            else:
+                lines.append(cur)
+                cur = ch
+        if cur:
+            lines.append(cur)
+        return lines or [""]
+
+    def _layout_horizontal(self, text, box_w, box_h, draw):
+        lo, hi = 6, max(6, min(120, int(box_h)))      # 字号搜索 6px ~ 框高（封顶 120）
+        best = None
+        while lo &lt;= hi:                                # 二分找最大可行字号
+            mid = (lo + hi) // 2
+            font = self._load_font(mid)
+            asc, desc = font.getmetrics()              # 行高 = 上伸 + 下伸
+            line_h = asc + desc
+            lines = self._char_wrap(text, font, draw, box_w * 0.94)   # 留 6% 边距
+            if lines and len(lines) * line_h &lt;= box_h * 0.94:
+                best = (mid, lines, line_h, asc)
+                lo = mid + 1                           # 放得下 → 试更大
+            else:
+                hi = mid - 1                           # 放不下 → 缩小
+        if best:
+            return best
+        font = self._load_font(6)                      # 兜底：6px 硬画
+        asc, desc = font.getmetrics()
+        return (6, self._char_wrap(text, font, draw, box_w * 0.94), asc + desc, asc)</code></pre>
+                <p class="art-code__cap">change.py 的 Replace 类。字体路径来自配置，找不到时按一份备选列表逐个尝试，最后降级到 Pillow 默认字体。</p>
+              </div>
+
+              <h3>③ 批量请求与三条对齐策略</h3>
+              <p>逐条请求最稳，但一张图 20 个气泡就是 20 次网络往返。这里选择“多行拼成一次请求”，代价是必须自己处理返回条数。注释里写清了三种情况，代码就照这三种分支走——第三种是把前两条都放弃后的兜底。</p>
+
+              <div class="art-code">
+                <div class="art-code__bar">
+                  <span>python · trans.py 批量与对齐</span>
+                  <button class="code__copy" type="button" data-copy>COPY</button>
+                </div>
+                <pre><code>        is_batch = isinstance(text, list)
+        lines = text if is_batch else [text]
+        results = list(lines)                                   # 先存原文保底
+        idxs = [i for i, t in enumerate(lines) if t.strip()]    # 非空行下标
+        q_text = "\n".join(lines[i] for i in idxs)              # 多行拼成一次请求
+        data = self._post(q_text)                               # 端点/密钥在外层配置，不在这里
+
+        if data and "trans_result" in data:
+            dsts = [item["dst"] for item in data["trans_result"]]
+            if len(dsts) == len(idxs):                          # ① 一行一个译文 → 直接对齐
+                for k, i in enumerate(idxs):
+                    results[i] = dsts[k]
+            else:
+                parts = "\n".join(dsts).split("\n")             # ② 整段返回 → 按换行拆回
+                if len(parts) == len(idxs):
+                    for k, i in enumerate(idxs):
+                        results[i] = parts[k]
+                else:                                           # ③ 拆不开 → 逐条兜底
+                    for k, i in enumerate(idxs):
+                        one = self._translate_one(lines[i])
+                        results[i] = one if one else lines[i]</code></pre>
+                <p class="art-code__cap">最坏情况退化为 N 次单条请求，速度变慢但不错位；单条请求失败时保留原文，成品图不会缺字。</p>
+              </div>
+            </section>
+
+            <section class="art-sec" id="tradeoffs">
+              <p class="art-sec__n">SECTION 04</p>
+              <h2 class="h2">三个真实取舍</h2>
+
+              <h3>取舍一：整页翻译 vs 分块翻译</h3>
+              <p>整页一次请求，上下文完整，指代、语气、上下句衔接都能被模型看到；但它返回的是一整段文本，与 OCR 的块没有对应关系，回填就无处落地。分块能对齐，代价是每块独立翻译：跨块的指代（“他”、“那家伙”）必然丢，“这是……”这种被气泡切断的长句也会各自成句。代码选了分块，并把损失写进 <code>units.py</code> 的 docstring 里——承认它是取舍，不是没想到。</p>
+
+              <h3>取舍二：缩放回填 vs 直接绘制</h3>
+              <p>缩放回填指把原文区域擦干净，再按框二分字号重新绘制文字。好处是字形锐利、可换字、可改行距，尺寸随框自适应；代价是字号与原文不一致，长译文会被压成很小的字，跟原图的字重对不上。直接绘制的替代方案是把译文渲染成位图再贴回框内（保留原始字重与倾斜），但那需要另一套字库和描边处理，且擦除后仍要处理底色。当前实现选前者的理由是：它只有一套坐标系，出错时能定位到“这块字号算错了”。</p>
+
+              <h3>取舍三：批量请求 vs 逐条重试</h3>
+              <p>批量省请求数与时间，但一次失败影响整批；逐条重试稳，但一张图 20 次往返，加上失败重试的等待，交互体验崩掉。当前做法是“批量优先 + 条数不符就降级逐条”：正常情况下一次请求，异常时自动退化。这个取舍的关键判据不是速度，而是<strong>错位比慢更贵</strong>——错位在成品图上看不出来。</p>
+
+              <div class="art-note">
+                <p class="art-note__label">一句结论</p>
+                <p>三个取舍都指向同一件事：把不可见的错误变成可见的慢。错位、字号过小、修复残留，这三类问题在缩略图上都看不出来，所以宁可让管线在某些图上明显变慢，也不让它安静地出一张错的图。</p>
+              </div>
+            </section>
+
+            <section class="art-sec" id="defects">
+              <p class="art-sec__n">SECTION 05</p>
+              <h2 class="h2">已知缺陷与下一步</h2>
+              <ul class="art-list">
+                <li><b>四点框被压成矩形</b>：<code>block.py</code> 的 <code>to_rect</code> 取四个顶点的外接矩形，倾斜的文字框会被放大，<code>Erase</code> 于是多擦了一圈。下一步：保留原始四点做多边形 mask（<code>fillPoly</code>），矩形只用于排版计算。</li>
+                <li><b>修复会动到气泡边框</b>：TELEA 用邻域像素补，白底气泡里擦掉文字后可能出现浅灰块，靠边框的位置还会影响到线稿。下一步：先按框内主色填一层纯色底，再只对残余笔画做小半径修复。</li>
+                <li><b>翻译单位是句子，不是对话</b>：跨句指代无法还原，被气泡切断的长句各自成句。下一步：把同一气泡内相邻块拼成上下文再翻，同时保留 <code>block_idx</code> 映射以便回填。</li>
+                <li><b>字体依赖系统</b>：找不到配置里的字体就逐个试备选，最后降级到位图默认字体，中文会变方框。下一步：字体随项目分发，启动时校验一次并在缺失时直接报错，而不是安静降级。</li>
+                <li><b>没有测试</b>：切句正则、<code>regroup_blocks</code> 的归位、字号二分的单调性，目前都靠人工看过成品图确认。下一步：给这三个纯函数各写一组断言，把“3.14 不被切开”“条数不符时不错位”这类约束钉住。</li>
+                <li><b>端到端依赖密钥</b>：<code>config.py</code> 在缺少环境变量时直接以 <code>SystemExit</code> 退出，因此 CI 里跑不了整条链路。下一步：把翻译层抽象成接口，测试用本地桩替换。</li>
+                <li><b>调试输出留在主流程</b>：<code>main.py</code> 末尾会把整份框、块、译文列表都 <code>print</code> 出来，一张图几百行输出。下一步：改成按需开关的日志级别。</li>
+              </ul>
+              <p>这七条里，前两条是“需要重写坐标处理”，中间三条是“需要一层新的抽象”，后两条是“删代码就能解决”。按这个顺序修，是因为前两条直接影响成品质量，后两条只影响开发体验。</p>
+            </section>
+
+            <section class="art-sec" id="glossary">
+              <p class="art-sec__n">SECTION 06</p>
+              <h2 class="h2">术语表</h2>
+              <div class="art-gloss">
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">气泡</span>
+                  <span class="art-gloss__en">Balloon / Speech Bubble</span>
+                  <span class="art-gloss__def">漫画里承载台词的封闭区域；擦字时不能越过后面的边框。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">竖排阅读</span>
+                  <span class="art-gloss__en">Vertical Text</span>
+                  <span class="art-gloss__def">自上而下成列、列从右往左；代码用框的高宽比中位数判定整图方向。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">拟声词</span>
+                  <span class="art-gloss__en">Onomatopoeia</span>
+                  <span class="art-gloss__def">手写、变形、带透视的字，识别置信度通常低于正文气泡。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">版面分块</span>
+                  <span class="art-gloss__en">Layout Blocking</span>
+                  <span class="art-gloss__def">把相邻的文字行按几何关系合成段落块，一个块对应一个译文落点。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">并查集</span>
+                  <span class="art-gloss__en">Union-Find</span>
+                  <span class="art-gloss__def">block.py 用它把两两判定为同段的框合并成组，路径压缩两行循环。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">四点框</span>
+                  <span class="art-gloss__en">Quad Box</span>
+                  <span class="art-gloss__def">OCR 输出的四边形坐标；压成轴对齐矩形会丢掉旋转角。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">图像修复</span>
+                  <span class="art-gloss__en">Inpainting (TELEA)</span>
+                  <span class="art-gloss__def">按邻域像素补洞的算法；半径越大越平但越容易糊掉细节。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">膨胀</span>
+                  <span class="art-gloss__en">Dilation</span>
+                  <span class="art-gloss__def">把二值 mask 向外扩大，用来覆盖抗锯齿边缘的残余笔画。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">字符折行</span>
+                  <span class="art-gloss__en">Character Wrapping</span>
+                  <span class="art-gloss__def">中文没有空格断点，只能逐字符累加真实宽度；英文会退化为逐字断。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">字号二分</span>
+                  <span class="art-gloss__en">Binary Search Sizing</span>
+                  <span class="art-gloss__def">利用“总高随字号单调上升”求最大可行字号，区间 6px 到框高（封顶 120）。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">对齐错位</span>
+                  <span class="art-gloss__en">Alignment Drift</span>
+                  <span class="art-gloss__def">批量请求返回条数与输入不等时，按序对齐会让后面的译文整体错一格。</span>
+                </div>
+              </div>
+            </section>
+
+            <div class="art-foot">
+              <a class="btn" href="../notes.html">返回知识库 <span class="btn__arrow" aria-hidden="true">→</span></a>
+              <span class="art-foot__note">7 文件 801 行 · 9 文件 969 行 · 代码已脱敏</span>
+            </div>
+
+          </div>
+
+          <aside class="art-side">
+            <nav class="toc art-toc" data-scrollspy aria-label="本页目录">
+              <p class="art-toc__label">On this page</p>
+              <ul>
+                <li><a href="#task">01 · 任务定义</a></li>
+                <li><a href="#pipeline">02 · 四段拆解</a></li>
+                <li><a href="#walk">03 · 代码走读</a></li>
+                <li><a href="#tradeoffs">04 · 三个取舍</a></li>
+                <li><a href="#defects">05 · 已知缺陷</a></li>
+                <li><a href="#glossary">06 · 术语表</a></li>
+              </ul>
+              <p class="art-toc__foot">SOURCE<br>project/OCR/<br>main · block · change<br>units · trans · read · config<br>801 LINES / 7 FILES</p>
+            </nav>
+          </aside>
+        </div>
+      </div>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

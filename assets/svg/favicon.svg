@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Minecraft-JoJo">
+  <rect width="32" height="32" fill="#07080A"/>
+  <rect x="3.5" y="3.5" width="25" height="25" fill="none" stroke="#57E3D2" stroke-width="1" opacity=".55"/>
+  <path d="M10 22V10l6 7 6-7v12" fill="none" stroke="#E9EBEE" stroke-width="1.6" stroke-linejoin="miter"/>
+  <circle cx="10" cy="22" r="1.5" fill="#F2B441"/>
+  <circle cx="22" cy="22" r="1.5" fill="#57E3D2"/>
+</svg>

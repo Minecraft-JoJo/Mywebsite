@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>注意力机制：从 Seq2Seq 的双重瓶颈到多头与前向实现 · Minecraft-JoJo</title>
+  <meta name="description" content="注意力机制的深度笔记：Seq2Seq 的固定向量与对齐缺陷、四步通用公式、Bahdanau 与 Luong 对比、Self-Attention 与 Multi-Head、正弦位置编码，附可跑 PyTorch 最小实现。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="注意力机制：从 Seq2Seq 的双重瓶颈到多头与前向实现 · Minecraft-JoJo">
+  <meta property="og:description" content="注意力机制的深度笔记：Seq2Seq 的固定向量与对齐缺陷、四步通用公式、Bahdanau 与 Luong 对比、Self-Attention 与 Multi-Head、正弦位置编码，附可跑 PyTorch 最小实现。">
+  <meta property="og:image" content="../assets/svg/favicon.svg">
+  <link rel="icon" href="../assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/article.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="../index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="../index.html">Index</a>
+        <a class="nav-link" href="../projects.html">Projects</a>
+        <a class="nav-link" href="../notes.html" aria-current="page">Knowledge</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+      <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article>
+
+      <header class="wrap art-head">
+        <nav class="art-crumb" aria-label="面包屑">
+          <a href="../notes.html">Knowledge</a>
+          <span class="art-crumb__sep" aria-hidden="true">/</span>
+          <span>Note 01</span>
+          <span class="art-crumb__sep" aria-hidden="true">/</span>
+          <span>Deep Learning</span>
+        </nav>
+        <p class="eyebrow">NOTE / DEEP LEARNING</p>
+        <h1 class="h1 art-head__title">注意力机制：把“一个定长向量”拆成“每步现算的加权和”</h1>
+        <p class="art-head__sub">一条从 Seq2Seq 的两个结构性缺陷出发的路线：打分 → softmax → 加权求和 → 拼接；然后是把同一个公式拆成多个头、把顺序信息手工注入。全文的公式、对比点与代码都以源笔记为据，源笔记里出现过的段落标注了行号。</p>
+        <dl class="kv art-meta">
+          <dt>源文件</dt>
+          <dd>main/pytorch/attention/Attention完全教程.md</dd>
+          <dt>行数</dt>
+          <dd>2,010（本页是精编，不是全文搬运）</dd>
+          <dt>阅读指引</dt>
+          <dd>先读 §2 的四步公式与 §6 的可跑实现；§3 的对比表在需要选 Bahdanau 还是 Luong 时再看；§7 是踩坑清单，可以当检查表用。</dd>
+          <dt>复核方式</dt>
+          <dd>文中每个公式都能在源文件对应章节按行号找到；代码块可直接复制进 PyTorch 跑通。</dd>
+        </dl>
+      </header>
+
+      <div class="wrap">
+        <div class="art-grid">
+          <div class="art-body">
+
+            <section class="art-sec" id="why">
+              <p class="art-sec__n">SECTION 01</p>
+              <h2 class="h2">为什么需要注意力：Seq2Seq 的两个具体缺陷</h2>
+              <p>先看 Seq2Seq 的骨架：编码器把源句 <code>x₁ … x_N</code> 读成一个固定长度的向量 <code>c</code>，解码器只拿 <code>c</code> 和上一步的输出生成目标词。缺陷不在于“RNN 不好”，而在于 <code>c</code> 的形状被写死在模型结构里。</p>
+
+              <h3>缺陷一：固定长度向量压不住长句</h3>
+              <p>不管源句是 5 个词还是 60 个词，编码器的输出永远是 <code>H</code> 维。信息量被压成常数，句子越长，每一步 <code>c</code> 要承担的东西越多，靠前的词在梯度上传到解码器时已经被稀释。源笔记把这一节写成“长句语义消失”，并给了可验证的读法：同一套超参、只改句长，看准确率随长度的分布——源文件 §1.2（第 90 行）。</p>
+
+              <h3>缺陷二：对齐关系无处安放</h3>
+              <p>解码第 <code>t</code> 步时，模型本应“看向”源句里对应的那个词；但在纯 Seq2Seq 里，这个“看向”没有任何变量可以表示——它只能隐式地存在于 <code>c</code> 里，而 <code>c</code> 是不可微的常量。语序调换（中文“五月十二日”对英文"12 May"）尤其吃亏，因为模型没有机制让第 <code>t</code> 步专门去取第 <code>i</code> 个源词的信息。源文件 §1.3（第 122 行）。</p>
+
+              <p><strong>注意力的两刀切在这里：</strong>把常数 <code>c</code> 换成每一步现算的 <code>c_t</code>，并让 <code>c_t</code> 成为“源句所有位置向量的加权和”——权重就是可学习的对齐概率。源文件 §4.1 结尾有一句话概括得最准：<em>对比无注意力的 Seq2Seq，唯一的变化就是把常数 c 换成每一步现算的 c_t。</em></p>
+
+              <div class="art-note">
+                <p class="art-note__label">取舍</p>
+                <p>注意力不是新增一层网络，而是把“取哪里的信息”从结构假设改成了可学习权重。代价是每步要算 <code>n_k</code> 个分数，训练变慢；收益是长句不再被一个定长向量卡住，并且顺带拿到了对齐矩阵。</p>
+              </div>
+            </section>
+
+            <section class="art-sec" id="formula">
+              <p class="art-sec__n">SECTION 02</p>
+              <h2 class="h2">通用公式四步：打分 → softmax → 加权求和 → 拼接</h2>
+              <p>给定 <code>Q ∈ R^(n_q×d_k)</code>、<code>K ∈ R^(n_k×d_k)</code>、<code>V ∈ R^(n_k×d_v)</code>，所有注意力变体都能塞进这四步（源文件 §3.1）：</p>
+
+              <p class="art-formula">
+                <span class="k">① 打分</span>　S = Q·Kᵀ / √d_k　　<span class="c">→ (n_q × n_k)</span><br>
+                <span class="k">② 屏蔽</span>　S = mask(S)　　<span class="c">→ 不该看的位置填 -1e9</span><br>
+                <span class="k">③ 归一化</span>　A = softmax(S, dim=-1)　　<span class="c">→ 每一行和为 1</span><br>
+                <span class="k">④ 加权求和</span>　O = A·V　　<span class="c">→ (n_q × d_v)</span>
+              </p>
+
+              <h3>Q / K / V 各自是什么</h3>
+              <ul class="art-list">
+                <li><b>Query</b>——“我要找什么”。解码第 <code>t</code> 步时，它由当前解码状态投影而来；在 self-attention 里，它由本层输入投影而来。长度 <code>n_q</code> 决定输出的长度。</li>
+                <li><b>Key</b>——“我能被什么样的 query 匹配”。它和 query 做内积，得到分数矩阵；只有 key 和 query 在同一空间里比，内积才有意义。</li>
+                <li><b>Value</b>——“被匹配上之后我交出什么”。它不参与打分，只被加权求和；这也是为什么 <code>d_k</code> 和 <code>d_v</code> 可以不等。</li>
+              </ul>
+
+              <p>三条必须记住的性质（源文件 §3.1 原文列出）：<code>A</code> 的每一行和为 1，是概率分布，可以算熵做诊断；输出长度 = query 长度 <code>n_q</code>，输出维度 = value 维度 <code>d_v</code>，<code>n_k</code> 只影响中间的分数矩阵；Q / K / V 长度可以完全不同——这正是 cross-attention 能“源句长度 → 目标句长度”的原因。</p>
+
+              <h3>为什么要除以 √d_k</h3>
+              <p>内积的方差随维度线性增长：<code>d_k</code> 越大，分数越容易拉开，softmax 被推到接近 one-hot，梯度接近 0。除以 <code>√d_k</code> 是把方差拉回 1 的最小改动，也让“点积”这种零参数的打分函数在大维度下重新可用。历史上 Bahdanau 用加性打分、直到缩放点积出现，很大程度就是这个数值问题（源文件 §3.3）。</p>
+
+              <h3>五种打分函数，现在只剩两种在用</h3>
+              <div class="art-table">
+                <table class="table">
+                  <caption>源文件 §3.2 的对照表：维度要求与今天的用途</caption>
+                  <thead>
+                    <tr><th>名字</th><th>公式</th><th>参数</th><th>维度要求</th><th>用在哪</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>dot</td><td><code>qᵀk</code></td><td>0</td><td>d_q = d_k</td><td>Luong；早期检索</td></tr>
+                    <tr><td>scaled dot-product</td><td><code>qᵀk / √d_k</code></td><td>0</td><td>d_q = d_k</td><td>Transformer 全系</td></tr>
+                    <tr><td>general / bilinear</td><td><code>qᵀWk</code></td><td>W</td><td>任意</td><td>Luong general</td></tr>
+                    <tr><td>concat</td><td><code>vᵀtanh(W[q;k])</code></td><td>三个小矩阵</td><td>任意</td><td>Luong concat</td></tr>
+                    <tr><td>additive</td><td><code>vᵀtanh(W_q q + W_k k)</code></td><td>三个小矩阵</td><td>任意</td><td>Bahdanau、语音、TTS</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>选择的判据是纯工程的：数据大、维度高就用 scaled dot-product，它没有额外参数、能直接吃 GPU 的矩阵乘核；维度小、数据少、需要不同维度之间对齐才考虑加性，但它吃不到 GEMM 优化，长序列上慢一个量级。</p>
+            </section>
+
+            <section class="art-sec" id="bvs">
+              <p class="art-sec__n">SECTION 03</p>
+              <h2 class="h2">Bahdanau 与 Luong：只差一个顺序，训练动态就变了</h2>
+              <p>Bahdanau 的四步写成公式是这样（源文件 §4.1）：</p>
+              <p class="art-formula">
+                <span class="k">① 打分</span>　e(t,i) = vᵀ·tanh(W_s·s(t-1) + W_h·h_i)　　<span class="c">i = 1…T</span><br>
+                <span class="k">② 归一化</span>　α(t,i) = exp(e(t,i)) / Σ_j exp(e(t,j))<br>
+                <span class="k">③ 加权求和</span>　c_t = Σ_i α(t,i)·h_i<br>
+                <span class="k">④ 解码</span>　s_t = GRU([y(t-1); c_t], s(t-1))　·　o_t = W_o[s_t; c_t] + b_o
+              </p>
+              <p>叫“加性”是因为它先<strong>加</strong>再 tanh：<code>W_s s(t-1)</code> 和 <code>W_h h_i</code> 形状相同，逐元素相加后过 tanh，再由 <code>v</code> 投成标量。其中 <code>W_s</code> 是 <code>d_a × H</code>，<code>W_h</code> 是 <code>d_a × 2H</code>——<code>2H</code> 是因为 <code>h_i</code> 是双向 RNN 前向与后向输出的拼接，天然带着第 <code>i</code> 个词左右两边的上下文。</p>
+              <p>Luong 的改动只有两处：打分用<strong>当前</strong>状态 <code>s_t</code> 而不是上一步的 <code>s(t-1)</code>；打分函数给了 dot / general / concat 三个变体。它额外引入 input feeding——把上一步的注意力向量拼到当前输入，让模型知道自己上一眼看的是什么。</p>
+
+              <div class="art-table">
+                <table class="table">
+                  <caption>四个维度的对比（源文件 §4.4 的表，加了对“方向”的补充说明）</caption>
+                  <thead>
+                    <tr><th>对比项</th><th>Bahdanau (2015)</th><th>Luong (2015)</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>打分用的状态</td><td>上一步 <code>s(t-1)</code>：先对齐，再走 RNN</td><td>当前 <code>s_t</code>：先走 RNN，再对齐</td></tr>
+                    <tr><td>打分函数</td><td>加性 <code>vᵀtanh(W_s s + W_h h)</code>，多一次 tanh 与两次投影</td><td>dot / general / concat 三选一，dot 最省，纯矩阵乘</td></tr>
+                    <tr><td>是否有方向</td><td>编码器双向，<code>h_i</code> 是 2H 维拼接，左右上下文同时进 key</td><td>主体是单向的顶层状态；方向性不靠 key，靠 input feeding 一步步反馈</td></tr>
+                    <tr><td>拼接方式</td><td><code>c_t</code> 与上一步输出嵌入拼成 <code>[y(t-1); c_t]</code> 喂给 GRU，输出层再拼一次 <code>[s_t; c_t]</code></td><td>input feeding：上一步的注意力向量拼进当前输入；另有 global / local 两种取范围</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>这个顺序差别不是风格问题：先用旧状态对齐，意味着“注意力是我这一步的输入”；先用新状态对齐，意味着“注意力是我这一步输出之后的解释”。Transformer 解码器选了前者——先做 self-attention 得到当前表示，再拿它当 query 去做 cross-attention（源文件 §4.4 末段）。</p>
+              <p>顺带一个实现细节：Bahdanau 里 <code>h_i</code> 既参与打分（相当于 key）又直接参与加权求和（相当于 value），所以很多实现干脆让 <code>K = V</code>。现代做法给 K、V 各自一个投影，因为“像不像我”和“该给我什么”本来可以是两件事（源文件 §4.2）。</p>
+            </section>
+
+            <section class="art-sec" id="self">
+              <p class="art-sec__n">SECTION 04</p>
+              <h2 class="h2">Self-Attention 与 Multi-Head：一个 softmax 装不下多种关系</h2>
+              <p>从 cross-attention 到 self-attention，改的只有一件事：Q / K / V 从哪来。cross 里 Q 来自解码器、K 和 V 来自编码器；self 里三者都来自同一层输入，于是“每个位置去问所有位置（包括自己）”。这带来两个直接后果：可以并行（不依赖时间步），以及——完全不知道顺序。</p>
+
+              <h3>它真的不知道顺序</h3>
+              <p>严格说，self-attention 是<strong>置换等变</strong>的：把输入序列打乱，输出也只被打乱，内容不变。因为加权求和 <code>Σ_j α(ij)·v_j</code> 对下标 <code>j</code> 没有任何偏好，只按内容算相似度。源文件 §5.5 给的例子是“狗咬人”与“人咬狗”——两句话在纯 self-attention 看来内容一样。这就是 §5 存在的唯一理由。</p>
+
+              <div class="art-code">
+                <div class="art-code__bar">
+                  <span>python · 单头注意力全部代码</span>
+                  <button class="code__copy" type="button" data-copy>COPY</button>
+                </div>
+                <pre><code>def scaled_dot_product_attention(q, k, v, mask=None):
+    # q: (B, n_q, d_k)   k, v: (B, n_k, d_k / d_v)
+    scores = q @ k.transpose(-2, -1) / math.sqrt(q.size(-1))   # (B, n_q, n_k)
+    if mask is not None:
+        scores = scores.masked_fill(mask, -1e9)
+    attn = torch.softmax(scores, dim=-1)                       # 每行和为 1
+    return attn @ v, attn</code></pre>
+                <p class="art-code__cap">源文件 §5.6（第 611 行）。q @ k.transpose(-2,-1) 的含义是：两个向量的相似度 = 内积。</p>
+              </div>
+
+              <h3>为什么要多个头</h3>
+              <p>单个注意力只能产生一种加权方式：一个 softmax 分布。但一句话里同时存在多重关系——动词对主语、代词对先行词、相邻词、主题词。一个分布没法同时表达：它给 "it → animal" 0.55，就很难再给 "it → was" 0.5，因为一行权重和必须为 1。</p>
+              <p>多头就是解这个约束：把表示维拆成 <code>h</code> 份，每一份独立做一次注意力，各管一种关系。这就是“子空间假设”——每个头在自己的低维子空间里量相似度，比在一个高维空间里挤一个分布更容易分工。</p>
+              <p class="art-formula">
+                head_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)　　<span class="c">d_k = d_v = d / h</span><br>
+                MultiHead(Q,K,V) = Concat(head_1 … head_h)·W^O
+              </p>
+              <p>关键是 <code>d_k = d_v = d/h</code>：多头<strong>不增加</strong>总计算量，只是把一个大注意力拆成 <code>h</code> 个小注意力并行。源文件 §6.4 拿 <code>d=512, h=8, d_k=64</code> 算过账：<code>W_Q / W_K / W_V</code> 各 <code>512²=262,144</code>，<code>W_O</code> 同样，单个多头注意力总计 <code>4d² = 1,048,576</code> 个参数；计算量 <code>h × O(n²·d/h) = O(n²·d)</code>，与单头同阶。</p>
+
+              <h3>形状账：多头实现最容易写错的地方</h3>
+              <div class="art-table">
+                <table class="table">
+                  <caption>源文件 §6.3 的形状表，写代码前先对一遍</caption>
+                  <thead><tr><th>步骤</th><th>代码</th><th>形状</th></tr></thead>
+                  <tbody>
+                    <tr><td>投影</td><td><code>w_q(x)</code></td><td>(B, n, d)</td></tr>
+                    <tr><td>拆头</td><td><code>.view(B, n, h, d_k).transpose(1, 2)</code></td><td>(B, h, n, d_k)</td></tr>
+                    <tr><td>打分</td><td><code>q @ k.transpose(-2,-1) / √d_k</code></td><td>(B, h, n_q, n_k)</td></tr>
+                    <tr><td>加权</td><td><code>attn @ v</code></td><td>(B, h, n_q, d_k)</td></tr>
+                    <tr><td>并头</td><td><code>.transpose(1, 2).contiguous().view(B, n_q, d)</code></td><td>(B, n_q, d)</td></tr>
+                    <tr><td>输出投影</td><td><code>w_o(...)</code></td><td>(B, n_q, d)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>两个经典 bug 都出自这张表：<code>view</code> 放在 <code>transpose</code> 之后，转置过的张量内存不连续，要么报错要么悄悄读错数据，必须先 <code>.contiguous()</code> 或改用 <code>reshape</code>；把拆头写成 <code>.view(B, h, n, d_k)</code> 而不是 <code>.view(B, n, h, d_k).transpose(1, 2)</code>，两者元素顺序不同，模型能跑但学不好，而且不报错——这是最难查的一类 bug（源文件 §6.3）。</p>
+            </section>
+
+            <section class="art-sec" id="pos">
+              <p class="art-sec__n">SECTION 05</p>
+              <h2 class="h2">位置编码：注意力本身没有顺序，只能手工注进去</h2>
+              <p>既然 self-attention 对下标没有偏好，位置信息必须由外部提供。论文的原版做法是正弦编码：偶数维用 sin、奇数维用 cos，波长从 <code>2π</code> 到 <code>10000·2π</code> 呈几何级数分布——像把秒针、分针、时针叠在一起，各自记录不同粒度的位置（源文件 §7.2）。</p>
+              <p class="art-formula">
+                PE(pos, 2i)　 = sin( pos / 10000^(2i/d) )<br>
+                PE(pos, 2i+1) = cos( pos / 10000^(2i/d) )　　<span class="c">d = 模型维，i = 维度下标</span>
+              </p>
+              <p>为什么不用直接写 <code>pos</code>？三个理由，都能验证：</p>
+              <ul class="art-list art-list--num">
+                <li><b>数值有界</b>：sin / cos 恒在 <code>[-1, 1]</code>，句子再长也不会爆；直接写 <code>pos</code> 的话第 1000 个位置的取值是 1000，会把词向量的尺度彻底淹没。</li>
+                <li><b>能表达相对位置</b>：对任意固定偏移 <code>k</code>，<code>PE(pos+k)</code> 都是 <code>PE(pos)</code> 的一个线性变换（旋转矩阵），于是“位置差 5”这个信息能被后续线性层直接学出来。<span class="art-formula art-formula--sub">[sin(ω(pos+k)); cos(ω(pos+k))] = [[cos ωk, sin ωk], [−sin ωk, cos ωk]]·[sin(ω·pos); cos(ω·pos)]</span></li>
+                <li><b>可以外推</b>：函数形式固定，理论上比“学一张长度 512 的 embedding 表”更能覆盖没见过的长度（实践中外推能力也有限，所以后来有了 RoPE / ALiBi 这一代方案）。</li>
+              </ul>
+              <p>用法是<strong>相加</strong>而不是拼接：<code>x_i = Embed(w_i)·√d + PE_i</code>。乘 <code>√d</code> 是因为词嵌入初始化后的尺度约 <code>1/√d</code> 量级，要放大到和 PE 同一量级，否则位置信号会盖过词义。论文自己对比过：正弦编码与可学习的位置 embedding 效果几乎一样，选正弦是因为它不增加参数、且理论上能外推到更长序列。</p>
+            </section>
+
+            <section class="art-sec" id="code">
+              <p class="art-sec__n">SECTION 06</p>
+              <h2 class="h2">一个可跑的最小实现：正弦编码 + 多头注意力</h2>
+              <p>下面这段只依赖 <code>torch</code>，形状按 §4 的表来，末尾三行是自检：输出形状是否为 <code>(2, 6, 512)</code>、注意力是否 <code>(2, 8, 6, 6)</code>、每一行权重和是否为 1。跑通它，再去看 §7 的坑清单。</p>
+
+              <div class="art-code">
+                <div class="art-code__bar">
+                  <span>python · 最小实现</span>
+                  <button class="code__copy" type="button" data-copy>COPY</button>
+                </div>
+                <pre><code>import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+def scaled_dot_product_attention(q, k, v, mask=None):
+    scores = q @ k.transpose(-2, -1) / math.sqrt(q.size(-1))
+    if mask is not None:                      # mask 里 True = 屏蔽
+        scores = scores.masked_fill(mask, -1e9)
+    attn = F.softmax(scores, dim=-1)          # 每一行和为 1
+    return attn @ v, attn
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, n_head):
+        super().__init__()
+        assert d_model % n_head == 0
+        self.h = n_head
+        self.d_k = d_model // n_head          # d_k = d_v = d / h
+        self.w_q = nn.Linear(d_model, d_model)
+        self.w_k = nn.Linear(d_model, d_model)
+        self.w_v = nn.Linear(d_model, d_model)
+        self.w_o = nn.Linear(d_model, d_model)
+
+    def forward(self, x, mask=None):
+        B, n, d = x.shape
+        # 先 view 再 transpose：反过来会读错数据
+        q = self.w_q(x).view(B, n, self.h, self.d_k).transpose(1, 2)
+        k = self.w_k(x).view(B, n, self.h, self.d_k).transpose(1, 2)
+        v = self.w_v(x).view(B, n, self.h, self.d_k).transpose(1, 2)
+        out, attn = scaled_dot_product_attention(q, k, v, mask)
+        # 并头前必须 contiguous，否则 view 会报错
+        out = out.transpose(1, 2).contiguous().view(B, n, d)
+        return self.w_o(out), attn
+
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, max_len=512):
+        super().__init__()
+        pe = torch.zeros(max_len, d_model)
+        pos = torch.arange(max_len, dtype=torch.float).unsqueeze(1)
+        div = torch.exp(torch.arange(0, d_model, 2, dtype=torch.float)
+                        * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(pos * div)
+        pe[:, 1::2] = torch.cos(pos * div)
+        self.register_buffer("pe", pe)
+
+    def forward(self, x):
+        # 相加，且把词嵌入放大到与 PE 同一量级
+        return x * math.sqrt(x.size(-1)) + self.pe[: x.size(1)]
+
+
+if __name__ == "__main__":
+    x = torch.randn(2, 6, 512)
+    mha = MultiHeadAttention(d_model=512, n_head=8)
+    y, a = mha(x)
+    print(y.shape)        # torch.Size([2, 6, 512])
+    print(a.shape)        # torch.Size([2, 8, 6, 6])
+    print(a[0, 0, 0].sum())   # tensor(1.0000)
+    z = PositionalEncoding(512)(x)
+    print(z[0, 3, :4])    # 前四维都落在 [-1, 1] 附近</code></pre>
+                <p class="art-code__cap">参数量核对：4 × 512² = 1,048,576，与源文件 §6.4 的表一致。</p>
+              </div>
+            </section>
+
+            <section class="art-sec" id="pitfalls">
+              <p class="art-sec__n">SECTION 07</p>
+              <h2 class="h2">常见坑：一句因、一句果</h2>
+
+              <div class="art-note">
+                <p class="art-note__label">坑 01 · mask 语义写反</p>
+                <p>因：<code>masked_fill(mask, -1e9)</code> 里 True 表示“填掉”，而很多框架的 padding mask 是 True 表示“保留”。果：训练 loss 照常下降，但推理时模型看到了未来的 token，或把 pad 位当成了上下文。</p>
+              </div>
+
+              <div class="art-note">
+                <p class="art-note__label">坑 02 · transpose 之后用 view</p>
+                <p>因：转置后的张量在内存里不连续，<code>view</code> 要么直接报错，要么按错的顺序读数据。果：并头之后的表示与拆头时不对齐，模型能跑但效果莫名其妙地差。</p>
+              </div>
+
+              <div class="art-note">
+                <p class="art-note__label">坑 03 · 忘了除以 √d_k</p>
+                <p>因：内积方差随维度线性放大，分数差值被拉到几十量级。果：softmax 输出接近 one-hot，梯度接近 0，训练在前期就停住。</p>
+              </div>
+
+              <div class="art-note">
+                <p class="art-note__label">坑 04 · 位置编码用了拼接但没改维度</p>
+                <p>因：论文的做法是<strong>相加</strong>，<code>d_model</code> 不变；改成拼接后输入维度变成 <code>2d</code>。果：下游第一层线性层的权重对不上，要么形状报错，要么静默地只吃了一半特征。</p>
+              </div>
+
+              <div class="art-note">
+                <p class="art-note__label">坑 05 · 多头拆头写了 .view(B, h, n, d_k)</p>
+                <p>因：这个形状的元素顺序与 <code>.view(B, n, h, d_k).transpose(1, 2)</code> 不同。果：不报错、能收敛，但每个头拿到的是被时间维和头维交错切开的数据，等于把头随机混合了（源文件 §6.3 点名的第二类 bug）。</p>
+              </div>
+            </section>
+
+            <section class="art-sec" id="glossary">
+              <p class="art-sec__n">SECTION 08</p>
+              <h2 class="h2">术语表</h2>
+              <div class="art-gloss">
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">查询 / 键 / 值</span>
+                  <span class="art-gloss__en">Query / Key / Value</span>
+                  <span class="art-gloss__def">Q 找什么、K 能被什么匹配、V 交出什么；只有 Q 与 K 需要同维度。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">缩放点积注意力</span>
+                  <span class="art-gloss__en">Scaled Dot-Product Attention</span>
+                  <span class="art-gloss__def">打分用 qᵀk 再除以 √d_k，零参数，Transformer 全系统一形式。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">加性注意力</span>
+                  <span class="art-gloss__en">Additive Attention</span>
+                  <span class="art-gloss__def">先投影相加、过 tanh、再投成标量；Bahdanau 用的就是它。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">交叉注意力</span>
+                  <span class="art-gloss__en">Cross-Attention</span>
+                  <span class="art-gloss__def">Q 来自解码器、K 和 V 来自编码器；输出长度由 Q 决定。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">自注意力</span>
+                  <span class="art-gloss__en">Self-Attention</span>
+                  <span class="art-gloss__def">Q / K / V 同源，等价于每个位置去问所有位置，可并行。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">多头注意力</span>
+                  <span class="art-gloss__en">Multi-Head Attention</span>
+                  <span class="art-gloss__def">拆 h 份、每份 d_k = d/h，各做一次注意力后拼接再投影。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">置换等变</span>
+                  <span class="art-gloss__en">Permutation Equivariance</span>
+                  <span class="art-gloss__def">打乱输入，输出只被打乱、内容不变；这正是 self-attention 不知道顺序的形式化说法。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">位置编码</span>
+                  <span class="art-gloss__en">Positional Encoding</span>
+                  <span class="art-gloss__def">把位置信息注入表示；论文用 sin / cos 直接相加到词嵌入上。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">屏蔽</span>
+                  <span class="art-gloss__en">Mask</span>
+                  <span class="art-gloss__def">在 softmax 之前把不该看的位置填 -1e9；padding mask 与 causal mask 语义要分清。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">软对齐</span>
+                  <span class="art-gloss__en">Soft Alignment</span>
+                  <span class="art-gloss__def">把所有解码步的 α 拼成矩阵得到对齐热图，是模型内部中间量，不是事后解释。</span>
+                </div>
+                <div class="art-gloss__row">
+                  <span class="art-gloss__cn">输入反馈</span>
+                  <span class="art-gloss__en">Input Feeding</span>
+                  <span class="art-gloss__def">Luong 的技巧：把上一步的注意力向量拼进当前输入，让模型知道自己上一眼看了哪。</span>
+                </div>
+              </div>
+            </section>
+
+            <div class="art-foot">
+              <a class="btn" href="../notes.html">返回知识库 <span class="btn__arrow" aria-hidden="true">→</span></a>
+              <span class="art-foot__note">源文件 2,010 行 · 本页为精编 · 公式与代码均可回溯</span>
+            </div>
+
+          </div>
+
+          <aside class="art-side">
+            <nav class="toc art-toc" data-scrollspy aria-label="本页目录">
+              <p class="art-toc__label">On this page</p>
+              <ul>
+                <li><a href="#why">01 · 为什么需要注意力</a></li>
+                <li><a href="#formula">02 · 四步通用公式</a></li>
+                <li><a href="#bvs">03 · Bahdanau 与 Luong</a></li>
+                <li><a href="#self">04 · Self-Attention 与多头</a></li>
+                <li><a href="#pos">05 · 位置编码</a></li>
+                <li><a href="#code">06 · 可跑的最小实现</a></li>
+                <li><a href="#pitfalls">07 · 常见坑</a></li>
+                <li><a href="#glossary">08 · 术语表</a></li>
+              </ul>
+              <p class="art-toc__foot">SOURCE<br>main/pytorch/attention/<br>Attention完全教程.md<br>2,010 LINES</p>
+            </nav>
+          </aside>
+        </div>
+      </div>
+
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="../projects.html">Projects</a>
+          <a href="../notes.html">Knowledge</a>
+          <a href="../about.html">About</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="../assets/js/main.js"></script>
+</body>
+</html>

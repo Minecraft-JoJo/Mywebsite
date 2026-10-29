@@ -1,0 +1,224 @@
+/* ============================================================
+   article.css — 深度文章页（notes/attention.html、notes/ocr-pipeline.html）
+   前缀：.art-* ｜ 契约类名 .toc 与 .code__copy 保留，样式全部挂在 .art-* 作用域下
+   ============================================================ */
+
+/* —— 文章头 —— */
+.art-head{padding-top:var(--s-8);padding-bottom:var(--s-6);border-bottom:1px solid var(--line)}
+.art-crumb{
+  display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap;
+  font-family:var(--font-mono);font-size:var(--t-xs);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);
+  margin-bottom:var(--s-5);
+}
+.art-crumb a{color:var(--muted);transition:color var(--t-fast) var(--e)}
+.art-crumb a:hover{color:var(--cyan)}
+.art-crumb__sep{color:var(--muted-2);opacity:.6}
+.art-head__title{margin-top:var(--s-4);max-width:30ch}
+.art-head__sub{
+  margin-top:var(--s-5);max-width:64ch;
+  font-size:var(--t-lede);line-height:1.62;color:var(--ink-2);
+}
+
+/* —— 元信息行（源文件 / 行数 / 阅读指引） —— */
+.art-meta{
+  margin-top:var(--s-6);padding-top:var(--s-4);
+  border-top:1px solid var(--line);
+  grid-template-columns:minmax(84px,auto) 1fr;
+  font-size:var(--t-xs);
+  word-break:break-word;
+}
+.art-meta dt{letter-spacing:.1em;text-transform:uppercase}
+.art-meta dd{font-variant-numeric:tabular-nums}
+
+/* —— 主体网格：左文右 TOC —— */
+.art-grid{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:var(--s-7);
+  padding-block:var(--s-7) var(--s-8);
+  align-items:start;
+}
+.art-body{min-width:0;max-width:68ch}
+.art-side{min-width:0}
+
+/* —— 章节 —— */
+.art-sec{margin-top:var(--s-8);scroll-margin-top:96px}
+.art-sec:first-child{margin-top:0}
+.art-sec .eyebrow{margin-bottom:var(--s-3)}
+.art-sec__n{
+  font-family:var(--font-mono);font-size:var(--t-xs);
+  color:var(--cyan);letter-spacing:.12em;margin-bottom:var(--s-2);
+}
+.art-body p{margin-top:var(--s-4);line-height:1.78;color:var(--ink-2)}
+.art-body p:first-child{margin-top:0}
+.art-body strong{color:var(--ink);font-weight:600}
+.art-body em{font-style:normal;color:var(--amber)}
+.art-body a{color:var(--cyan);border-bottom:1px solid rgba(87,227,210,.3)}
+.art-body a:hover{border-bottom-color:var(--cyan)}
+.art-body code{
+  font-family:var(--font-mono);font-size:.88em;color:var(--cyan);
+  border:1px solid var(--line);border-radius:var(--r-1);
+  padding:1px 5px;background:var(--void-2);white-space:nowrap;
+}
+.art-body h3{margin-top:var(--s-6);font-size:var(--t-h3);letter-spacing:-.02em;color:var(--ink)}
+
+/* —— 列表 —— */
+.art-list{margin-top:var(--s-4);display:grid;gap:var(--s-2)}
+.art-list li{
+  position:relative;padding-left:1.3em;
+  line-height:1.72;color:var(--ink-2);
+}
+.art-list li::before{
+  content:"—";position:absolute;left:0;top:0;
+  font-family:var(--font-mono);color:var(--muted-2);font-size:var(--t-xs);
+}
+.art-list li b{color:var(--ink);font-weight:600}
+.art-list--num{counter-reset:art-n}
+.art-list--num li{padding-left:2em}
+.art-list--num li::before{
+  counter-increment:art-n;content:counter(art-n) ".";
+  color:var(--cyan);font-size:var(--t-xs);
+}
+
+/* —— 行内公式（不引入 KaTeX，用等宽 code 承载） —— */
+.art-formula{
+  margin-top:var(--s-4);
+  padding:var(--s-3) var(--s-4);
+  border-left:2px solid rgba(87,227,210,.35);
+  background:var(--void-2);
+  font-family:var(--font-mono);font-size:var(--t-sm);
+  line-height:1.9;color:var(--ink-2);
+  overflow-x:auto;
+}
+.art-formula .k{color:var(--cyan)}
+.art-formula .c{color:var(--muted-2)}
+.art-formula--sub{display:block;margin-top:var(--s-2);font-size:var(--t-xs)}
+
+/* —— 表格 —— */
+.art-table{margin-top:var(--s-5);overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-1)}
+.art-table .table{border-collapse:collapse}
+.art-table .table th{padding:var(--s-3) var(--s-4) var(--s-2);background:var(--void-2)}
+.art-table .table td{padding:var(--s-3) var(--s-4);white-space:normal}
+.art-table caption{
+  caption-side:bottom;text-align:left;
+  padding:var(--s-2) var(--s-4) var(--s-3);
+  font-family:var(--font-mono);font-size:10px;color:var(--muted-2);
+}
+
+/* —— 代码块 + 复制按钮 —— */
+.art-code{
+  position:relative;margin-top:var(--s-5);
+  border:1px solid var(--line);border-radius:var(--r-1);
+  background:var(--void-3);overflow:hidden;
+}
+.art-code__bar{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);
+  padding:var(--s-2) var(--s-3) var(--s-2) var(--s-4);
+  border-bottom:1px solid var(--line);
+  font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);
+}
+.art-code pre code{
+  border:0;padding:0;background:none;color:inherit;
+  font-size:1em;white-space:pre;
+  font-variant-ligatures:none;
+}
+.art-code pre{
+  border:0;border-radius:0;background:transparent;
+  padding:var(--s-4) var(--s-5);
+  font-size:var(--t-sm);line-height:1.8;
+  max-height:520px;
+}
+.art-code .code__copy{
+  flex:none;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
+  padding:4px 9px;border:1px solid var(--line-2);border-radius:var(--r-1);
+  color:var(--muted);
+  transition:color var(--t-fast) var(--e),border-color var(--t-fast) var(--e),background var(--t-fast) var(--e);
+}
+.art-code .code__copy:hover,.art-code .code__copy:focus-visible{
+  color:var(--cyan);border-color:rgba(87,227,210,.5);background:var(--cyan-dim);
+}
+.art-code__cap{
+  padding:var(--s-2) var(--s-4);
+  border-top:1px solid var(--line);
+  font-family:var(--font-mono);font-size:10px;color:var(--muted-2);
+}
+
+/* —— 因/果提示块 —— */
+.art-note{
+  margin-top:var(--s-4);
+  border:1px solid var(--line);border-left:2px solid var(--amber);
+  border-radius:var(--r-1);background:var(--void-2);
+  padding:var(--s-3) var(--s-4);
+}
+.art-note__label{
+  font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--amber);
+  margin-bottom:var(--s-2);
+}
+.art-note p{margin-top:0;font-size:var(--t-sm);line-height:1.7}
+
+/* —— 术语表 —— */
+.art-gloss{margin-top:var(--s-5);border-top:1px solid var(--line)}
+.art-gloss__row{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:2px var(--s-5);
+  padding-block:var(--s-3);
+  border-bottom:1px solid var(--line);
+  font-family:var(--font-mono);font-size:var(--t-sm);
+}
+.art-gloss__cn{color:var(--ink)}
+.art-gloss__en{color:var(--muted-2);font-size:var(--t-xs);letter-spacing:.06em}
+.art-gloss__def{color:var(--muted);font-size:var(--t-xs);line-height:1.6}
+
+/* —— TOC —— */
+.art-toc{
+  position:sticky;top:88px;
+  border-left:1px solid var(--line);
+  padding-left:var(--s-4);
+}
+.art-toc__label{
+  font-family:var(--font-mono);font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2);
+  margin-bottom:var(--s-3);
+}
+.art-toc ul{display:grid;gap:1px}
+.art-toc a{
+  display:block;padding:5px 0 5px var(--s-3);
+  margin-left:calc(var(--s-3) * -1);
+  border-left:1px solid transparent;
+  font-family:var(--font-mono);font-size:var(--t-xs);
+  line-height:1.5;color:var(--muted);
+  transition:color var(--t-fast) var(--e),border-color var(--t-fast) var(--e);
+}
+.art-toc a:hover{color:var(--ink-2)}
+.art-toc a.is-active{
+  color:var(--cyan);border-left-color:var(--cyan);
+}
+.art-toc__foot{
+  margin-top:var(--s-4);padding-top:var(--s-3);
+  border-top:1px solid var(--line);
+  font-family:var(--font-mono);font-size:10px;line-height:1.7;color:var(--muted-2);
+}
+
+/* —— 文末返回 —— */
+.art-foot{
+  margin-top:var(--s-8);padding-top:var(--s-5);
+  border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s-4);
+}
+.art-foot__note{font-family:var(--font-mono);font-size:10px;color:var(--muted-2);letter-spacing:.08em}
+
+/* —— 响应式：≥900px 正文与 TOC 并排 —— */
+@media (min-width:900px){
+  .art-grid{grid-template-columns:minmax(0,1fr) 236px;gap:var(--s-8)}
+  .art-body{max-width:68ch}
+  .art-meta{grid-template-columns:minmax(92px,auto) 1fr}
+  .art-gloss__row{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
+}
+@media (max-width:899px){
+  .art-toc{position:static;border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:var(--s-4)}
+  .art-toc a{padding-left:0;margin-left:0;border-left:0}
+  .art-toc a.is-active{border-left:0}
+}

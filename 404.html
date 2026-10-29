@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>404 页面不存在 · Minecraft-JoJo</title>
+  <meta name="description" content="页面不存在：这个地址没有对应的文档，可返回首页或使用站内检索；站点无追踪器、无框架、无外部资源。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="404 页面不存在 · Minecraft-JoJo">
+  <meta property="og:description" content="页面不存在：这个地址没有对应的文档，可返回首页或使用站内检索；站点无追踪器、无框架、无外部资源。">
+  <meta property="og:image" content="/Mywebsite/assets/svg/favicon.svg">
+  <link rel="icon" href="/Mywebsite/assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/Mywebsite/assets/css/tokens.css">
+  <link rel="stylesheet" href="/Mywebsite/assets/css/base.css">
+  <link rel="stylesheet" href="/Mywebsite/assets/css/pages.css">
+</head>
+<!-- 本页是唯一使用根级绝对路径的文件：GitHub Pages 会用本文件响应任意层级的缺失路径，
+     相对路径在深层 URL 下必然解析错误。若绑定自定义域名，把 /Mywebsite/ 统一改为 /。 -->
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+  <header class="site-header" data-header>
+  <div class="wrap site-header__inner">
+    <a class="brand" href="/Mywebsite/index.html">
+      <span class="brand__mark" aria-hidden="true">MJ</span>
+      <span>Minecraft-JoJo</span>
+      <span class="brand__sub mono xs">/ engineering dossier</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a class="nav-link" href="/Mywebsite/index.html">Index</a>
+      <a class="nav-link" href="/Mywebsite/projects.html">Projects</a>
+      <a class="nav-link" href="/Mywebsite/notes.html">Knowledge</a>
+      <a class="nav-link" href="/Mywebsite/about.html">About</a>
+      <a class="nav-link" href="/Mywebsite/contact.html">Contact</a>
+    </nav>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+      Search <span class="mono xs muted">⌘K</span>
+    </button>
+    <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+  </div>
+</header>
+  <main id="main">
+    <section class="pg-404">
+      <div class="wrap pg-404__inner">
+        <p class="eyebrow">NOT FOUND</p>
+        <p class="pg-404__code" aria-hidden="true">404</p>
+        <h1 class="pg-404__title">这个地址没有对应的文档。</h1>
+        <p class="lede pg-404__lede">可能是链接改过名字，也可能是这条路径还没被写出来。下面回显你请求的路径。</p>
+        <pre class="pg-404__path"><code id="notFoundPath">—</code></pre>
+        <div class="pg-404__actions">
+          <a class="btn btn--solid" href="/Mywebsite/index.html">返回首页 <span class="btn__arrow" aria-hidden="true">→</span></a>
+          <button class="btn" type="button" data-palette-open>检索 <span class="btn__arrow" aria-hidden="true">→</span></button>
+        </div>
+        <p class="pg-404__meta mono">STATUS 404 · NO TRACKERS WERE HARMED</p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__grid">
+      <div>
+        <p class="eyebrow">End of document</p>
+        <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+      </div>
+      <div class="site-footer__links">
+        <span class="mono xs muted">INDEX</span>
+        <a href="/Mywebsite/projects.html">Projects</a>
+        <a href="/Mywebsite/notes.html">Knowledge</a>
+        <a href="/Mywebsite/about.html">About</a>
+        <a href="/Mywebsite/contact.html">Contact</a>
+      </div>
+      <div class="site-footer__links">
+        <span class="mono xs muted">REPO</span>
+        <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+        <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+      </div>
+    </div>
+    <div class="site-footer__meta" style="margin-top:48px">
+      <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+      <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+    </div>
+  </div>
+</footer>
+  <div class="progress" data-progress aria-hidden="true"></div>
+  <dialog class="palette" id="palette" aria-label="站内检索">
+  <div class="palette__panel">
+    <div class="palette__field">
+      <span>⌘K</span>
+      <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+    </div>
+    <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+    <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+  </div>
+</dialog>
+  <script type="module" src="/Mywebsite/assets/js/main.js"></script>
+</body>
+</html>

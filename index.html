@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Engineering Dossier · Minecraft-JoJo</title>
+  <meta name="description" content="机器学习、计算机视觉推理、生成模型微调与后端工程的工程档案：83 篇笔记、52,594 行 Markdown、6 个工程，每个数字都附带复核命令。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Engineering Dossier · Minecraft-JoJo">
+  <meta property="og:description" content="机器学习、计算机视觉推理、生成模型微调与后端工程的工程档案：83 篇笔记、52,594 行 Markdown、6 个工程，每个数字都附带复核命令。">
+  <meta property="og:image" content="./assets/svg/favicon.svg">
+  <link rel="icon" href="./assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/tokens.css">
+  <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/home.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <div class="wrap site-header__inner">
+      <a class="brand" href="./index.html">
+        <span class="brand__mark" aria-hidden="true">MJ</span>
+        <span>Minecraft-JoJo</span>
+        <span class="brand__sub mono xs">/ engineering dossier</span>
+      </a>
+      <nav class="site-nav" aria-label="主导航">
+        <a class="nav-link" href="./index.html" aria-current="page">Index</a>
+        <a class="nav-link" href="./projects.html">Projects</a>
+        <a class="nav-link" href="./notes.html">Knowledge</a>
+        <a class="nav-link" href="./about.html">About</a>
+        <a class="nav-link" href="./contact.html">Contact</a>
+      </nav>
+      <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+        Search <span class="mono xs muted">⌘K</span>
+      </button>
+      <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- A · HERO — 首屏的全部内容都在 HTML 里；canvas 只是叠加层。 -->
+    <section class="home-hero" id="overview" aria-labelledby="heroTitle">
+      <!-- 静态兜底：无 JS 或降低动态时，hero 的图形只剩这一层内联 SVG 网格。 -->
+      <div class="home-hero__poster" aria-hidden="true">
+        <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+          <defs>
+            <pattern id="homeHeroGrid" width="480" height="480" patternUnits="userSpaceOnUse">
+              <path d="M480 0H0V480" fill="none" stroke="#E9EBEE" stroke-opacity="0.1" stroke-width="1"></path>
+            </pattern>
+            <radialGradient id="homeHeroFade" cx="50%" cy="18%" r="74%">
+              <stop offset="0" stop-color="#fff" stop-opacity="1"></stop>
+              <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+            </radialGradient>
+            <mask id="homeHeroMask">
+              <rect width="1600" height="900" fill="url(#homeHeroFade)"></rect>
+            </mask>
+          </defs>
+          <g mask="url(#homeHeroMask)">
+            <rect width="1600" height="900" fill="url(#homeHeroGrid)"></rect>
+            <g stroke="#57E3D2" stroke-opacity="0.22" stroke-width="1" fill="none">
+              <path d="M1230 170 L1420 300"></path>
+              <path d="M1230 170 L1010 250"></path>
+              <path d="M1230 170 L1330 520"></path>
+              <path d="M1010 250 L820 420"></path>
+              <path d="M1330 520 L1080 640"></path>
+              <path d="M1080 640 L600 620"></path>
+            </g>
+            <g fill="#57E3D2" fill-opacity="0.8">
+              <circle cx="1230" cy="170" r="3.5"></circle>
+              <circle cx="1010" cy="250" r="3"></circle>
+              <circle cx="820" cy="420" r="3"></circle>
+              <circle cx="1080" cy="640" r="3"></circle>
+              <circle cx="600" cy="620" r="3"></circle>
+            </g>
+            <g fill="#F2B441" fill-opacity="0.85">
+              <circle cx="1420" cy="300" r="2.5"></circle>
+              <circle cx="1330" cy="520" r="2.5"></circle>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <canvas class="home-hero__field" id="fieldCanvas" data-field data-poster="./assets/svg/hero-poster.svg" aria-hidden="true"></canvas>
+
+      <div class="wrap home-hero__inner">
+        <div class="home-hero__copy">
+          <p class="eyebrow">SESSION 01 / ENGINEERING DOSSIER</p>
+          <h1 class="h1 home-hero__title" id="heroTitle">把一个想法，<br class="home-hero__br">一直做到能跑起来的那一步</h1>
+          <p class="lede home-hero__lede">Deep Learning / CV Inference / Generative Fine-tuning / Backend，四段都在本地跑得起来：算例、训练脚本、导出链、失败记录，各自留下可复核的文件与行数。</p>
+          <div class="home-hero__actions">
+            <a class="btn btn--solid" href="./projects.html">查看工程档案 <span class="btn__arrow" aria-hidden="true">→</span></a>
+            <a class="btn" href="./notes.html">阅读知识库 <span class="btn__arrow" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <aside class="home-hud mono" aria-label="页面运行读数">
+          <div class="home-hud__row"><span class="home-hud__key">FPS</span><span class="home-hud__val" data-fps>—</span></div>
+          <div class="home-hud__row"><span class="home-hud__key">SECTION</span><span class="home-hud__val" data-hud-section>—</span></div>
+          <p class="home-hud__note">FIELD SEEDED · EDGES / NODE 2 · DPR ≤ 2</p>
+        </aside>
+      </div>
+
+      <div class="home-hero__scroll mono xs">
+        <span>向下滚动 · 内容全部可复核</span>
+        <span>SCROLL <span class="home-hero__caret" aria-hidden="true">↓</span></span>
+      </div>
+    </section>
+
+    <!-- B · BOOT LOG — 四行静态文本；JS 只负责把已有内容逐行点亮。 -->
+    <aside class="home-boot" id="boot" data-boot aria-label="构建与加载日志">
+      <div class="wrap home-boot__inner">
+        <ol class="home-boot__log">
+          <li class="home-boot__line boot__line">[00.000] mount: assets/css/tokens.css</li>
+          <li class="home-boot__line boot__line">[00.041] init: attention-field · seeded rng</li>
+          <li class="home-boot__line boot__line">[00.118] palette: index loaded (23 records)</li>
+          <li class="home-boot__line boot__line">[00.207] ready — scroll to continue</li>
+        </ol>
+        <button class="home-boot__skip mono" type="button" data-boot-skip>skip</button>
+      </div>
+    </aside>
+
+    <!-- C · CAPABILITY MATRIX — 六行手写，行数据直接抄自 assets/js/data.js 的 SKILLS。 -->
+    <section class="section" id="capability" aria-labelledby="capTitle">
+      <div class="wrap">
+        <div class="section__head">
+          <div class="home-sec__lead">
+            <p class="eyebrow"><em>02</em> / CAPABILITY</p>
+            <h2 class="h2" id="capTitle">能力矩阵</h2>
+          </div>
+          <p class="lede sm home-sec__note">每一行都能在仓库里找到对应文件。标记表示这一步在流水线上的位置：build 训练侧，deploy 上线侧，operate 维护侧。</p>
+        </div>
+
+        <ol class="home-matrix">
+          <li class="home-matrix__row">
+            <span class="home-matrix__domain">Deep Learning 建模</span>
+            <span class="home-matrix__level"><span class="tag home-chip--build">build</span></span>
+            <span class="home-matrix__detail">从零实现 CNN / RNN / LSTM / Seq2Seq / Attention，含前向传播算例与训练脚本</span>
+          </li>
+          <li class="home-matrix__row">
+            <span class="home-matrix__domain">计算机视觉推理</span>
+            <span class="home-matrix__level"><span class="tag home-chip--deploy">deploy</span></span>
+            <span class="home-matrix__detail">YOLO pose 标注与训练、ONNX 导出、TensorRT 缓存、RapidOCR 版面还原</span>
+          </li>
+          <li class="home-matrix__row">
+            <span class="home-matrix__domain">生成模型微调</span>
+            <span class="home-matrix__level"><span class="tag home-chip--build">build</span></span>
+            <span class="home-matrix__detail">扩散模型 LoRA 训练链本地化、配置模板生成、训练运行记录</span>
+          </li>
+          <li class="home-matrix__row">
+            <span class="home-matrix__domain">后端与数据层</span>
+            <span class="home-matrix__level"><span class="tag home-chip--deploy">deploy</span></span>
+            <span class="home-matrix__detail">FastAPI 服务模板、PostgreSQL + SQLAlchemy、JWT / passlib 鉴权</span>
+          </li>
+          <li class="home-matrix__row">
+            <span class="home-matrix__domain">桌面应用工程</span>
+            <span class="home-matrix__level"><span class="tag home-chip--build">build</span></span>
+            <span class="home-matrix__detail">PySide6 全套控件族、资源打包、Windows 冻结分发</span>
+          </li>
+          <li class="home-matrix__row">
+            <span class="home-matrix__domain">系统与工具链</span>
+            <span class="home-matrix__level"><span class="tag home-chip--operate">operate</span></span>
+            <span class="home-matrix__detail">Linux / Docker / conda / uv / git / ruff，WSL 与 Windows 双栈开发</span>
+          </li>
+        </ol>
+
+        <p class="home-matrix__foot mono">复核锚点：assets/js/data.js → SKILLS · find . -name '*.md' | wc -l → 83 · ls projects/* → 6</p>
+      </div>
+    </section>
+
+    <!-- I · MARQUEE — 纯装饰。两份内容已在静态 HTML 里复制好，B1 无需再复制一次。 -->
+    <div class="marquee home-marquee" aria-hidden="true">
+      <div class="marquee__track" data-marquee>
+          <span class="marquee__item">Python</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">PyTorch</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">ONNX Runtime</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">TensorRT</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">OpenCV</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">RapidOCR</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">FastAPI</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">PostgreSQL</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">SQLAlchemy</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">PySide6</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">NumPy</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">pandas</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">scikit-learn</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">kohya_ss</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">Docker</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">Linux</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">WSL</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">git</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">uv</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">ruff</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">Python</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">PyTorch</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">ONNX Runtime</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">TensorRT</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">OpenCV</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">RapidOCR</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">FastAPI</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">PostgreSQL</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">SQLAlchemy</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">PySide6</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">NumPy</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">pandas</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">scikit-learn</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">kohya_ss</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">Docker</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">Linux</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">WSL</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">git</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">uv</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+          <span class="marquee__item">ruff</span><span class="marquee__item home-marquee__dot" aria-hidden="true">·</span>
+      </div>
+    </div>
+
+    <!-- D · METRICS WALL — 数字全部来自 data.js 的 METRICS，复核命令同卡给出。 -->
+    <section class="section" id="metrics" aria-labelledby="metTitle">
+      <div class="wrap">
+        <div class="section__head">
+          <div class="home-sec__lead">
+            <p class="eyebrow"><em>03</em> / MEASURED</p>
+            <h2 class="h2" id="metTitle">可复核的规模</h2>
+          </div>
+          <p class="lede sm home-sec__note">以下数字来自实际文件统计，复核命令随数字给出；所有命令在同一台机器上重跑，应得到同一个值。</p>
+        </div>
+
+        <div class="home-metrics">
+          <div class="card home-metric">
+            <div class="home-metric__main">
+              <span class="metric__value"><span data-count="52594">52,594</span></span>
+              <span class="metric__label">行 Markdown 技术笔记</span>
+            </div>
+            <code class="metric__cmd home-metric__cmd">find . -name '*.md' | xargs cat | wc -l</code>
+          </div>
+          <div class="card home-metric">
+            <div class="home-metric__main">
+              <span class="metric__value"><span data-count="83">83</span></span>
+              <span class="metric__label">篇独立文档</span>
+            </div>
+            <code class="metric__cmd home-metric__cmd">find . -name '*.md' | wc -l</code>
+          </div>
+          <div class="card home-metric">
+            <div class="home-metric__main">
+              <span class="metric__value"><span data-count="35245">35,245</span></span>
+              <span class="metric__label">行 Python</span>
+            </div>
+            <code class="metric__cmd home-metric__cmd">find . -name '*.py' | xargs cat | wc -l</code>
+          </div>
+          <div class="card home-metric">
+            <div class="home-metric__main">
+              <span class="metric__value"><span data-count="309">309</span></span>
+              <span class="metric__label">帧姿态关键点标注</span>
+            </div>
+            <code class="metric__cmd home-metric__cmd">ls labels | wc -l</code>
+          </div>
+          <div class="card home-metric">
+            <div class="home-metric__main">
+              <span class="metric__value"><span data-count="6">6</span></span>
+              <span class="metric__label">完整工程档案</span>
+            </div>
+            <code class="metric__cmd home-metric__cmd">ls projects/*</code>
+          </div>
+          <div class="card home-metric">
+            <div class="home-metric__main">
+              <span class="metric__value"><span data-count="0">0</span></span>
+              <span class="metric__label">前端框架依赖 / KB</span>
+            </div>
+            <code class="metric__cmd home-metric__cmd">grep -r 'node_modules' assets || true</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- E · FEATURED WORK — 取 data.js 的 PROJECTS 前三项。 -->
+    <section class="section" id="work" aria-labelledby="workTitle">
+      <div class="wrap">
+        <div class="section__head">
+          <div class="home-sec__lead">
+            <p class="eyebrow"><em>04</em> / WORK</p>
+            <h2 class="h2" id="workTitle">工程档案</h2>
+          </div>
+          <a class="home-sec__all" href="./projects.html">全部 6 个 <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="home-work">
+          <article class="card home-project">
+            <div class="card__label"><span>PROJECT 01</span><span>969 LINES</span></div>
+            <h3 class="card__title">漫画 OCR 翻译管线</h3>
+            <p class="home-project__summary">RapidOCR 识别 → 版面分块重组 → 批量翻译 → 原图字块擦除与译文回填重绘。</p>
+            <figure class="home-flow" aria-hidden="true">
+              <svg class="home-flow__svg" viewBox="0 0 640 96" aria-hidden="true" focusable="false">
+                <defs>
+                  <marker id="homeFlowArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+                    <path class="home-flow__head" d="M0 0 L8 4 L0 8 Z"></path>
+                  </marker>
+                </defs>
+                <path class="home-flow__link" d="M149 42 H171" marker-end="url(#homeFlowArrow)"></path>
+                <path class="home-flow__link" d="M309 42 H331" marker-end="url(#homeFlowArrow)"></path>
+                <path class="home-flow__link" d="M469 42 H491" marker-end="url(#homeFlowArrow)"></path>
+                <rect class="home-flow__node home-flow__node--first" x="15" y="20" width="130" height="44" rx="1"></rect>
+                <rect class="home-flow__node" x="175" y="20" width="130" height="44" rx="1"></rect>
+                <rect class="home-flow__node" x="335" y="20" width="130" height="44" rx="1"></rect>
+                <rect class="home-flow__node home-flow__node--last" x="495" y="20" width="130" height="44" rx="1"></rect>
+                <text class="home-flow__label" x="80" y="39">识别</text>
+                <text class="home-flow__meta" x="80" y="55">RAPIDOCR</text>
+                <text class="home-flow__label" x="240" y="39">分块</text>
+                <text class="home-flow__meta" x="240" y="55">LAYOUT</text>
+                <text class="home-flow__label" x="400" y="39">翻译</text>
+                <text class="home-flow__meta" x="400" y="55">HTTP API</text>
+                <text class="home-flow__label" x="560" y="39">重绘</text>
+                <text class="home-flow__meta" x="560" y="55">REDRAW</text>
+                <text class="home-flow__axis" x="15" y="88">OCR → LAYOUT → TRANSLATE → RENDER</text>
+              </svg>
+            </figure>
+            <div class="tag-row">
+              <span class="tag">RapidOCR / PaddleOCR</span>
+              <span class="tag">OpenCV</span>
+              <span class="tag">HTTP 翻译 API</span>
+              <span class="tag">Python 3.13</span>
+              <span class="tag">ruff</span>
+            </div>
+            <a class="home-project__more" href="./projects.html#ocr-pipeline"><span class="home-project__arrow" aria-hidden="true">→</span><span>查看档案</span></a>
+          </article>
+
+          <article class="card home-project">
+            <div class="card__label"><span>PROJECT 02</span><span>3,012 LINES</span></div>
+            <h3 class="card__title">自建 PyTorch 训练框架</h3>
+            <p class="home-project__summary">model / train / predata / cfg / logs 五层分离，含 ONNX 导出、TensorBoard、JWT 用户鉴权。</p>
+            <div class="tag-row">
+              <span class="tag">PyTorch</span>
+              <span class="tag">ONNX</span>
+              <span class="tag">TensorBoard</span>
+              <span class="tag">YAML 配置</span>
+              <span class="tag">JWT</span>
+            </div>
+            <a class="home-project__more" href="./projects.html#train-framework"><span class="home-project__arrow" aria-hidden="true">→</span><span>查看档案</span></a>
+          </article>
+
+          <article class="card home-project">
+            <div class="card__label"><span>PROJECT 03</span><span>8,000 STEPS · DIM 64</span></div>
+            <h3 class="card__title">扩散模型 LoRA 微调</h3>
+            <p class="home-project__summary">kohya_ss 训练链本地化：本地训练入口 91 行，每次训练落一份配置快照（config_lora-20261001-080553.toml / last_20261001-080553.json）。</p>
+            <p class="home-project__meta mono">epoch 4 · lr 1e-4 · alpha 32 · AdamW8bit · bf16 · res 640×1024 · bucket 16</p>
+            <div class="tag-row">
+              <span class="tag">kohya_ss</span>
+              <span class="tag">Diffusers</span>
+              <span class="tag">SDXL / LoRA</span>
+              <span class="tag">uv</span>
+              <span class="tag">WSL CUDA</span>
+            </div>
+            <a class="home-project__more" href="./projects.html#diffusion-lora"><span class="home-project__arrow" aria-hidden="true">→</span><span>查看档案</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- F · ATTENTION PROBE — 只给 DOM，计算由 B1 的 heatmap.js 负责。 -->
+    <section class="section" id="probe" aria-labelledby="probeTitle">
+      <div class="wrap">
+        <div class="section__head">
+          <div class="home-sec__lead">
+            <p class="eyebrow"><em>05</em> / PROBE</p>
+            <h2 class="h2" id="probeTitle">注意力探针</h2>
+          </div>
+          <p class="lede sm home-sec__note">这一块是对本站自身的一次演示，图上的数是真的算出来的。</p>
+        </div>
+
+        <div class="home-probe">
+          <div class="home-probe__copy">
+            <p class="lede">Q、K 各是一个 8×8 常数矩阵，写死在下面的展开项里，也就是 index.html 这份文件本身。权重按 W = softmax(QKᵀ / √d_k) 逐格算出，d_k = 8。滑杆改的是温度 τ：τ 小于 1 让分布变尖，大于 1 让它变平。这是真实计算，不是装饰图——同一组常数永远得到同一张热力图。</p>
+            <details class="home-probe__spec">
+              <summary>Q / K 常数矩阵（8×8，来源：本文件）</summary>
+              <pre class="home-probe__mat">Q =
+  1  0  1 -1  0  1  0 -1
+  0  1 -1  1  0  0  1  0
+  1 -1  0  0  1  1 -1  0
+ -1  0  1  1  0 -1  0  1
+  0  1  0 -1  1  0  1 -1
+  1  1 -1  0  0  1  0  0
+  0 -1  1  1 -1  0  0  1
+ -1  1  0  0  1 -1  1  0
+
+K =
+  0  1  1 -1  0  0  1 -1
+  1  0 -1  0  1  1  0  0
+ -1  1  0  1  0 -1  1  0
+  0  0  1  1 -1  0  0  1
+  1 -1  0  0  1  0 -1  1
+  0  1  0 -1  1  1  0  0
+  1  0  1  0  0 -1  1 -1
+ -1  0  0  1  0  1 -1  1</pre>
+            </details>
+            <p class="home-probe__foot mono">复算：W = exp(QKᵀ / √8 / τ) ÷ Σ exp(QKᵀ / √8 / τ)，按行归一化；τ 由滑杆给出。</p>
+          </div>
+
+          <div class="home-probe__stage">
+            <canvas class="home-probe__canvas" id="heatmapCanvas" width="480" height="320" aria-hidden="true">8×8 注意力权重热力图</canvas>
+            <div class="home-probe__ctrl">
+              <span class="mono xs">温度 τ</span>
+              <input class="home-probe__range" type="range" id="heatTemp" data-heat-temp min="0.2" max="4" step="0.1" value="1" aria-label="温度 τ">
+              <span data-heat-readout class="mono xs">τ = 1.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- G · KNOWLEDGE PREVIEW — 取 data.js 的 NOTES 前四项。 -->
+    <section class="section" id="knowledge" aria-labelledby="kbTitle">
+      <div class="wrap">
+        <div class="section__head">
+          <div class="home-sec__lead">
+            <p class="eyebrow"><em>06</em> / KNOWLEDGE</p>
+            <h2 class="h2" id="kbTitle">知识库</h2>
+          </div>
+          <p class="home-sec__stat">83 篇 / 52,594 行</p>
+        </div>
+
+        <ul class="home-notes">
+          <li>
+            <a class="home-notes__link" href="./notes/attention.html">
+              <span class="home-notes__title">Attention（注意力机制）完全教程</span>
+              <span class="home-notes__domain mono">Deep Learning</span>
+              <span class="home-notes__lines mono">2,010 行</span>
+              <span class="home-notes__arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a class="home-notes__link" href="./notes.html#dl">
+              <span class="home-notes__title">现代深度学习全景地图</span>
+              <span class="home-notes__domain mono">Deep Learning</span>
+              <span class="home-notes__lines mono">457 行</span>
+              <span class="home-notes__arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a class="home-notes__link" href="./notes.html#dl">
+              <span class="home-notes__title">Seq2Seq 网络介绍</span>
+              <span class="home-notes__domain mono">Deep Learning</span>
+              <span class="home-notes__lines mono">1,382 行</span>
+              <span class="home-notes__arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+          <li>
+            <a class="home-notes__link" href="./notes.html#dl">
+              <span class="home-notes__title">LSTM 网络介绍</span>
+              <span class="home-notes__domain mono">Deep Learning</span>
+              <span class="home-notes__lines mono">647 行</span>
+              <span class="home-notes__arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        </ul>
+
+        <a class="btn home-notes__more" href="./notes.html">打开知识库 <span class="btn__arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <!-- H · CTA -->
+    <section class="section home-cta" id="contact" aria-labelledby="ctaTitle">
+      <div class="wrap home-cta__inner">
+        <p class="eyebrow"><em>07</em> / CHANNEL</p>
+        <h2 class="home-cta__title" id="ctaTitle">有一个非要被做完的想法，就把它写成一段可执行的描述。</h2>
+        <p class="home-cta__line">邮件是最短的路径；带上仓库、报错日志或期望的接口签名，比形容词有用。</p>
+        <a class="btn btn--solid" href="./contact.html">打开联系方式 <span class="btn__arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="site-footer__grid">
+        <div>
+          <p class="eyebrow">End of document</p>
+          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">INDEX</span>
+          <a href="./projects.html">Projects</a>
+          <a href="./notes.html">Knowledge</a>
+          <a href="./about.html">About</a>
+          <a href="./contact.html">Contact</a>
+        </div>
+        <div class="site-footer__links">
+          <span class="mono xs muted">REPO</span>
+          <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+          <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+        </div>
+      </div>
+      <div class="site-footer__meta" style="margin-top:48px">
+        <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+        <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <dialog class="palette" id="palette" aria-label="站内检索">
+    <div class="palette__panel">
+      <div class="palette__field">
+        <span>⌘K</span>
+        <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+      <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="./assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+/* ============================================================
+   tokens.css — 设计令牌（唯一真相源，禁止在任何页面内覆盖变量）
+   ============================================================ */
+:root{
+  /* —— 色彩 —— */
+  --void:#07080A;
+  --void-2:#0C0E11;
+  --void-3:#12151A;
+  --ink:#E9EBEE;
+  --ink-2:#C3C8CE;
+  --muted:#8B9199;
+  --muted-2:#5E656E;
+  --line:rgba(233,235,238,.08);
+  --line-2:rgba(233,235,238,.15);
+  --cyan:#57E3D2;
+  --cyan-dim:rgba(87,227,210,.13);
+  --amber:#F2B441;
+  --amber-dim:rgba(242,180,65,.12);
+  --danger:#FF6B5E;
+
+  /* —— 字体栈 —— */
+  --font-sans:"Inter Tight",Inter,system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,"PingFang SC",monospace;
+
+  /* —— 字号（流体） —— */
+  --t-display:clamp(38px,7.2vw,112px);
+  --t-h1:clamp(30px,4.4vw,68px);
+  --t-h2:clamp(23px,2.6vw,42px);
+  --t-h3:clamp(17px,1.5vw,26px);
+  --t-lede:clamp(15px,1.15vw,19px);
+  --t-body:15px;
+  --t-sm:13px;
+  --t-xs:11px;
+
+  /* —— 间距 —— */
+  --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+  --s-9:96px; --s-10:128px;
+  --gutter:24px;
+  --maxw:1440px;
+  --rhythm:clamp(72px,9vh,128px);
+
+  /* —— 形状（锐角＝工程感） —— */
+  --r-1:2px;
+  --r-2:3px;
+
+  /* —— 动效 —— */
+  --e:cubic-bezier(.16,1,.3,1);
+  --t-fast:200ms;
+  --t-mid:400ms;
+  --t-slow:800ms;
+
+  /* —— 层级 —— */
+  --z-hud:35;
+  --z-header:40;
+  --z-grain:60;
+  --z-palette:80;
+  --z-cursor:90;
+}

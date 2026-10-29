@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>关于 · Minecraft-JoJo</title>
+  <meta name="description" content="关于这个站点的构建方法：骨架优先、文档即交付物、训练与推理分仓、ONNX 与 TensorRT 导出、YAML 配置驱动，附可复核的行数、命令与明确的能力边界。">
+  <meta name="theme-color" content="#07080A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="关于 · Minecraft-JoJo">
+  <meta property="og:description" content="关于这个站点的构建方法：骨架优先、文档即交付物、训练与推理分仓、ONNX 与 TensorRT 导出、YAML 配置驱动，附可复核的行数、命令与明确的能力边界。">
+  <meta property="og:image" content="./assets/svg/favicon.svg">
+  <link rel="icon" href="./assets/svg/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/tokens.css">
+  <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/pages.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="cursor-ring" data-cursor aria-hidden="true"></div>
+  <header class="site-header" data-header>
+  <div class="wrap site-header__inner">
+    <a class="brand" href="./index.html">
+      <span class="brand__mark" aria-hidden="true">MJ</span>
+      <span>Minecraft-JoJo</span>
+      <span class="brand__sub mono xs">/ engineering dossier</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a class="nav-link" href="./index.html">Index</a>
+      <a class="nav-link" href="./projects.html">Projects</a>
+      <a class="nav-link" href="./notes.html">Knowledge</a>
+      <a class="nav-link" href="./about.html" aria-current="page">About</a>
+      <a class="nav-link" href="./contact.html">Contact</a>
+    </nav>
+    <button class="btn header__cta" type="button" data-palette-open aria-haspopup="dialog">
+      Search <span class="mono xs muted">⌘K</span>
+    </button>
+    <button class="nav-toggle" type="button" id="navToggle" aria-expanded="false" aria-controls="siteNav">Menu</button>
+  </div>
+</header>
+  <main id="main">
+    <section class="section pg-head">
+      <div class="wrap">
+        <p class="eyebrow">ABOUT / <em>METHOD</em></p>
+        <h1 class="h1 pg-head__title">关于</h1>
+        <p class="lede pg-head__lede">这个站点的全部内容都可被复核：每个数字后面都跟一个文件名、一行命令或一个行数。方法比结论更重要，所以这一页写的是这些东西怎么被造出来，不是一份履历。</p>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="method">
+      <div class="wrap">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">01 / <em>WORKFLOW</em></p>
+            <h2 class="h2" id="method">工作方式</h2>
+          </div>
+          <p class="sm muted pg-section__note">四条规则，顺序不换。</p>
+        </div>
+        <ol class="pg-steps">
+          <li class="pg-step">
+            <div class="pg-step__head">
+              <span class="pg-step__no" aria-hidden="true">01</span>
+              <h3 class="h3 pg-step__title">先建最小可运行骨架，再补抽象</h3>
+            </div>
+            <p class="pg-step__text">每个工程先跑通一条最短路径：读一张图、跑一次前向、拿到一个结果。</p>
+            <p class="pg-step__text">抽象只在第二处重复出现时才写，不为想象中的通用性提前付调试成本。</p>
+            <p class="pg-step__ev">证据 · <b>projects/*</b> · 6 个可独立运行的工程档案 · <code>ls projects/*</code></p>
+          </li>
+          <li class="pg-step">
+            <div class="pg-step__head">
+              <span class="pg-step__no" aria-hidden="true">02</span>
+              <h3 class="h3 pg-step__title">每个模块配一份文档，文档是交付物的一部分</h3>
+            </div>
+            <p class="pg-step__text">代码写完不等于交付完：接口、参数、坑与结论都写进 Markdown，和代码同仓。</p>
+            <p class="pg-step__text">文档带行数与命令，别人可以按同一条路径复现，而不必先相信我。</p>
+            <p class="pg-step__ev">证据 · <b>find . -name '*.md' | wc -l</b> · 83 篇 / 52,594 行</p>
+          </li>
+          <li class="pg-step">
+            <div class="pg-step__head">
+              <span class="pg-step__no" aria-hidden="true">03</span>
+              <h3 class="h3 pg-step__title">训练与推理分仓，导出格式当成一等产物</h3>
+            </div>
+            <p class="pg-step__text">训练侧只负责产出可验证的权重与 ONNX；推理侧只吃导出物与引擎缓存，不碰训练代码。</p>
+            <p class="pg-step__text">导出失败就当成训练失败处理，因为下游真正消费的是那份文件，不是 checkpoint 本身。</p>
+            <p class="pg-step__ev">证据 · <b>model / train / predata / cfg / logs</b> 五层 · 训练框架 3,012 行，含 ONNX 导出与 TensorBoard 日志</p>
+          </li>
+          <li class="pg-step">
+            <div class="pg-step__head">
+              <span class="pg-step__no" aria-hidden="true">04</span>
+              <h3 class="h3 pg-step__title">配置驱动：参数进 yaml / json，不进代码</h3>
+            </div>
+            <p class="pg-step__text">学习率、批大小、路径、模型名一律来自配置层或命令行入口，代码里不写死实验参数。</p>
+            <p class="pg-step__text">换一组参数就是换一个文件，跑过的配置本身就是实验记录。</p>
+            <p class="pg-step__ev">证据 · <b>cfg/</b> 配置层 + argparse 入口 · 见训练框架与分类实验台的 stack</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="scope">
+      <div class="wrap">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">02 / <em>SCOPE</em></p>
+            <h2 class="h2" id="scope">技术覆盖面</h2>
+          </div>
+          <p class="sm muted pg-section__note">六行，来自同一个索引文件。</p>
+        </div>
+        <ul class="pg-scope">
+          <li class="pg-scope__row">
+            <span class="pg-scope__domain mono">Deep Learning 建模</span>
+            <span class="tag pg-scope__level">BUILD</span>
+            <p class="pg-scope__detail">从零实现 CNN / RNN / LSTM / Seq2Seq / Attention，含前向传播算例与训练脚本。</p>
+          </li>
+          <li class="pg-scope__row">
+            <span class="pg-scope__domain mono">计算机视觉推理</span>
+            <span class="tag pg-scope__level">DEPLOY</span>
+            <p class="pg-scope__detail">YOLO pose 标注与训练、ONNX 导出、TensorRT 引擎缓存、RapidOCR 版面还原。</p>
+          </li>
+          <li class="pg-scope__row">
+            <span class="pg-scope__domain mono">生成模型微调</span>
+            <span class="tag pg-scope__level">BUILD</span>
+            <p class="pg-scope__detail">扩散模型 LoRA 训练链本地化：配置模板生成、训练运行记录、本地训练入口。</p>
+          </li>
+          <li class="pg-scope__row">
+            <span class="pg-scope__domain mono">后端与数据层</span>
+            <span class="tag pg-scope__level">DEPLOY</span>
+            <p class="pg-scope__detail">FastAPI 服务模板、PostgreSQL + SQLAlchemy 数据层、JWT / passlib 鉴权链。</p>
+          </li>
+          <li class="pg-scope__row">
+            <span class="pg-scope__domain mono">桌面应用工程</span>
+            <span class="tag pg-scope__level">BUILD</span>
+            <p class="pg-scope__detail">PySide6 控件族、资源打包、Windows 冻结分发与 Win32 覆盖层。</p>
+          </li>
+          <li class="pg-scope__row">
+            <span class="pg-scope__domain mono">系统与工具链</span>
+            <span class="tag pg-scope__level">OPERATE</span>
+            <p class="pg-scope__detail">Linux / Docker / conda / uv / git / ruff，WSL 与 Windows 双栈开发。</p>
+          </li>
+        </ul>
+        <div class="tag-row pg-scope__tags" aria-label="技术栈">
+          <span class="tag">Python</span>
+          <span class="tag">PyTorch</span>
+          <span class="tag">ONNX Runtime</span>
+          <span class="tag">TensorRT</span>
+          <span class="tag">OpenCV</span>
+          <span class="tag">RapidOCR</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">SQLAlchemy</span>
+          <span class="tag">PySide6</span>
+          <span class="tag">NumPy</span>
+          <span class="tag">pandas</span>
+          <span class="tag">scikit-learn</span>
+          <span class="tag">kohya_ss</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Linux</span>
+          <span class="tag">WSL</span>
+          <span class="tag">git</span>
+          <span class="tag">uv</span>
+          <span class="tag">ruff</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="scale">
+      <div class="wrap">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">03 / <em>SCALE</em></p>
+            <h2 class="h2" id="scale">规模</h2>
+          </div>
+          <p class="sm muted pg-section__note">四个数，旁边就是复核命令。</p>
+        </div>
+        <div class="pg-metrics">
+          <div class="metric pg-metric">
+            <span class="metric__value"><span data-count="52594">52,594</span></span>
+            <p class="metric__label">行 Markdown 技术笔记</p>
+            <p class="metric__cmd">find . -name '*.md' | xargs cat | wc -l</p>
+          </div>
+          <div class="metric pg-metric">
+            <span class="metric__value"><span data-count="83">83</span></span>
+            <p class="metric__label">篇独立文档</p>
+            <p class="metric__cmd">find . -name '*.md' | wc -l</p>
+          </div>
+          <div class="metric pg-metric">
+            <span class="metric__value"><span data-count="35245">35,245</span></span>
+            <p class="metric__label">行 Python</p>
+            <p class="metric__cmd">find . -name '*.py' | xargs cat | wc -l</p>
+          </div>
+          <div class="metric pg-metric">
+            <span class="metric__value"><span data-count="6">6</span></span>
+            <p class="metric__label">完整工程档案</p>
+            <p class="metric__cmd">ls projects/*</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-labelledby="limits">
+      <div class="wrap">
+        <div class="section__head">
+          <div>
+            <p class="eyebrow">04 / <em>LIMITS</em></p>
+            <h2 class="h2" id="limits">边界</h2>
+          </div>
+          <p class="sm muted pg-section__note">写清楚不做什么，比列做过什么有用。</p>
+        </div>
+        <ul class="pg-limits">
+          <li class="pg-limit">
+            <p class="pg-limit__no mono">01 / FRONTEND</p>
+            <h3 class="h3 pg-limit__title">不做前端工程化框架</h3>
+            <p class="pg-limit__text">这个站点是手写 HTML / CSS：零构建、无 npm 依赖、无打包器。以组件库、构建链为中心的交付不在范围内，交互复杂度也按手写成本设上限。</p>
+            <p class="pg-limit__ev">grep -r 'node_modules' assets → 0</p>
+          </li>
+          <li class="pg-limit">
+            <p class="pg-limit__no mono">02 / TRAINING</p>
+            <h3 class="h3 pg-limit__title">不做大规模分布式训练</h3>
+            <p class="pg-limit__text">现有工程都在单机、单卡上下文里：WSL CUDA、ONNX Runtime、TensorRT 引擎缓存。多机多卡调度与通信优化这一类，我没有可以展示的实做。</p>
+            <p class="pg-limit__ev">训练框架 3,012 行 · 单机五层结构</p>
+          </li>
+          <li class="pg-limit">
+            <p class="pg-limit__no mono">03 / PRODUCT</p>
+            <h3 class="h3 pg-limit__title">不以产品化 SaaS 为目标</h3>
+            <p class="pg-limit__text">后端做到服务模板、数据层与鉴权链为止。多租户隔离、计费、运营监控这些产品能力不在范围内，也不为了演示临时补一层。</p>
+            <p class="pg-limit__ev">服务与数据层 7,994 行 · FastAPI + PostgreSQL</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="wrap">
+        <p class="pg-tail">要聊技术，或者要指出这里某处写错了 —— <a class="pg-tail__link mono" href="./contact.html">CONTACT.HTML <span class="pg-tail__arrow" aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+  <div class="wrap">
+    <div class="site-footer__grid">
+      <div>
+        <p class="eyebrow">End of document</p>
+        <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、行数、命令，逐条给出出处。</p>
+      </div>
+      <div class="site-footer__links">
+        <span class="mono xs muted">INDEX</span>
+        <a href="./projects.html">Projects</a>
+        <a href="./notes.html">Knowledge</a>
+        <a href="./about.html">About</a>
+        <a href="./contact.html">Contact</a>
+      </div>
+      <div class="site-footer__links">
+        <span class="mono xs muted">REPO</span>
+        <a href="https://github.com/Minecraft-JoJo" rel="noopener">GitHub / Minecraft-JoJo</a>
+        <a href="https://github.com/Minecraft-JoJo/Mywebsite" rel="noopener">Source of this site</a>
+      </div>
+    </div>
+    <div class="site-footer__meta" style="margin-top:48px">
+      <div>BUILT <span data-metric="built">—</span> · RENDERED <span data-metric="load">—</span> · TRANSFER <span data-metric="bytes">—</span></div>
+      <div>NO FRAMEWORKS · NO TRACKERS · NO WEBFONTS · 静态站点，由 GitHub Pages 托管</div>
+    </div>
+  </div>
+</footer>
+  <div class="progress" data-progress aria-hidden="true"></div>
+  <dialog class="palette" id="palette" aria-label="站内检索">
+  <div class="palette__panel">
+    <div class="palette__field">
+      <span>⌘K</span>
+      <input class="palette__input" id="paletteInput" type="search" placeholder="检索项目、文档、章节…" autocomplete="off" aria-controls="paletteList" aria-expanded="true" role="combobox" aria-autocomplete="list">
+    </div>
+    <ul class="palette__list" id="paletteList" role="listbox" aria-label="检索结果"></ul>
+    <div class="palette__hint"><span>↑↓ 选择</span><span>↵ 打开</span><span>esc 关闭</span></div>
+  </div>
+</dialog>
+  <script type="module" src="./assets/js/main.js"></script>
+</body>
+</html>

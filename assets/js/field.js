@@ -1,0 +1,222 @@
+/* field.js — Latent Field：首页 hero 的背景场。
+   固定种子 + 预分配缓冲：循环里不新建对象；页面隐藏或 canvas 离开视口时 rAF 完全停下。
+   兜底由 HTML 里那层内联 SVG 承担，data-poster 只是标识它存在，不加载它。 */
+
+const COUNT = 46;
+const TAU = Math.PI * 2;
+
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function random() {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function initField() {
+  const canvas = document.querySelector("#fieldCanvas[data-field]");
+  if (!canvas) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const fpsEl = document.querySelector("[data-fps]");
+
+  const nx = new Float32Array(COUNT);
+  const ny = new Float32Array(COUNT);
+  const sx = new Float32Array(COUNT);
+  const sy = new Float32Array(COUNT);
+  const depth = new Float32Array(COUNT);
+  const radius = new Float32Array(COUNT);
+  const nearA = new Int32Array(COUNT);
+  const nearB = new Int32Array(COUNT);
+
+  const random = mulberry32(0x9E3779B9);
+  for (let i = 0; i < COUNT; i += 1) {
+    nx[i] = random();
+    ny[i] = random();
+    sx[i] = (random() - 0.5) * 0.014;
+    sy[i] = (random() - 0.5) * 0.014;
+    depth[i] = 0.45 + random() * 1.15;
+    radius[i] = 0.8 + random() * 0.8;
+  }
+
+  /* 邻居只在初始化时算一次：漂移速度极慢，拓扑变化肉眼不可见。 */
+  for (let i = 0; i < COUNT; i += 1) {
+    let best = -1;
+    let bestD = Infinity;
+    let second = -1;
+    let secondD = Infinity;
+    for (let j = 0; j < COUNT; j += 1) {
+      if (i === j) continue;
+      const ax = nx[i] - nx[j];
+      const ay = ny[i] - ny[j];
+      const d = ax * ax + ay * ay;
+      if (d < bestD) {
+        secondD = bestD;
+        second = best;
+        bestD = d;
+        best = j;
+      } else if (d < secondD) {
+        secondD = d;
+        second = j;
+      }
+    }
+    nearA[i] = best < 0 ? i : best;
+    nearB[i] = second < 0 ? i : second;
+  }
+
+  let cssW = 0;
+  let cssH = 0;
+  let raf = 0;
+  let last = 0;
+  let frames = 0;
+  let fpsClock = 0;
+  let onScreen = true;
+  let visible = document.visibilityState !== "hidden";
+  let targetX = 0;
+  let targetY = 0;
+  let easeX = 0;
+  let easeY = 0;
+
+  function resize() {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (!w || !h) return;
+    cssW = w;
+    cssH = h;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function draw(dt) {
+    if (!cssW || !cssH) return;
+    easeX += (targetX - easeX) * 0.04;
+    easeY += (targetY - easeY) * 0.04;
+    const step = dt / 1000;
+
+    for (let i = 0; i < COUNT; i += 1) {
+      nx[i] += sx[i] * step;
+      ny[i] += sy[i] * step;
+      if (nx[i] < -0.05) nx[i] += 1.1;
+      else if (nx[i] > 1.05) nx[i] -= 1.1;
+      if (ny[i] < -0.05) ny[i] += 1.1;
+      else if (ny[i] > 1.05) ny[i] -= 1.1;
+    }
+
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    ctx.beginPath();
+    for (let i = 0; i < COUNT; i += 1) {
+      const j = nearB[i];
+      const x1 = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
+      const y1 = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
+      const x2 = (nx[j] + easeX * 0.02 * depth[j]) * cssW;
+      const y2 = (ny[j] + easeY * 0.02 * depth[j]) * cssH;
+      if ((x1 < 0 && x2 < 0) || (x1 > cssW && x2 > cssW)) continue;
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    }
+    ctx.strokeStyle = "rgba(233,235,238,0.10)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    /* 每个节点一条注意力边。 */
+    ctx.beginPath();
+    for (let i = 0; i < COUNT; i += 1) {
+      const j = nearA[i];
+      const x1 = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
+      const y1 = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
+      const x2 = (nx[j] + easeX * 0.02 * depth[j]) * cssW;
+      const y2 = (ny[j] + easeY * 0.02 * depth[j]) * cssH;
+      if ((x1 < 0 && x2 < 0) || (x1 > cssW && x2 > cssW)) continue;
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    }
+    ctx.strokeStyle = "rgba(87,227,210,0.22)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.beginPath();
+    for (let i = 0; i < COUNT; i += 1) {
+      const x = (nx[i] + easeX * 0.02 * depth[i]) * cssW;
+      const y = (ny[i] + easeY * 0.02 * depth[i]) * cssH;
+      const r = radius[i];
+      if (x < -4 || y < -4 || x > cssW + 4 || y > cssH + 4) continue;
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, TAU);
+    }
+    ctx.fillStyle = "rgba(233,235,238,0.42)";
+    ctx.fill();
+  }
+
+  function frame(now) {
+    if (!last) last = now;
+    const dt = Math.min(now - last, 64);
+    last = now;
+    draw(dt);
+    if (fpsEl) {
+      frames += 1;
+      if (!fpsClock) fpsClock = now;
+      const elapsed = now - fpsClock;
+      if (elapsed >= 500) {
+        fpsEl.textContent = String(Math.round((frames * 1000) / elapsed));
+        frames = 0;
+        fpsClock = now;
+      }
+    }
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (raf) return;
+    last = 0;
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    if (raf) window.cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  function sync() {
+    if (visible && onScreen) start();
+    else stop();
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    visible = document.visibilityState !== "hidden";
+    sync();
+  }, { passive: true });
+
+  const io = new IntersectionObserver(function (entries) {
+    for (let i = 0; i < entries.length; i += 1) onScreen = entries[i].isIntersecting;
+    sync();
+  }, { threshold: 0 });
+  io.observe(canvas);
+
+  window.addEventListener("pointermove", function (event) {
+    if (event.pointerType === "touch") return;
+    const w = window.innerWidth || 1;
+    const h = window.innerHeight || 1;
+    targetX = (event.clientX / w - 0.5) * 2;
+    targetY = (event.clientY / h - 0.5) * 2;
+  }, { passive: true });
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", function () {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(function () {
+      resize();
+      if (!raf) draw(16);
+    }, 120);
+  }, { passive: true });
+
+  resize();
+  sync();
+}
