@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>第 3 章 多元回归与特征缩放 – 从零到 Transformer</title>
+<title>额外拓展 – 从零到 Transformer</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -37,7 +37,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./04-logistic-regression.html" rel="next">
-<link href="./02f-summary.html" rel="prev">
+<link href="./03c-feature-scaling.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
@@ -77,6 +77,49 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -89,7 +132,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="展开或折叠侧边栏导航" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="路径"><ol class="breadcrumb"><li class="breadcrumb-item">第一部分 · 机器学习</li><li class="breadcrumb-item"><a href="./03-multiple-regression.html">第 3 章　多元回归与特征缩放</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="路径"><ol class="breadcrumb"><li class="breadcrumb-item">第一部分 · 机器学习</li><li class="breadcrumb-item"><a href="./03a-multiple-regression.html">第 3 章　多元回归与特征缩放</a></li><li class="breadcrumb-item"><a href="./03d-extras.html">额外拓展</a></li></ol></nav>
         <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="搜索" onclick="window.quartoOpenSearch();">
@@ -200,14 +243,46 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">总结：完整走一遍</span></a>
   </div>
 </li>
-      </ul>
-  </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./03-multiple-regression.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">第 3 章　多元回归与特征缩放</span></a>
+  <a href="./02g-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">习题</span></a>
   </div>
 </li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label">第 3 章　多元回归与特征缩放</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03a-multiple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">多元线性回归</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03b-multivariate-gd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">多元线性回归的梯度下降</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03c-feature-scaling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">特征缩放</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03d-extras.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">额外拓展</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./04-logistic-regression.html" class="sidebar-item-text sidebar-link">
@@ -290,16 +365,16 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-4-label">数学基础</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label">数学基础</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-5-label">微积分</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label">微积分</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth2 show">  
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./math-calculus-derivative.html" class="sidebar-item-text sidebar-link">
@@ -316,10 +391,10 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-6-label">线性代数</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label">线性代数</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth2 show">  
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./math-linalg-vector.html" class="sidebar-item-text sidebar-link">
@@ -336,10 +411,10 @@ ul.task-list li input[type="checkbox"] {
   </li>
           <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-7-label">概率与统计</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-controls="quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-8-label">概率与统计</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth2 show">  
+      <ul id="quarto-sidebar-section-8" aria-labelledby="quarto-sidebar-section-8-label" class="collapse list-unstyled sidebar-section depth2 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./math-prob-basic.html" class="sidebar-item-text sidebar-link">
@@ -358,10 +433,10 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-controls="quarto-sidebar-section-8" aria-expanded="true">
- <span class="menu-text" id="quarto-sidebar-section-8-label">附录</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-controls="quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-9-label">附录</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-8" aria-labelledby="quarto-sidebar-section-8-label" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-9" aria-labelledby="quarto-sidebar-section-9-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./appendix-pipeline.html" class="sidebar-item-text sidebar-link">
@@ -375,15 +450,42 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">本章目录</h2>
+   
+  <ul>
+  <li><a href="#一画图是个好习惯" id="toc-一画图是个好习惯" class="nav-link active" data-scroll-target="#一画图是个好习惯">一、画图是个好习惯</a>
+  <ul class="collapse">
+  <li><a href="#六种常见形态" id="toc-六种常见形态" class="nav-link" data-scroll-target="#六种常见形态">六种常见形态</a></li>
+  <li><a href="#什么时候可以停" id="toc-什么时候可以停" class="nav-link" data-scroll-target="#什么时候可以停">什么时候可以停</a></li>
+  <li><a href="#还能画什么" id="toc-还能画什么" class="nav-link" data-scroll-target="#还能画什么">还能画什么</a></li>
+  </ul></li>
+  <li><a href="#二特征工程" id="toc-二特征工程" class="nav-link" data-scroll-target="#二特征工程">二、特征工程</a>
+  <ul class="collapse">
+  <li><a href="#一个具体例子" id="toc-一个具体例子" class="nav-link" data-scroll-target="#一个具体例子">一个具体例子</a></li>
+  <li><a href="#常见的造法" id="toc-常见的造法" class="nav-link" data-scroll-target="#常见的造法">常见的造法</a></li>
+  <li><a href="#不是什么都能加" id="toc-不是什么都能加" class="nav-link" data-scroll-target="#不是什么都能加">不是什么都能加</a></li>
+  </ul></li>
+  <li><a href="#三多项式回归" id="toc-三多项式回归" class="nav-link" data-scroll-target="#三多项式回归">三、多项式回归</a>
+  <ul class="collapse">
+  <li><a href="#模型长什么样" id="toc-模型长什么样" class="nav-link" data-scroll-target="#模型长什么样">模型长什么样</a></li>
+  <li><a href="#阶数的影响" id="toc-阶数的影响" class="nav-link" data-scroll-target="#阶数的影响">阶数的影响</a></li>
+  <li><a href="#怎么选阶数" id="toc-怎么选阶数" class="nav-link" data-scroll-target="#怎么选阶数">怎么选阶数</a></li>
+  <li><a href="#两个坑" id="toc-两个坑" class="nav-link" data-scroll-target="#两个坑">两个坑</a></li>
+  <li><a href="#它和特征工程的关系" id="toc-它和特征工程的关系" class="nav-link" data-scroll-target="#它和特征工程的关系">它和特征工程的关系</a></li>
+  </ul></li>
+  <li><a href="#这一课的小结" id="toc-这一课的小结" class="nav-link" data-scroll-target="#这一课的小结">这一课的小结</a></li>
+  <li><a href="#下一课" id="toc-下一课" class="nav-link" data-scroll-target="#下一课">下一课</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content" tabindex="-1">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="路径"><ol class="breadcrumb"><li class="breadcrumb-item">第一部分 · 机器学习</li><li class="breadcrumb-item"><a href="./03-multiple-regression.html">第 3 章　多元回归与特征缩放</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="路径"><ol class="breadcrumb"><li class="breadcrumb-item">第一部分 · 机器学习</li><li class="breadcrumb-item"><a href="./03a-multiple-regression.html">第 3 章　多元回归与特征缩放</a></li><li class="breadcrumb-item"><a href="./03d-extras.html">额外拓展</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">第 3 章　多元回归与特征缩放</h1>
+<h1 class="title">额外拓展</h1>
 </div>
 
 
@@ -400,21 +502,432 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="一画图是个好习惯" class="level2">
+<h2 class="anchored" data-anchor-id="一画图是个好习惯">一、画图是个好习惯</h2>
+<p>训练跑起来之后，损失曲线就是你的仪表盘。</p>
+<p>不画图的人怎么判断训练得好不好？只能看最后那个数。但<strong>最后那个数什么也说明不了</strong>——它可能是收敛后的稳态，也可能是刚刚开始下降，还可能是在震荡中被你碰巧看到的一个低点。</p>
+<p>画出来，一眼就知道。</p>
+<section id="六种常见形态" class="level3">
+<h3 class="anchored" data-anchor-id="六种常见形态">六种常见形态</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="img/plot-loss-curves.png" class="img-fluid figure-img"></p>
+<figcaption>六种损失曲线：两条线是训练损失和验证损失</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>你看到的</th>
+<th>病因</th>
+<th>怎么办</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>两条一起降，最后贴得很近</td>
+<td>正常</td>
+<td>继续，或者可以停了</td>
+</tr>
+<tr class="even">
+<td>训练还在降，验证开始抬头</td>
+<td><strong>过拟合</strong></td>
+<td>早停、加正则、加数据</td>
+</tr>
+<tr class="odd">
+<td>剧烈震荡，整体还在往上</td>
+<td><strong>学习率太大</strong></td>
+<td>缩小 10 倍</td>
+</tr>
+<tr class="even">
+<td>一直在降但慢得看不到头</td>
+<td><strong>学习率太小</strong></td>
+<td>放大 3–10 倍</td>
+</tr>
+<tr class="odd">
+<td>两条都停在很高的位置</td>
+<td><strong>欠拟合</strong></td>
+<td>加特征、换更复杂的模型</td>
+</tr>
+<tr class="even">
+<td>毛刺极多，看不出趋势</td>
+<td>批太小 / 数据太脏</td>
+<td>增大 batch、检查数据</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>两条线一定要一起画
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>只画训练损失是不够的——它几乎只会下降，看不出任何问题。</p>
+<p><strong>训练 + 验证两条线的关系，才是信息所在。</strong> 它们之间的缝（gap）就是过拟合的程度。</p>
+</div>
+</div>
+</section>
+<section id="什么时候可以停" class="level3">
+<h3 class="anchored" data-anchor-id="什么时候可以停">什么时候可以停</h3>
+<p>看验证损失，不看训练损失：</p>
+<ul>
+<li>验证损失连续若干轮不再下降 → 停</li>
+<li>验证损失开始上升 → <strong>立刻停</strong>，而且要回到上升前那一轮的模型</li>
+</ul>
+<p>这叫<strong>早停</strong>（early stopping）。它是性价比最高的正则化手段：零成本，只要保存最好的那一轮。</p>
+</section>
+<section id="还能画什么" class="level3">
+<h3 class="anchored" data-anchor-id="还能画什么">还能画什么</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>图</th>
+<th>用来看什么</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>损失曲线（两条）</td>
+<td>学习率、过拟合、何时停</td>
+</tr>
+<tr class="even">
+<td>预测值 vs 真实值散点</td>
+<td>模型在哪些区间系统性偏高或偏低</td>
+</tr>
+<tr class="odd">
+<td>残差分布</td>
+<td>有没有系统性偏差（比如总是低估大房子）</td>
+</tr>
+<tr class="even">
+<td>参数分布</td>
+<td>权重是不是失控地变大了</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="二特征工程" class="level2">
+<h2 class="anchored" data-anchor-id="二特征工程">二、特征工程</h2>
+<p>你已经有的特征，未必是模型最容易用的形式。</p>
+<p><strong>特征工程</strong>（feature engineering）就是：<strong>在原始特征的基础上，造出新的特征。</strong> 造出来的特征不增加信息，但换个形状，模型可能一下就学得动了。</p>
+<section id="一个具体例子" class="level3">
+<h3 class="anchored" data-anchor-id="一个具体例子">一个具体例子</h3>
+<p>两套房，面积都是 100 ㎡：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>房源</th>
+<th>面积</th>
+<th>卧室数</th>
+<th>直觉上</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>100</td>
+<td>2</td>
+<td>每个卧室 50 ㎡，宽敞</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>100</td>
+<td>5</td>
+<td>每个卧室 20 ㎡，局促</td>
+</tr>
+</tbody>
+</table>
+<p>如果模型只有 <span class="math inline">w_1 \cdot \text{面积} + w_2 \cdot \text{卧室数}</span>，它必须靠调整 <span class="math inline">w_1, w_2</span> 去凑出”宽敞”这件事——但”宽敞”其实是两个量的<strong>比值</strong>。</p>
+<p>造一个新特征：</p>
+<p><span class="math display">x_3 = \frac{\text{面积}}{\text{卧室数}}</span></p>
+<p>A 是 50，B 是 20。模型只要给 <span class="math inline">x_3</span> 一个正权重，立刻就能区分这两套房。</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-注记
+<span class="screen-reader-only">注记</span>关键在”线性模型只会做加法”
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>本章尚未完成。</p>
+<p>模型能算的是 <span class="math inline">w_1x_1 + w_2x_2 + \dots</span>——<strong>每个特征单独加权，再加起来</strong>。</p>
+<p>它做不了除法、做不了乘法、做不了比较。</p>
+<p>所以凡是”比值”、“乘积”、“差值”、“是否大于”这类关系，你得<strong>手动造出来</strong>，模型才看得见。</p>
 </div>
 </div>
+</section>
+<section id="常见的造法" class="level3">
+<h3 class="anchored" data-anchor-id="常见的造法">常见的造法</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>造法</th>
+<th>例子</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>比值</td>
+<td>面积/房间数、价/面积</td>
+<td>单位化某种量</td>
+</tr>
+<tr class="even">
+<td>乘积</td>
+<td>楼层 × 有无电梯</td>
+<td>交互效应</td>
+</tr>
+<tr class="odd">
+<td>差值</td>
+<td>今年 − 建成年份</td>
+<td>时间差</td>
+</tr>
+<tr class="even">
+<td>计数</td>
+<td>文本里感叹号个数</td>
+<td>文本统计</td>
+</tr>
+<tr class="odd">
+<td>拆解</td>
+<td>日期 → 星期几 / 季度 / 是否节假日</td>
+<td>周期规律</td>
+</tr>
+<tr class="even">
+<td>分箱</td>
+<td>年龄 → 0-18 / 19-35 / 36-60</td>
+<td>非线性关系</td>
+</tr>
+<tr class="odd">
+<td>组合</td>
+<td>楼层 × 朝向</td>
+<td>交叉特征</td>
+</tr>
+</tbody>
+</table>
+<p>“楼层 × 有无电梯”这个例子值得琢磨：单独看，高层应该更贵；但如果那栋楼没电梯，高层反而难卖。<strong>两个特征一起看才有意义</strong>——这种叫<strong>交叉特征</strong>。</p>
+</section>
+<section id="不是什么都能加" class="level3">
+<h3 class="anchored" data-anchor-id="不是什么都能加">不是什么都能加</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>风险</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>共线性</td>
+<td>造出”面积×1000”这种和原特征完全等价的东西，只会让权重无法解释</td>
+</tr>
+<tr class="even">
+<td>过拟合</td>
+<td>特征越多，模型越容易在训练集上凑出好成绩</td>
+</tr>
+<tr class="odd">
+<td>成本</td>
+<td>每条数据都要多算一遍，上线时难以复现</td>
+</tr>
+<tr class="even">
+<td>泄漏</td>
+<td>用了全量数据的统计量（比如全量均值）造特征 → 数据泄漏</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>特征工程正在被自动学习取代——但只是在某些领域
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>深度学习的卖点之一就是”自动学特征”：扔进原始像素，网络自己学出边缘、纹理、形状。</p>
+<p>但<strong>表格数据上，人工特征工程至今仍然很强</strong>。Kaggle 上的结构化数据比赛，赢家大部分时间花在造特征，而不是换模型。</p>
+<p>原因很实在：表格数据里，领域知识（“这个比值有意义”）比通用结构更有效。</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="三多项式回归" class="level2">
+<h2 class="anchored" data-anchor-id="三多项式回归">三、多项式回归</h2>
+<p>上一节最直接的一种特征工程，是把特征<strong>自己乘自己</strong>。</p>
+<section id="模型长什么样" class="level3">
+<h3 class="anchored" data-anchor-id="模型长什么样">模型长什么样</h3>
+<p>同样的面积，价格明显不是线性的——面积越大，每平米越不值钱（边际递减）。用直线去拟合，两头总会偏：</p>
+<p><span class="math display">f(x) = w_1x + b</span></p>
+<p>加一个 <span class="math inline">x^2</span>：</p>
+<p><span class="math display">f(x) = w_1x + w_2x^2 + b</span></p>
+<p>再加 <span class="math inline">x^3</span>：</p>
+<p><span class="math display">f(x) = w_1x + w_2x^2 + w_3x^3 + b</span></p>
+<p>这就是<strong>多项式回归</strong>（polynomial regression）。</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>它依然是线性回归
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这一点最容易搞混。</p>
+<p>“线性”指的是<strong>对参数线性</strong>——<span class="math inline">w_1, w_2, w_3</span> 都是一次方，没有 <span class="math inline">w_1w_2</span>、没有 <span class="math inline">w_1^2</span>。</p>
+<p>从模型的角度看，<span class="math inline">x</span> 和 <span class="math inline">x^2</span> <strong>就是两个普通的特征</strong>，只不过第二个是你用第一个算出来的。</p>
+<p>所以：<strong>代码不用改</strong>。把 <span class="math inline">x^2</span> 当成一个新列塞进特征矩阵，原来的梯度下降、正规方程，原封不动都能用。</p>
+</div>
+</div>
+</section>
+<section id="阶数的影响" class="level3">
+<h3 class="anchored" data-anchor-id="阶数的影响">阶数的影响</h3>
+<p>用同一批数据，分别拟合 1 次、2 次、3 次、9 次：</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="img/poly-fit.png" class="img-fluid figure-img"></p>
+<figcaption>不同阶数的拟合效果，下方是训练集 MSE</figcaption>
+</figure>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>阶数</th>
+<th>训练 MSE</th>
+<th>现象</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>1079</td>
+<td>一条直线，两端明显偏——<strong>欠拟合</strong></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>234</td>
+<td>抓住了弯曲的趋势，明显更好</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>202</td>
+<td>和 2 次几乎一样，多的一项没带来明显收益</td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td><strong>135</strong></td>
+<td><strong>训练 MSE 最低，但曲线在两端乱翘</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>9 次那条曲线说明了一切
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>它的训练 MSE 是<strong>最低的</strong>（135），但你能看到它在 <span class="math inline">x &lt; 40</span> 的地方猛地扎下去，在 <span class="math inline">x &gt; 180</span> 的地方又翘起来。</p>
+<p>那些地方根本没有数据点。模型在那里纯粹是在<strong>编</strong>。</p>
+<p>这就是过拟合的经典形态：<strong>训练集上的分数越来越好，模型的形状越来越离谱。</strong></p>
+<p>如果你只看”训练 MSE 从 1079 降到 135”，会以为 9 次最好。看了图就知道不是。</p>
+</div>
+</div>
+</section>
+<section id="怎么选阶数" class="level3">
+<h3 class="anchored" data-anchor-id="怎么选阶数">怎么选阶数</h3>
+<p>不看训练 MSE，看<strong>验证集</strong>。</p>
+<p>做法很朴素：把 1、2、3、4、5 次都试一遍，各自算验证集上的误差，选验证误差最小的那个。</p>
+<p>一般规律：</p>
+<ul>
+<li>数据少、噪声大 → 阶数要低（1 或 2）</li>
+<li>数据多、关系确实弯曲 → 可以试到 3、4</li>
+<li>再高基本没意义，不如换模型</li>
+</ul>
+</section>
+<section id="两个坑" class="level3">
+<h3 class="anchored" data-anchor-id="两个坑">两个坑</h3>
+<p><strong>坑一：必须做特征缩放。</strong></p>
+<p><span class="math inline">x = 150</span> 时，<span class="math inline">x^2 = 22500</span>，<span class="math inline">x^9 \approx 3.8 \times 10^{19}</span>。</p>
+<p>如果不缩放，这些列的量级差二十个数量级，梯度下降根本跑不动——正是上一课那个病态问题的极端版本。</p>
+<p><strong>坑二：高次项会把数值推向极端。</strong></p>
+<p>即使做了标准化，阶数很高时在数据范围之外预测，结果会瞬间爆炸。所以<strong>多项式回归不适合外推</strong>——它只能在你见过的区间里可信。</p>
+</section>
+<section id="它和特征工程的关系" class="level3">
+<h3 class="anchored" data-anchor-id="它和特征工程的关系">它和特征工程的关系</h3>
+<p>多项式回归不是一个新算法，它就是<strong>特征工程的一个特例</strong>：</p>
+<ul>
+<li>造 <span class="math inline">x^2</span>、<span class="math inline">x^3</span> 两列新特征</li>
+<li>然后跑普通的线性回归</li>
+</ul>
+<p>同样的思路还能造：</p>
+<p><span class="math display">x_3 = x_1 \times x_2 \quad\text{（交叉项）}, \qquad x_4 = \log(x_1), \qquad x_5 = \sqrt{x_1}</span></p>
+<p>只要新特征是<strong>从旧特征算出来的确定函数</strong>，都可以这么塞进去。</p>
+</section>
+</section>
+<section id="这一课的小结" class="level2">
+<h2 class="anchored" data-anchor-id="这一课的小结">这一课的小结</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>主题</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>画图</td>
+<td>损失曲线是训练的仪表盘；训练和验证必须一起画</td>
+</tr>
+<tr class="even">
+<td>何时停</td>
+<td>验证损失不再下降就停，早停是最便宜的正则化</td>
+</tr>
+<tr class="odd">
+<td>特征工程</td>
+<td>在原始特征上造新特征，让模型看得见比值、乘积、交互</td>
+</tr>
+<tr class="even">
+<td>为什么有用</td>
+<td>线性模型只会”加权求和”，做不了除法乘法比较</td>
+</tr>
+<tr class="odd">
+<td>多项式回归</td>
+<td>造 <span class="math inline">x^2, x^3</span> 当新特征，<strong>本质仍是线性回归</strong></td>
+</tr>
+<tr class="even">
+<td>阶数选择</td>
+<td>看验证集，不看训练集；高次必过拟合</td>
+</tr>
+<tr class="odd">
+<td>缩放要求</td>
+<td>高次项量级爆炸，必须先标准化</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="下一课" class="level2">
+<h2 class="anchored" data-anchor-id="下一课">下一课</h2>
+<p>第 2、3 章讲完了线性回归的整套原理：模型、损失、梯度、学习率、多特征、缩放、诊断、特征工程。</p>
+<p>但模型还是那条<strong>直线</strong>（或者你手动弯出来的曲线）。</p>
+<p>下一章换一种完全不同的思路：<strong>用概率的方式做分类</strong>——逻辑回归。它的输出不再是价格，而是”这封邮件是垃圾的概率”。</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <div id="dl-theme">
@@ -1044,8 +1557,8 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation" aria-label="页面">
   <div class="nav-page nav-page-previous">
-      <a href="./02f-summary.html" class="pagination-link" aria-label="总结：完整走一遍">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">总结：完整走一遍</span>
+      <a href="./03c-feature-scaling.html" class="pagination-link" aria-label="特征缩放">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">特征缩放</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
