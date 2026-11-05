@@ -303,6 +303,22 @@ h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.03em;line-height:1.1}
 .palette__empty{padding:var(--s-6);text-align:center;font-family:var(--font-mono);font-size:var(--t-sm);color:var(--muted-2)}
 .palette__hint{padding:var(--s-3) var(--s-4);border-top:1px solid var(--line);font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted-2);display:flex;gap:var(--s-4)}
 
+/* —— 指针光晕 ——
+   跟随鼠标的柔光层，负责"光标周围有东西在动"。元素由 JS 写 transform 平移，
+   负 margin 负责自身居中（JS 不再减半宽高）。 */
+.pointer-glow{
+  position:fixed;top:0;left:0;width:520px;height:520px;margin:-260px 0 0 -260px;
+  border-radius:50%;
+  pointer-events:none;z-index:1;opacity:0;
+  background:radial-gradient(circle,rgba(99,214,203,.20),rgba(143,136,216,.10) 44%,transparent 70%);
+  mix-blend-mode:screen;
+  transition:opacity var(--t-mid) var(--e);
+  will-change:transform;
+}
+.pointer-glow.is-live{opacity:1}
+html[data-motion="off"] .pointer-glow{display:none}
+@media (pointer:coarse){.pointer-glow{display:none}}
+
 /* —— 光标环 —— */
 .cursor-ring{
   position:fixed;top:0;left:0;width:26px;height:26px;border:1px solid rgba(99,214,203,.55);border-radius:50%;
