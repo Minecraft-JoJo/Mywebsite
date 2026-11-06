@@ -1,38 +1,1366 @@
 [
   {
-    "objectID": "math-prob-moments.html",
-    "href": "math-prob-moments.html",
-    "title": "期望、方差与 KL 散度",
+    "objectID": "appendix/appendix-pipeline.html",
+    "href": "appendix/appendix-pipeline.html",
+    "title": "附录 A　机器学习项目的完整流程",
+    "section": "",
+    "text": "这一节是把整个流程一次看全，不要求现在全部理解。后面每章会拆开讲其中一步。",
+    "crumbs": [
+      "附录",
+      "附录 A　机器学习项目的完整流程"
+    ]
+  },
+  {
+    "objectID": "appendix/appendix-pipeline.html#a.1-训练循环",
+    "href": "appendix/appendix-pipeline.html#a.1-训练循环",
+    "title": "附录 A　机器学习项目的完整流程",
+    "section": "A.1 训练循环",
+    "text": "A.1 训练循环\n\n\n代码\nflowchart TD\n  A[\"参数 w, b（先随便猜）\"] --&gt; B[\"前向：用当前参数算预测\"]\n  B --&gt; C[\"损失：预测和真值差多少\"]\n  C --&gt; D[\"梯度：往哪个方向调能变小\"]\n  D --&gt; E[\"更新：w ← w − 学习率 × 梯度\"]\n  E --&gt;|\"重复几百次\"| B\n\n\n\n\n\n\nflowchart TD\n  A[\"参数 w, b（先随便猜）\"] --&gt; B[\"前向：用当前参数算预测\"]\n  B --&gt; C[\"损失：预测和真值差多少\"]\n  C --&gt; D[\"梯度：往哪个方向调能变小\"]\n  D --&gt; E[\"更新：w ← w − 学习率 × 梯度\"]\n  E --&gt;|\"重复几百次\"| B\n\n\n\n\n\n\n前向\n\\hat{y}^{(i)} = w x^{(i)} + b\n损失（均方误差）\nL(w, b) = \\frac{1}{m} \\sum_{i=1}^{m} \\left( \\hat{y}^{(i)} - y^{(i)} \\right)^2\n梯度：损失对参数的导数。\\dfrac{\\partial L}{\\partial w} &gt; 0 表示 w 增大会让损失增大，所以要让 w 减小——这就是更新时减去梯度的原因。\n更新\nw \\leftarrow w - \\alpha \\frac{\\partial L}{\\partial w}, \\qquad b \\leftarrow b - \\alpha \\frac{\\partial L}{\\partial b}\n\\alpha 是学习率，决定每步迈多大。",
+    "crumbs": [
+      "附录",
+      "附录 A　机器学习项目的完整流程"
+    ]
+  },
+  {
+    "objectID": "appendix/appendix-pipeline.html#a.2-项目生命周期",
+    "href": "appendix/appendix-pipeline.html#a.2-项目生命周期",
+    "title": "附录 A　机器学习项目的完整流程",
+    "section": "A.2 项目生命周期",
+    "text": "A.2 项目生命周期\n训练只是第 8 步。\n\n\n代码\nflowchart TD\n  A[\"1 定义问题\"] --&gt; B[\"2 收集数据\"]\n  B --&gt; C[\"3 探索与清洗\"]\n  C --&gt; D[\"4 特征工程\"]\n  D --&gt; E[\"5 划分数据集\"]\n  E --&gt; F[\"6 选模型\"]\n  F --&gt; G[\"7 定损失函数\"]\n  G --&gt; H[\"8 训练\"]\n  H --&gt; I[\"9 验证与评估\"]\n  I --&gt; J{\"够好？\"}\n  J --&gt;|\"不够\"| D\n  J --&gt;|\"够\"| K[\"10 测试集终评\"]\n  K --&gt; L[\"11 部署与监控\"]\n\n\n\n\n\n\nflowchart TD\n  A[\"1 定义问题\"] --&gt; B[\"2 收集数据\"]\n  B --&gt; C[\"3 探索与清洗\"]\n  C --&gt; D[\"4 特征工程\"]\n  D --&gt; E[\"5 划分数据集\"]\n  E --&gt; F[\"6 选模型\"]\n  F --&gt; G[\"7 定损失函数\"]\n  G --&gt; H[\"8 训练\"]\n  H --&gt; I[\"9 验证与评估\"]\n  I --&gt; J{\"够好？\"}\n  J --&gt;|\"不够\"| D\n  J --&gt;|\"够\"| K[\"10 测试集终评\"]\n  K --&gt; L[\"11 部署与监控\"]\n\n\n\n\n\n\n\n\n\n步骤\n常见错误\n章节\n\n\n\n\n1 定义问题\n没定评价标准就选模型\n第 1 章\n\n\n2 收集数据\n标签错、样本有偏\n—\n\n\n3 探索与清洗\n不看数据分布\n第 9 章\n\n\n4 特征工程\n只喂原始字段\n第 10 章\n\n\n5 划分数据集\n先标准化再划分，数据泄漏\n第 9 章\n\n\n6 选模型\n只看准确率\n第 6、11、12 章\n\n\n7 定损失函数\n分类用了平方误差\n第 4 章\n\n\n8 训练\n学习率不对、特征未缩放\n第 2–3 章\n\n\n9 验证与评估\n只看一个指标\n第 6–7 章\n\n\n10 终评\n反复看测试集\n第 9 章\n\n\n11 部署\n不管线上分布漂移\n—",
+    "crumbs": [
+      "附录",
+      "附录 A　机器学习项目的完整流程"
+    ]
+  },
+  {
+    "objectID": "appendix/appendix-pipeline.html#a.3-跑一遍",
+    "href": "appendix/appendix-pipeline.html#a.3-跑一遍",
+    "title": "附录 A　机器学习项目的完整流程",
+    "section": "A.3 跑一遍",
+    "text": "A.3 跑一遍\n任务：猜出 y = 2x + 1 这条线，数据带噪声。\npython code/ch01_loss_goes_down.py\n预期输出（CPU 约 1 秒）：\nepoch   0   loss=  2.0940   w= 0.5690   b= 0.9455\nepoch   1   loss=  0.6202   w= 0.9940   b= 0.9606\nepoch   2   loss=  0.3121   w= 1.2931   b= 0.9719\nepoch   5   loss=  0.0464   w= 1.7560   b= 0.9893\nepoch  10   loss=  0.0107   w= 1.9610   b= 0.9971\nepoch  20   loss=  0.0096   w= 2.0026   b= 0.9987\nepoch  50   loss=  0.0096   w= 2.0038   b= 0.9987\nepoch 200   loss=  0.0096   w= 2.0038   b= 0.9987\n\n最终 w = 2.0038   （真值 2.0）\n最终 b = 0.9987   （真值 1.0）\nloss 从 2.0940 降到 0.009589\n三点：\n\nloss 在下降。2.09 → 0.0096。它不降，模型就没在学。\n参数逼近真值。真值 w=2, b=1，训完 2.0038 / 0.9987，差一点因为数据里有噪声。\nloss 停在 0.0096 不是 bug。噪声标准差 0.1，方差 0.01，任何模型都不可能低于它，这叫噪声地板。",
+    "crumbs": [
+      "附录",
+      "附录 A　机器学习项目的完整流程"
+    ]
+  },
+  {
+    "objectID": "math/math-prob-basic.html",
+    "href": "math/math-prob-basic.html",
+    "title": "随机变量与分布",
     "section": "",
     "text": "注记\n\n\n\n尚未完成。",
     "crumbs": [
       "数学基础",
       "概率与统计",
-      "期望、方差与 KL 散度"
+      "随机变量与分布"
     ]
   },
   {
-    "objectID": "math-linalg-vector.html",
-    "href": "math-linalg-vector.html",
-    "title": "向量与矩阵",
+    "objectID": "math/math-linalg-eigen.html",
+    "href": "math/math-linalg-eigen.html",
+    "title": "特征值与 SVD",
     "section": "",
     "text": "注记\n\n\n\n尚未完成。",
     "crumbs": [
       "数学基础",
       "线性代数",
-      "向量与矩阵"
+      "特征值与 SVD"
     ]
   },
   {
-    "objectID": "math-calculus-derivative.html",
-    "href": "math-calculus-derivative.html",
-    "title": "导数与偏导",
+    "objectID": "math/math-calculus-chain.html",
+    "href": "math/math-calculus-chain.html",
+    "title": "链式法则与矩阵求导",
     "section": "",
     "text": "注记\n\n\n\n尚未完成。",
     "crumbs": [
       "数学基础",
       "微积分",
-      "导数与偏导"
+      "链式法则与矩阵求导"
+    ]
+  },
+  {
+    "objectID": "part1-ml/stubs/14-sklearn-pipeline.html",
+    "href": "part1-ml/stubs/14-sklearn-pipeline.html",
+    "title": "第 14 章　sklearn 工程化",
+    "section": "",
+    "text": "注记\n\n\n\n本章尚未完成。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 7~15 章（待写）",
+      "第 14 章　sklearn 工程化"
+    ]
+  },
+  {
+    "objectID": "part1-ml/stubs/12-clustering.html",
+    "href": "part1-ml/stubs/12-clustering.html",
+    "title": "第 12 章　聚类",
+    "section": "",
+    "text": "注记\n\n\n\n本章尚未完成。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 7~15 章（待写）",
+      "第 12 章　聚类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/stubs/10-decision-trees.html",
+    "href": "part1-ml/stubs/10-decision-trees.html",
+    "title": "第 10 章　决策树",
+    "section": "",
+    "text": "注记\n\n\n\n本章尚未完成。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 7~15 章（待写）",
+      "第 10 章　决策树"
+    ]
+  },
+  {
+    "objectID": "part1-ml/stubs/08-softmax.html",
+    "href": "part1-ml/stubs/08-softmax.html",
+    "title": "第 8 章　多分类与 softmax",
+    "section": "",
+    "text": "注记\n\n\n\n本章尚未完成。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 7~15 章（待写）",
+      "第 8 章　多分类与 softmax"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06e-exercises.html",
+    "href": "part1-ml/ch06/06e-exercises.html",
+    "title": "习题",
+    "section": "",
+    "text": "一条并不复杂的曲线，加了噪声：\nimport numpy as np\n\nrng = np.random.default_rng(2025)\ndef f(x): return 40 + 6*np.sqrt(x)\n\nxs  = np.sort(rng.uniform(1, 40, 30))\nidx = rng.permutation(30)\ntr, va = np.sort(idx[:20]), np.sort(idx[20:])\n\nXtr, Xva = np.round(xs[tr], 1), np.round(xs[va], 1)\nytr = np.round(f(xs[tr]) + rng.normal(0, 1.6, 20), 1)\nyva = np.round(f(xs[va]) + rng.normal(0, 1.6, 10), 1)\n二十个训练样本，十个验证样本。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06e-exercises.html#数据",
+    "href": "part1-ml/ch06/06e-exercises.html#数据",
+    "title": "习题",
+    "section": "",
+    "text": "一条并不复杂的曲线，加了噪声：\nimport numpy as np\n\nrng = np.random.default_rng(2025)\ndef f(x): return 40 + 6*np.sqrt(x)\n\nxs  = np.sort(rng.uniform(1, 40, 30))\nidx = rng.permutation(30)\ntr, va = np.sort(idx[:20]), np.sort(idx[20:])\n\nXtr, Xva = np.round(xs[tr], 1), np.round(xs[va], 1)\nytr = np.round(f(xs[tr]) + rng.normal(0, 1.6, 20), 1)\nyva = np.round(f(xs[va]) + rng.normal(0, 1.6, 10), 1)\n二十个训练样本，十个验证样本。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06e-exercises.html#题目",
+    "href": "part1-ml/ch06/06e-exercises.html#题目",
+    "title": "习题",
+    "section": "题目",
+    "text": "题目\n第一题　分别用 1 到 6 次多项式拟合训练集，算出每种阶数的训练 MSE 和验证 MSE，列成一张表。\n第二题　哪个阶数最好？依据是什么？\n第三题　6 次多项式的训练误差是所有里最低的，但验证误差突然跳上去了。解释这个现象。\n第四题　画出”阶数 vs 两个误差”的曲线图，标出欠拟合区和过拟合区。它和本章那张复杂度曲线长得一样吗？\n第五题　只用前 5 个训练样本去拟合 6 次多项式。训练误差和验证误差分别是多少？说明了什么？\n\n\n\n\n\n\n提示提示\n\n\n\n拟合前一定要先标准化特征。x^6 在 x=40 时是 4\\times10^9，不缩放的话正规方程会因为数值条件太差解出垃圾。\nF = np.column_stack([X**k for k in range(1, d+1)])\nmu, sd = F.mean(0), F.std(0)\nFs = (F - mu) / sd\ncoef, *_ = np.linalg.lstsq(np.c_[Fs, np.ones(len(X))], y, rcond=None)",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06e-exercises.html#一句话总结",
+    "href": "part1-ml/ch06/06e-exercises.html#一句话总结",
+    "title": "习题",
+    "section": "一句话总结",
+    "text": "一句话总结\n\n\n\n现象\n结论\n\n\n\n\n训练误差单调下降\n正常，不能用来选模型\n\n\n验证误差 U 形\n用它来选模型\n\n\n训练 0、验证爆炸\n参数比数据多，必然过拟合\n\n\n验证集太小\n选出来的模型不可靠",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html",
+    "href": "part1-ml/ch06/06c-bias-variance.html",
+    "title": "偏差与方差",
+    "section": "",
+    "text": "“太简单”和”太复杂”还是感觉层面的说法。要量化，得先做一个假想的实验。\n假设你能把数据重新采集一百次。每次得到三十套房子，每次用同一个模型训练一遍，得到一百组参数、一百个模型。\n然后问两个问题：\n\n这一百个模型的预测，平均下来离真值多远？\n这一百个模型彼此之间有多不一致？\n\n第一个叫偏差，第二个叫方差。\n\n\n\n\n\n\n注记现实中做不到，但它是理解一切的钥匙\n\n\n\n你当然不可能真的重采一百次数据。但”如果重采会怎样”这个思想实验，能解释为什么有些模型怎么调都不行、有些模型换批数据就崩。\n而且它在某些情况下真能做：对训练集做自助采样（bootstrap），重复训练一百次——随机森林就是干这个的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html#一个思想实验",
+    "href": "part1-ml/ch06/06c-bias-variance.html#一个思想实验",
+    "title": "偏差与方差",
+    "section": "",
+    "text": "“太简单”和”太复杂”还是感觉层面的说法。要量化，得先做一个假想的实验。\n假设你能把数据重新采集一百次。每次得到三十套房子，每次用同一个模型训练一遍，得到一百组参数、一百个模型。\n然后问两个问题：\n\n这一百个模型的预测，平均下来离真值多远？\n这一百个模型彼此之间有多不一致？\n\n第一个叫偏差，第二个叫方差。\n\n\n\n\n\n\n注记现实中做不到，但它是理解一切的钥匙\n\n\n\n你当然不可能真的重采一百次数据。但”如果重采会怎样”这个思想实验，能解释为什么有些模型怎么调都不行、有些模型换批数据就崩。\n而且它在某些情况下真能做：对训练集做自助采样（bootstrap），重复训练一百次——随机森林就是干这个的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html#打靶图",
+    "href": "part1-ml/ch06/06c-bias-variance.html#打靶图",
+    "title": "偏差与方差",
+    "section": "打靶图",
+    "text": "打靶图\n\n\n\n四个靶子：蓝叉是预测的平均位置，橙点是每次训练的落点\n\n\n\n\n\n\n表现\n对应\n\n\n\n\n低偏差 低方差\n又准又稳\n理想情况\n\n\n低偏差 高方差\n平均在靶心，但每次乱跳\n过拟合\n\n\n高偏差 低方差\n很稳，但系统性偏了\n欠拟合\n\n\n高偏差 高方差\n又偏又抖\n最糟\n\n\n\n注意左边第二张：每次结果都很接近（低方差），但都偏在同一个方向（高偏差）。这就是欠拟合的样子——不管怎么训练，它都错得一样。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html#误差的分解",
+    "href": "part1-ml/ch06/06c-bias-variance.html#误差的分解",
+    "title": "偏差与方差",
+    "section": "误差的分解",
+    "text": "误差的分解\n在平方误差下有一个精确的分解：\nE\\left[(\\hat{y} - y)^2\\right] = \\underbrace{\\left(E[\\hat{y}] - f(x)\\right)^2}_{\\text{偏差}^2} + \\underbrace{E\\left[(\\hat{y} - E[\\hat{y}])^2\\right]}_{\\text{方差}} + \\underbrace{\\sigma^2}_{\\text{噪声}}\n\n\n\n部分\n含义\n能消除吗\n\n\n\n\n偏差²\n模型平均下来偏离真实规律多远\n换更复杂的模型可以减小\n\n\n方差\n换一批数据，模型波动多大\n加数据、正则化可以减小\n\n\n噪声\n数据本身的随机性\n不能，这是下限\n\n\n\n\n\n\n\n\n\n重要最后那一项很重要\n\n\n\n\\sigma^2 是不可约误差。哪怕你找到了真实函数 f(x)，平方误差也还是 \\sigma^2，因为数据本身带噪声。\n所以任何模型都有误差下限。如果你的验证误差已经接近噪声水平，再调也不会好了——这时候该去检查数据，而不是模型。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html#对应关系",
+    "href": "part1-ml/ch06/06c-bias-variance.html#对应关系",
+    "title": "偏差与方差",
+    "section": "对应关系",
+    "text": "对应关系\n\n\n\n\n偏差\n方差\n训练误差\n验证误差\n\n\n\n\n欠拟合\n高\n低\n高\n高\n\n\n刚好\n低\n低\n低\n低\n\n\n过拟合\n低\n高\n低\n高\n\n\n\n为什么过拟合方差高？ 模型太复杂，对训练集里每个噪声点都敏感。换一批数据，噪声变了，模型跟着大变。\n为什么欠拟合偏差高？ 模型表达能力不够，只能表达一类受限的函数。真实规律不在这一类里，所以无论怎么训都系统性地偏。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html#一个容易搞混的地方",
+    "href": "part1-ml/ch06/06c-bias-variance.html#一个容易搞混的地方",
+    "title": "偏差与方差",
+    "section": "一个容易搞混的地方",
+    "text": "一个容易搞混的地方\n\n\n\n\n\n\n警告偏差和方差不是”某一个模型”的属性\n\n\n\n你训练出来的那一个模型，谈不上”偏差 0.3、方差 0.1”。\n它们描述的是“模型 + 训练集大小”这个组合的统计性质——需要在很多个不同的训练集上重复训练才能测出来。\n所以实际工作中我们不算它们，而是通过训练误差和验证误差的关系去推断：缝大 → 方差高；训练误差本身就高 → 偏差高。\n下一课的学习曲线就是干这个用的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06c-bias-variance.html#下一课",
+    "href": "part1-ml/ch06/06c-bias-variance.html#下一课",
+    "title": "偏差与方差",
+    "section": "下一课",
+    "text": "下一课\n理论框架有了，但还缺一个能直接照着做的诊断方法。\n下一课：学习曲线。横轴换成样本量，看两条线怎么走——一眼判断该加数据还是该换模型。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "偏差与方差"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html",
+    "href": "part1-ml/ch06/06a-overfitting.html",
+    "title": "过拟合",
+    "section": "",
+    "text": "第 3 章那张图，现在要正经用一次：\n\n\n\n不同阶数的拟合效果，下方是训练集 MSE\n\n\n最右边那个 9 次多项式，训练 MSE 是 135——四个里最低的。\n但看它的形状：在 x &lt; 40 的地方猛地扎下去，在 x &gt; 180 的地方又翘起来。那些地方根本没有数据点。\n模型在那里不是”预测”，是”编”。\n\n\n\n\n\n\n重要过拟合的定义\n\n\n\n模型把训练数据里的噪声也当成了规律学进去。\n结果就是：在训练集上表现极好，在新数据上一塌糊涂。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html#曲线穿过每一个点然后呢",
+    "href": "part1-ml/ch06/06a-overfitting.html#曲线穿过每一个点然后呢",
+    "title": "过拟合",
+    "section": "",
+    "text": "第 3 章那张图，现在要正经用一次：\n\n\n\n不同阶数的拟合效果，下方是训练集 MSE\n\n\n最右边那个 9 次多项式，训练 MSE 是 135——四个里最低的。\n但看它的形状：在 x &lt; 40 的地方猛地扎下去，在 x &gt; 180 的地方又翘起来。那些地方根本没有数据点。\n模型在那里不是”预测”，是”编”。\n\n\n\n\n\n\n重要过拟合的定义\n\n\n\n模型把训练数据里的噪声也当成了规律学进去。\n结果就是：在训练集上表现极好，在新数据上一塌糊涂。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html#为什么会发生",
+    "href": "part1-ml/ch06/06a-overfitting.html#为什么会发生",
+    "title": "过拟合",
+    "section": "为什么会发生",
+    "text": "为什么会发生\n三个条件，凑齐了就容易过拟合：\n\n\n\n原因\n表现\n\n\n\n\n参数太多\n9 次多项式有 10 个参数，去拟合 22 个点\n\n\n数据太少\n同样 10 个参数，只有 5 个点，那必然完美穿过\n\n\n噪声被当成信号\n房价里的随机波动，被模型当成”这个面积段就是贵”\n\n\n\n前两条同时成立会怎样，本章习题里有一个极端的例子。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html#课程实验里的两个发现",
+    "href": "part1-ml/ch06/06a-overfitting.html#课程实验里的两个发现",
+    "title": "过拟合",
+    "section": "课程实验里的两个发现",
+    "text": "课程实验里的两个发现\n官方的过拟合实验（可以拖动滑块调阶数、加数据）里有两条值得记住：\n一、加极端样本会加剧过拟合。\n往右边扔几个离群点，高阶多项式会为了穿过它们把整条曲线拽歪，中间的正常区域反而被带坏。\n二、加正常样本会缓解过拟合。\n在数据密集区多给几个点，模型就没法”乱扭”了——因为每个方向都有约束。\n\n\n\n\n\n\n提示这解释了”加数据”为什么有效\n\n\n\n不是数据多了模型变聪明，是约束多了，曲线没地方乱扭。\n反过来说：如果你加的全是离群点，那只会更糟。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html#怎么认出来",
+    "href": "part1-ml/ch06/06a-overfitting.html#怎么认出来",
+    "title": "过拟合",
+    "section": "怎么认出来",
+    "text": "怎么认出来\n看两个数的差距：\n\n\n\n训练误差\n验证误差\n训练-验证的缝\n\n\n\n\n2.346\n15.835\n巨大 ← 典型过拟合（6 次多项式，本章习题会算到）\n\n\n2.612\n8.951\n较大\n\n\n2.397\n2.254\n小 ← 刚好\n\n\n\n判断标准很朴素：训练误差很低，但验证误差明显高出好几倍，就是过拟合。\n反过来说，如果两个都很低且接近，那模型是健康的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html#怎么缓解先给个清单",
+    "href": "part1-ml/ch06/06a-overfitting.html#怎么缓解先给个清单",
+    "title": "过拟合",
+    "section": "怎么缓解（先给个清单）",
+    "text": "怎么缓解（先给个清单）\n\n\n\n手段\n思路\n在哪一章\n\n\n\n\n加数据\n增加约束，挤掉乱扭的空间\n第 9 章\n\n\n降复杂度\n少几个参数\n现在就可用\n\n\n正则化\n惩罚大的参数值\n第 6 章\n\n\n特征选择\n扔掉没用的特征\n第 9 章\n\n\n\n正则化是最通用的一条，第 6 章专门讲。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06a-overfitting.html#下一课另一头",
+    "href": "part1-ml/ch06/06a-overfitting.html#下一课另一头",
+    "title": "过拟合",
+    "section": "下一课：另一头",
+    "text": "下一课：另一头\n过拟合的反面不是”刚好”，是欠拟合——连训练集都没学好。\n先把它认清楚，才能知道该往哪个方向调。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "过拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05d-data-leakage.html",
+    "href": "part1-ml/ch05/05d-data-leakage.html",
+    "title": "数据泄漏",
+    "section": "",
+    "text": "你把划分做对了，交叉验证也做了，模型在验证集上拿到 0.95。\n上线之后，真实准确率只有 0.6。\n中间没有任何改动。模型没变、数据没变、代码没变。那 0.35 去哪了？\n\n\n\n\n\n\n重要数据泄漏（data leakage）\n\n\n\n验证集的信息，通过某条你没注意到的路径，渗进了训练过程。\n于是你的验证分数衡量的是”模型见过的东西”，不是”模型没见过的东西”。它被系统性地高估了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "数据泄漏"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05d-data-leakage.html#一个诡异的分数",
+    "href": "part1-ml/ch05/05d-data-leakage.html#一个诡异的分数",
+    "title": "数据泄漏",
+    "section": "",
+    "text": "你把划分做对了，交叉验证也做了，模型在验证集上拿到 0.95。\n上线之后，真实准确率只有 0.6。\n中间没有任何改动。模型没变、数据没变、代码没变。那 0.35 去哪了？\n\n\n\n\n\n\n重要数据泄漏（data leakage）\n\n\n\n验证集的信息，通过某条你没注意到的路径，渗进了训练过程。\n于是你的验证分数衡量的是”模型见过的东西”，不是”模型没见过的东西”。它被系统性地高估了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "数据泄漏"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05d-data-leakage.html#三个最常见的来源",
+    "href": "part1-ml/ch05/05d-data-leakage.html#三个最常见的来源",
+    "title": "数据泄漏",
+    "section": "三个最常见的来源",
+    "text": "三个最常见的来源\n\n一、先标准化，再划分\n这是最经典的一个：\n# 错误做法\nfrom sklearn.preprocessing import StandardScaler\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X)      # ← 用了全部数据算均值和标准差\nX_tr, X_te, y_tr, y_te = train_test_split(X_scaled, y, test_size=0.2)\n问题在于 fit_transform(X) 这一步：它用全部样本（包括即将成为测试集的那些）算出了均值和标准差。\n于是测试集的均值信息，通过 scaler 流进了训练数据。模型在训练时就已经”知道”测试集长什么样了。\n正确做法是先划分，再只用训练集 fit：\n# 正确做法\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2)\nscaler = StandardScaler()\nX_tr = scaler.fit_transform(X_tr)   # 只在训练集上学\nX_te = scaler.transform(X_te)       # 用训练集的参数转换，不重新 fit\n注意第二行是 transform 不是 fit_transform。这个区别就是全部。\n\n\n\n\n\n\n提示一句话记住\n\n\n\n任何”从数据里算出参数”的操作，都只能在训练集上做。\n标准化（均值、标准差）、缺失值填充（中位数）、特征选择、PCA、过采样——全是这一类。\n它们都得包在训练集里面，然后原样套到验证集上。工程上这叫 pipeline，第 14 章会讲怎么用代码自动保证这件事。\n\n\n\n\n二、特征选择用了全量数据\n# 错误做法\nbest_features = select_by_correlation(X, y, k=10)   # 用全部 200 个样本挑\nX_tr, X_te = train_test_split(X[:, best_features], ...)\n你在全量数据上挑了”和 y 最相关的 10 个特征”，然后才划分。\n问题是：那些特征之所以被挑中，部分原因是它们在测试集上也碰巧表现好。测试集参与了选择，就不再是”没见过的数据”了。\n正确做法：把特征选择放进交叉验证的每一折里。\n\n\n三、时间序列被打乱\n# 错误做法\nidx = shuffle(range(len(df)))\n如果你在预测”明天会不会下雨”，随机打乱之后，训练集里就混进了”下周的数据”。\n模型学到的其实是”从未来推过去”——这在真实场景里根本不可能。\n时间序列必须按时间顺序切：用前面的预测后面的，绝不能反。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "数据泄漏"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05d-data-leakage.html#还有一类目标泄漏",
+    "href": "part1-ml/ch05/05d-data-leakage.html#还有一类目标泄漏",
+    "title": "数据泄漏",
+    "section": "还有一类：目标泄漏",
+    "text": "还有一类：目标泄漏\n这一类最隐蔽，因为它根本不在代码里，而在特征的定义里。\n举个例子：要预测”患者是否患有某种病”，特征里有一条叫”是否服用了该病的特效药”。\n这个特征和标签高度相关——相关系数可能 0.9 以上。训练出来的模型准确率极高。\n但它是结果，不是原因。等你想用这个模型做早期筛查时，病人还没吃药呢，这个特征根本拿不到。\n\n\n\n\n\n\n警告目标泄漏的判断方法\n\n\n\n问自己一个问题：\n\n这个特征，在”做预测的那一刻”，真的拿得到吗？\n\n\n预测房价时，“成交价”当然拿不到——但它不能当特征\n预测用户会不会流失时，“注销时间”拿不到\n预测贷款违约时，“催收记录”是在违约之后才有的\n\n凡是要等到结果发生之后才知道的信息，都不能当特征。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "数据泄漏"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05d-data-leakage.html#怎么发现泄漏",
+    "href": "part1-ml/ch05/05d-data-leakage.html#怎么发现泄漏",
+    "title": "数据泄漏",
+    "section": "怎么发现泄漏",
+    "text": "怎么发现泄漏\n\n\n\n信号\n说明\n\n\n\n\n验证分数好得可疑\n比同类问题的合理水平高出一大截\n\n\n分数高得离谱（0.99+）\n真实的业务问题很少有这种数字\n\n\n上线后断崖式下跌\n这是泄漏的典型症状\n\n\n某个特征重要得异常\n单独一个特征的权重远超其他所有\n\n\n\n第一条最关键。当你觉得”这个结果太好了”的时候，先怀疑泄漏，再高兴。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "数据泄漏"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05d-data-leakage.html#本章小结",
+    "href": "part1-ml/ch05/05d-data-leakage.html#本章小结",
+    "title": "数据泄漏",
+    "section": "本章小结",
+    "text": "本章小结\n\n\n\n概念\n一句话\n\n\n\n\n为什么要留出数据\n训练误差只证明”记住了”\n\n\n三个集合\n训练调参数，验证选模型，测试只用一次\n\n\n分层抽样\n类别不平衡时必需\n\n\n交叉验证\n每个样本都当过一次验证集，比单次划分稳得多\n\n\n数据泄漏\n验证集信息渗进训练，分数被系统性高估\n\n\n铁律\n凡是”从数据算参数”的操作，只能在训练集上做",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "数据泄漏"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05b-splitting.html",
+    "href": "part1-ml/ch05/05b-splitting.html",
+    "title": "怎么划分数据",
+    "section": "",
+    "text": "最常见的三种：\n\n\n\n数据量\n训练\n验证\n测试\n\n\n\n\n小（几千条以内）\n60%\n20%\n20%\n\n\n中\n80%\n10%\n10%\n\n\n大（百万级）\n98%\n1%\n1%\n\n\n\n数据越多，验证集的比例可以越小——因为 1% 的绝对数量也够多了。\n\n\n\n\n\n\n提示验证集到底要多大\n\n\n\n比”比例”更实用的标准是绝对数量。\n验证集至少要几百个样本，误差估计才勉强稳定。如果只有几十个，那个数字本身就有很大的随机波动，别当真。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "怎么划分数据"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05b-splitting.html#比例",
+    "href": "part1-ml/ch05/05b-splitting.html#比例",
+    "title": "怎么划分数据",
+    "section": "",
+    "text": "最常见的三种：\n\n\n\n数据量\n训练\n验证\n测试\n\n\n\n\n小（几千条以内）\n60%\n20%\n20%\n\n\n中\n80%\n10%\n10%\n\n\n大（百万级）\n98%\n1%\n1%\n\n\n\n数据越多，验证集的比例可以越小——因为 1% 的绝对数量也够多了。\n\n\n\n\n\n\n提示验证集到底要多大\n\n\n\n比”比例”更实用的标准是绝对数量。\n验证集至少要几百个样本，误差估计才勉强稳定。如果只有几十个，那个数字本身就有很大的随机波动，别当真。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "怎么划分数据"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05b-splitting.html#随机划分",
+    "href": "part1-ml/ch05/05b-splitting.html#随机划分",
+    "title": "怎么划分数据",
+    "section": "随机划分",
+    "text": "随机划分\n最简单：打乱顺序，按比例切开。\nimport numpy as np\nrng = np.random.default_rng(0)\nidx = rng.permutation(len(X))\nn_tr, n_va = int(0.6*len(X)), int(0.2*len(X))\ntr = idx[:n_tr]\nva = idx[n_tr:n_tr+n_va]\nte = idx[n_tr+n_va:]\n\n\n\n\n\n\n警告一个隐蔽的坑：数据本来就有顺序\n\n\n\n如果数据文件是按时间、按类别、按地区排好的，直接切前 60% 做训练会出事。\n比如一份按时间排好的销售记录：前 60% 是上半年，后 20% 是年底。模型只学过上半年，却要在”双十一”上考试。\n必须先打乱，或者按时间正着切（用过去预测未来，这在时间序列里是必须的）。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "怎么划分数据"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05b-splitting.html#分层抽样",
+    "href": "part1-ml/ch05/05b-splitting.html#分层抽样",
+    "title": "怎么划分数据",
+    "section": "分层抽样",
+    "text": "分层抽样\n类别不平衡时，随机划分可能出大问题。\n假设 1000 个样本里有 30 个正类（3%）。随机抽 200 个做验证集，正类的期望数量是 6 个——但波动很大，可能抽到 0 个，也可能抽到 15 个。\n抽到 0 个，验证集上根本没法评估分类效果。\n分层抽样（stratified sampling）的做法是：按类别分别划分，保证每个集合里的类别比例和原始一致。\nfrom sklearn.model_selection import train_test_split\nX_tr, X_te, y_tr, y_te = train_test_split(\n    X, y, test_size=0.2, stratify=y, random_state=0)\n那个 stratify=y 就是分层。分类问题几乎都该加。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "怎么划分数据"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05b-splitting.html#小数据的困境",
+    "href": "part1-ml/ch05/05b-splitting.html#小数据的困境",
+    "title": "怎么划分数据",
+    "section": "小数据的困境",
+    "text": "小数据的困境\n假设你只有 20 个样本。按 60/20/20 划分：训练集 12 个，验证集 4 个，测试集 4 个。\n用 4 个样本算出来的误差，能信吗？\n显然不能。换一种划分方式，这 4 个样本一换，误差数字可能翻倍。\n这就很尴尬：数据少的时候，恰恰最需要可靠的评估，但留出法给出的估计最不靠谱。\n\n\n\n\n\n\n重要矛盾在这\n\n\n\n\n留出的验证集越大，估计越可靠，但训练数据越少\n留出的验证集越小，训练数据越多，但估计越不可靠\n\n交叉验证就是为了跳出这个矛盾——它让每个样本都当过一次验证集，同时不减少训练数据的总量。\n下一课讲。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "怎么划分数据"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04e-exercises.html",
+    "href": "part1-ml/ch04/04e-exercises.html",
+    "title": "习题",
+    "section": "",
+    "text": "模型、损失、梯度、更新，四件套：\nf_i = g(w^{\\top}x_i + b) = \\frac{1}{1+e^{-(w^{\\top}x_i+b)}}\nJ(w,b) = -\\frac{1}{m}\\sum_{i=1}^{m}\\left[\\,y_i\\log f_i + (1-y_i)\\log(1-f_i)\\,\\right]\n\\frac{\\partial J}{\\partial w_j} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i-y_i\\bigr)x_{ij}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i-y_i\\bigr)\nw_j \\leftarrow w_j - \\alpha\\frac{\\partial J}{\\partial w_j}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04e-exercises.html#用到的公式",
+    "href": "part1-ml/ch04/04e-exercises.html#用到的公式",
+    "title": "习题",
+    "section": "",
+    "text": "模型、损失、梯度、更新，四件套：\nf_i = g(w^{\\top}x_i + b) = \\frac{1}{1+e^{-(w^{\\top}x_i+b)}}\nJ(w,b) = -\\frac{1}{m}\\sum_{i=1}^{m}\\left[\\,y_i\\log f_i + (1-y_i)\\log(1-f_i)\\,\\right]\n\\frac{\\partial J}{\\partial w_j} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i-y_i\\bigr)x_{ij}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i-y_i\\bigr)\nw_j \\leftarrow w_j - \\alpha\\frac{\\partial J}{\\partial w_j}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04e-exercises.html#一句话总结",
+    "href": "part1-ml/ch04/04e-exercises.html#一句话总结",
+    "title": "习题",
+    "section": "一句话总结",
+    "text": "一句话总结\n\n\n\n现象\n原因\n\n\n\n\n起点损失恒等于 \\log 2\n预测全 0.5，每个样本都罚 \\log 2\n\n\n两个 w 的梯度量级不同\n梯度里乘了特征本身，特征尺度不同\n\n\n不缩放会发散\n\\alpha 被最大的那个特征尺度卡住\n\n\ng 不影响决策边界\n边界是 z=0，与 g 无关",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html",
+    "href": "part1-ml/ch04/04c-cross-entropy.html",
+    "title": "逻辑回归的代价函数",
+    "section": "",
+    "text": "样本\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n\n\n\n\n大小 (cm)\n1.0\n1.5\n2.0\n2.2\n2.8\n3.0\n3.5\n4.0\n4.5\n5.0\n5.5\n6.5\n7.0\n\n\n标签 y\n0\n0\n0\n0\n0\n0\n0\n1\n1\n1\n1\n1\n1\n\n\n\ny=1 是良性，y=0 是恶性。模型是上一课的：\nf(x) = g(wx + b) = \\frac{1}{1 + e^{-(wx+b)}}\n现在缺的是：怎么衡量它错了多少。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#回到这批肿瘤数据",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#回到这批肿瘤数据",
+    "title": "逻辑回归的代价函数",
+    "section": "",
+    "text": "样本\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n\n\n\n\n大小 (cm)\n1.0\n1.5\n2.0\n2.2\n2.8\n3.0\n3.5\n4.0\n4.5\n5.0\n5.5\n6.5\n7.0\n\n\n标签 y\n0\n0\n0\n0\n0\n0\n0\n1\n1\n1\n1\n1\n1\n\n\n\ny=1 是良性，y=0 是恶性。模型是上一课的：\nf(x) = g(wx + b) = \\frac{1}{1 + e^{-(wx+b)}}\n现在缺的是：怎么衡量它错了多少。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#先照搬上一章的做法",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#先照搬上一章的做法",
+    "title": "逻辑回归的代价函数",
+    "section": "先照搬上一章的做法",
+    "text": "先照搬上一章的做法\n第 2 章用的是平方误差。它在别处确实好用——顺着它的导数走就能滑到最低点，这也是第 2 章能顺利收敛的原因。既然如此，先试试直接搬过来：\nJ(w,b) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(f(x_i) - y_i\\right)^2\n先把 b 按住不放（令 b = 0），只看 J 随 w 怎么变：\n\n\n\n线性模型配平方误差：一个光滑的碗\n\n\n漂亮的碗形，只有一个最低点，梯度下降怎么走都会滑到底。这就是第 2 章能顺利收敛的原因。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#加上激活函数之后",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#加上激活函数之后",
+    "title": "逻辑回归的代价函数",
+    "section": "加上激活函数之后",
+    "text": "加上激活函数之后\n现在把 g 套上去，模型变成 f(x) = g(wx)，还是那个平方误差。\n形状就变了：\n\n\n\n左：线性回归的平方误差，一个坑。右：逻辑回归的平方误差，坑坑洼洼\n\n\n左边是第 2 章熟悉的碗形——不管从哪儿出发，顺着坡往下走总能到底。\n右边是同一个平方误差，只是模型里多套了一层 g。曲线开始起伏，出现了好几个浅坑。梯度下降只认”眼前哪边是下坡”，掉进浅坑就停下了。\n\n\n\n\n\n\n注记这不是画出来吓人的\n\n\n\n真实数据上我跑了一遍：同一份损失、同一套梯度下降，从 144 个不同的起点出发——\n\n有的落到 J = 0.0118 的深谷；\n有的卡在 J = 0.2308 的平坦区，几乎没动。\n\n结局差了二十倍，只因为出发点不同。\n\n\n我们需要一个地形更好的代价函数。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#换一个损失函数",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#换一个损失函数",
+    "title": "逻辑回归的代价函数",
+    "section": "换一个损失函数",
+    "text": "换一个损失函数\n\n\n\n\n\n\n注记先分清两个词\n\n\n\n后面的公式会一直用到这两个词，先把它们分开：\n\n\n\n词\n管什么\n\n\n\n\nLoss（损失）\n一个样本错得有多离谱\n\n\nCost（代价）\n全部样本的 loss 平均下来\n\n\n\n比如”这一张片子判错了，罚 4.6”是 loss；“训练集上 13 张片子平均罚 0.03”是 cost。\n这一章先用 L 定义单样本的 loss，最后再把它们平均成 cost J。\n\n\n思路变了：不去和”预测值减真值的平方”较劲，而是直接衡量”模型对这个标签的预测有多不合理”。\n先只考虑一个样本，定义：\nL\\bigl(f(x),\\ y\\bigr)\n它读作”当真实标签是 y、模型预测是 f(x) 时，这个预测有多糟”。\n分两种情况：\nL = \\begin{cases} -\\log\\bigl(f(x)\\bigr) & y = 1 \\\\[4pt] -\\log\\bigl(1 - f(x)\\bigr) & y = 0 \\end{cases}",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#为什么偏偏是--log",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#为什么偏偏是--log",
+    "title": "逻辑回归的代价函数",
+    "section": "为什么偏偏是 -\\log",
+    "text": "为什么偏偏是 -\\log\n这个选择不是拍脑袋。看它长什么样：\n\n\n\n两条 -log 曲线\n\n\n先看绿色那条（y=1 时，L = -\\log f）：\n\n\n\n模型预测 f\n这个预测有多糟\nL\n\n\n\n\n0.99\n几乎确定是良性，判对了\n0.010\n\n\n0.90\n判对了\n0.105\n\n\n0.50\n完全在蒙\n0.693\n\n\n0.10\n判错了\n2.303\n\n\n0.01\n错得很自信\n4.605\n\n\n\n三个特点，正好是我们想要的：\n一、判对了损失接近 0。 f \\to 1 时 -\\log f \\to 0。\n二、判错了损失迅速变大。 f 从 0.1 降到 0.01，损失从 2.3 涨到 4.6。\n三、越自信地错，罚得越狠，而且没有上限。 f \\to 0 时 -\\log f \\to +\\infty。\n\n\n\n\n\n\n提示和平方误差对比一下同一个点\n\n\n\nf = 0.01 但真实是 1：\n\n交叉熵：-\\log(0.01) = 4.61\n平方误差：(0.01-1)^2 = 0.98\n\n平方误差封顶就是 1，再错也不会更多。交叉熵不封顶——模型越嘴硬，代价越大。\n这就是”逼模型不敢乱自信”的机制。\n\n\n橙色那条（y=0 时）是绿色的镜像：f \\to 0 时损失趋近 0，f \\to 1 时趋向无穷。含义一样，只是方向反过来。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#拿真实数据验一验",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#拿真实数据验一验",
+    "title": "逻辑回归的代价函数",
+    "section": "拿真实数据验一验",
+    "text": "拿真实数据验一验\n这个 L 真的能描述”错多少”吗？用上一课拟合好的 w = 5.987、b = -22.375 算三个样本：\n\n\n\n\n\n\n\n\n\n\n样本\ny\n预测 f\nL\n这个值合理吗\n\n\n\n\n4.0 cm\n1\n0.828\n0.189\n判对了但不算自信，损失小 ✓\n\n\n2.0 cm\n0\n0.00003\n≈ 0.00003\n判对了且非常自信，几乎不罚 ✓\n\n\n1.0 cm（假设是良性）\n1\n7.5\\times10^{-8}\n16.39\n错得离谱，重罚 ✓\n\n\n\n第三行是假设的：1 cm 的肿瘤模型会判成恶性，但如果它其实是良性，损失就是 16.39。\n\n\n\n\n\n\n注记那个 16.39 正好等于 |z|\n\n\n\n这里 z = 5.987 \\times 1.0 - 22.375 = -16.388，损失 16.3880。\n不是巧合：\n-\\log g(z) = \\log(1 + e^{-z}) \\approx -z = |z| \\quad (z \\text{ 很负时})\n“自信地判错”的损失，正好等于你把样本推到边界以外的距离。 推得越远罚得越狠，这个设计很合理。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#把它推广到全部样本",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#把它推广到全部样本",
+    "title": "逻辑回归的代价函数",
+    "section": "把它推广到全部样本",
+    "text": "把它推广到全部样本\n单个样本的 L 定义好了，整个训练集的损失就是把它们平均：\nJ(w,b) = \\frac{1}{m}\\sum_{i=1}^{m} L\\bigl(f(x_i),\\ y_i\\bigr)\n把分段形式代进去：\nJ(w,b) = -\\frac{1}{m}\\sum_{i=1}^{m}\\left[\\,y_i \\log f(x_i) + (1-y_i)\\log\\bigl(1 - f(x_i)\\bigr)\\,\\right]\n这就是交叉熵（cross-entropy）损失。\n\n\n\n\n\n\n提示换完之后，地形是什么样\n\n\n\n回到前面那个”不同起点、不同结局”的实验，把损失换成交叉熵重跑一遍——所有起点都会落到同一个地方。\n新的代价函数没有平台、没有局部极小、没有断点。这正是它能顺利跑梯度下降的原因。\n但要注意一点：它不是平方误差那种对称的碗。\n碗的底部是平的，越接近最优点梯度越小，最后几乎走不动。交叉熵的曲线不对称——靠近最优点时还留着一定斜率，梯度不会在快到底时消失。\n这个差别在训练后期非常关键。\n\n\n\n\n\n\n\n\n注记那个合并式是怎么来的\n\n\n\n分段形式写着别扭——每次求值都要先判断 y 是 0 还是 1。\n合并的技巧是：y_i \\log f + (1-y_i)\\log(1-f) 在 y=1 时第二项被乘 0 消掉，只剩 \\log f；y=0 时第一项被消掉，只剩 \\log(1-f)。\n一个式子覆盖两种情况，写代码时可以不用 if 分支。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#附一这个损失是怎么想出来的可跳读",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#附一这个损失是怎么想出来的可跳读",
+    "title": "逻辑回归的代价函数",
+    "section": "附一：这个损失是怎么想出来的（可跳读）",
+    "text": "附一：这个损失是怎么想出来的（可跳读）\n上面是”先给答案再解释”。如果你想看它是怎么被推出来的，往下读。\n\n把模型当成概率\nP(y=1 \\mid x) = f(x), \\qquad P(y=0 \\mid x) = 1 - f(x)\n\n\n一个式子写两种结果\nP(y \\mid x) = f^{\\,y}\\bigl(1-f\\bigr)^{1-y}\n\n\n\ny\nf^{\\,y}\n(1-f)^{1-y}\n乘积\n\n\n\n\n1\nf\n1\nf ✓\n\n\n0\n1\n1-f\n1-f ✓\n\n\n\n\n\n让数据最可能出现\n如果 m 个样本互相独立，“同时看到这些标签”的概率是连乘：\nL_{\\text{似然}}(w,b) = \\prod_{i=1}^{m} f_i^{\\,y_i}\\bigl(1-f_i\\bigr)^{1-y_i}\n最大似然估计就是：找参数让这个乘积最大。\n连乘没法算（m 一大就下溢成 0），取对数变成连加：\n\\ell(w,b) = \\sum_{i=1}^{m}\\left[\\,y_i\\log f_i + (1-y_i)\\log(1-f_i)\\,\\right]\n\\log 单调递增，所以最大化 \\ell 和最大化似然是同一个参数——只是换了个坐标看同一座山。\n梯度下降要求最小化，于是取负、除以 m：\nJ(w,b) = -\\frac{1}{m}\\sum_{i=1}^{m}\\left[\\,y_i\\log f_i + (1-y_i)\\log(1-f_i)\\,\\right]\n和上面那个式子一模一样。\n所以：最大似然 → 对数似然 → 交叉熵。 这个损失不是凭空定义的，它是”让数据最可能出现”这个要求的直接结果。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#附二梯度怎么求可跳读",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#附二梯度怎么求可跳读",
+    "title": "逻辑回归的代价函数",
+    "section": "附二：梯度怎么求（可跳读）",
+    "text": "附二：梯度怎么求（可跳读）\n有了 J，下一步要能算它对 w 的导数。结果干净得出奇。\n先对单个样本求。记 z = wx + b，f = g(z)。\n损失对 f 求导（分段形式直接求）：\n\\frac{\\partial L}{\\partial f} = -\\frac{y}{f} + \\frac{1-y}{1-f}\nf 对 z 求导，用上一课那个漂亮的性质 g'(z) = g(z)\\bigl(1-g(z)\\bigr)：\n\\frac{\\partial f}{\\partial z} = f(1-f)\n两者相乘（链式法则）：\n\\frac{\\partial L}{\\partial z} = \\left(-\\frac{y}{f} + \\frac{1-y}{1-f}\\right) \\cdot f(1-f)\n展开：\n= -y(1-f) + (1-y)f = -y + yf + f - yf = \\boxed{f - y}\n\n\n\n\n\n\n重要这个结果重要得值得单独看一眼\n\n\n\n\\frac{\\partial L}{\\partial z} = f - y\n就是”预测值减真实值”。\n那个 awkward 的 -\\frac{y}{f} + \\frac{1-y}{1-f}、那个 f(1-f)，全部约掉了，只剩这个东西。\n这不是巧合——是因为损失函数选得和 g 的导数相配。如果当初选了平方误差配 g，求出来的导数会拖着一堆 g(1-g) 的尾巴，越靠近两端越小，梯度消失。\n\n\n再往回传到参数上（\\dfrac{\\partial z}{\\partial w} = x，\\dfrac{\\partial z}{\\partial b} = 1）：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i - y_i\\bigr)x_i, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i - y_i\\bigr)\n看起来和线性回归的梯度一模一样——因为残差那一项长得一样。区别只在于这里的 f_i 是 Sigmoid 的输出，不是一条直线。\n\n\n\n\n\n\n\n\n\n线性回归\n逻辑回归\n\n\n\n\n预测\nf = wx+b\nf = g(wx+b)\n\n\n损失\n\\frac{1}{2m}\\sum(f-y)^2\n-\\frac{1}{m}\\sum[y\\log f + (1-y)\\log(1-f)]\n\n\n\\partial L/\\partial z\nf - y\nf - y\n\n\n最终梯度\n\\frac{1}{m}\\sum(f-y)x\n\\frac{1}{m}\\sum(f-y)x\n\n\n\n同一个梯度公式。 下一课就靠它做梯度下降。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#核心概念",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#核心概念",
+    "title": "逻辑回归的代价函数",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\nLoss vs Cost\nLoss 管单个样本，Cost 管全部样本的平均\n\n\n为什么不用平方误差\n配 g 之后地形变差：不同起点会卡在平坦区，损失差二十倍\n\n\n单样本损失 L(f,y)\ny=1 时 -\\log f；y=0 时 -\\log(1-f)\n\n\n为什么是 -\\log\n判对趋于 0、判错迅速变大、自信地错无上限\n\n\n交叉熵\nJ = -\\frac{1}{m}\\sum[y\\log f + (1-y)\\log(1-f)]\n\n\n合并式的用处\n一个式子覆盖两种情况，代码不用写分支\n\n\n从哪来\n伯努利似然 → 连乘 → 取对数 → 取负平均\n\n\n梯度\n\\partial J/\\partial w = \\frac{1}{m}\\sum(f_i-y_i)x_i，和线性回归同形\n\n\n地形\n不是碗，但没有平台、没有局部极小、没有断点",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04c-cross-entropy.html#下一课",
+    "href": "part1-ml/ch04/04c-cross-entropy.html#下一课",
+    "title": "逻辑回归的代价函数",
+    "section": "下一课",
+    "text": "下一课\n梯度有了，下一课把逻辑回归的梯度下降完整跑一遍——顺便看它收敛得有多快。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的代价函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html",
+    "href": "part1-ml/ch04/04a-why-not-linear.html",
+    "title": "线性回归为什么做不了分类",
+    "section": "",
+    "text": "给出一张肿瘤的检查数据，判断它是良性还是恶性。\n先把问题简化到最小：只有一个特征——肿瘤大小（cm），标签只有两种：\n\n\n\n标签\n含义\n\n\n\n\ny = 1\n良性\n\n\ny = 0\n恶性\n\n\n\n现有 13 个已确诊的样本：\n\n\n\n横轴肿瘤大小，纵轴标签。所有点都落在 y=0 或 y=1 这两条水平线上\n\n\n注意这张图最关键的一点：所有点只可能在两条线上（y=0 或 y=1）。中间那片区域是空的——一个肿瘤不可能”70% 良性”。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#一个具体的目标",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#一个具体的目标",
+    "title": "线性回归为什么做不了分类",
+    "section": "",
+    "text": "给出一张肿瘤的检查数据，判断它是良性还是恶性。\n先把问题简化到最小：只有一个特征——肿瘤大小（cm），标签只有两种：\n\n\n\n标签\n含义\n\n\n\n\ny = 1\n良性\n\n\ny = 0\n恶性\n\n\n\n现有 13 个已确诊的样本：\n\n\n\n横轴肿瘤大小，纵轴标签。所有点都落在 y=0 或 y=1 这两条水平线上\n\n\n注意这张图最关键的一点：所有点只可能在两条线上（y=0 或 y=1）。中间那片区域是空的——一个肿瘤不可能”70% 良性”。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#先用老办法试试",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#先用老办法试试",
+    "title": "线性回归为什么做不了分类",
+    "section": "先用老办法试试",
+    "text": "先用老办法试试\n第 2 章那套是现成的：找一个 f(x) = wx + b，用最小二乘拟合这些点。\n拟合出来的直线就是左图那条绿色的线。它大致是这个方向：\n\n肿瘤小的地方，预测值接近 0（恶性）\n肿瘤大的地方，预测值接近 1（良性）\n\n看起来挺合理。但有两个问题。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#问题一它会给出荒谬的预测",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#问题一它会给出荒谬的预测",
+    "title": "线性回归为什么做不了分类",
+    "section": "问题一：它会给出荒谬的预测",
+    "text": "问题一：它会给出荒谬的预测\n线性回归的输出没有任何边界。左图里，当肿瘤大小到 7-8 厘米时，直线的预测值已经超过 1 了；往左推，预测值会变成负数。\n可是”良性程度 1.3”是什么意思？“−0.2 的良性概率”又是什么？\n概率只能落在 [0, 1]。线性回归不知道这件事，它只负责让平方误差最小。\n\n\n\n\n\n\n注记一个自然的补救想法\n\n\n\n“那就取个阈值呗——预测值大于 0.5 判为良性，小于 0.5 判为恶性。”\n这个想法是对的，而且逻辑回归最后也会这么做。\n但它救不了线性回归，因为下面这个问题。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#问题二几个新样本就能毁掉整条边界",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#问题二几个新样本就能毁掉整条边界",
+    "title": "线性回归为什么做不了分类",
+    "section": "问题二：几个新样本就能毁掉整条边界",
+    "text": "问题二：几个新样本就能毁掉整条边界\n假设医院又送来 3 个样本，都是很大的肿瘤（12、14、16 厘米），而且都是良性。\n数据只多了 3 个点。重新拟合：\n\n\n\n同一个问题，右边多加了 3 个橙色方块\n\n\n对比两条绿线：\n\n\n\n\n原始数据\n加 3 个点后\n\n\n\n\n斜率 w\n0.2353\n0.0766（降了 67%）\n\n\n截距 b\n−0.4163\n0.1293\n\n\n0.5 阈值处的边界\nx = 3.89 cm\nx = \\mathbf{4.84} cm\n\n\n\n判定的分界线整个右移了差不多 1 厘米。\n这意味着什么？原来一个 4.2 厘米的肿瘤会被判为良性（因为 4.2 &gt; 3.89）；现在同样的 4.2 厘米，因为 4.2 &lt; 4.84，会被判为恶性。\n\n\n\n\n\n\n警告这就是问题所在\n\n\n\n那 3 个新样本和这个 4.2 厘米的肿瘤毫无关系——它们在图的另一端，离得很远。\n已经确诊的样本，凭什么因为别人的数据被改变诊断？\n这在直觉上就说不通。而现实中样本会一直增加，模型的判断跟着漂来漂去，这是不可接受的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#为什么会这样",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#为什么会这样",
+    "title": "线性回归为什么做不了分类",
+    "section": "为什么会这样",
+    "text": "为什么会这样\n根源在于线性回归用的损失函数：\nJ = \\frac{1}{2m}\\sum\\left(\\hat{y} - y\\right)^2\n平方误差对”离得远”的预测惩罚极重。\n那 3 个 12-16 厘米的样本，如果保持原来的斜率，预测值会是 2.4、2.9、3.4——残差有 1.4 到 2.4 那么大，平方之后就是 2 到 6。\n而剩下 13 个点的残差都在 0 到 1 之间，平方后不到 1。\n几个远端的点，靠平方误差就能把整条线拽过去。 线性回归为了迁就它们，只能把斜率压小、整条线压平。\n这不是参数没调好，是模型本身的性格。\n\n\n\n\n\n\n注记更根本的一点：平方误差在分类问题上本身就问错了问题\n\n\n\n分类只关心一件事：预测值在 0.5 的哪一边。\n假设 y = 1，模型预测 0.9 和预测 3.7，在分类意义上完全等价——都判对了。\n但平方误差认为预测 3.7 更差（(3.7-1)^2 = 7.29 对 (0.9-1)^2 = 0.01），会拼命把它拉回来。这个”努力”不仅没用，还会破坏已经学好的边界。\n损失函数和任务目标不一致，这是更深的病根。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#所以我们想要什么",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#所以我们想要什么",
+    "title": "线性回归为什么做不了分类",
+    "section": "所以我们想要什么",
+    "text": "所以我们想要什么\n从上面两个问题反推，分类模型的输出应该满足：\n\n\n\n需求\n为什么\n\n\n\n\n输出限制在 (0, 1)\n才能当概率解释\n\n\n不能超出这个范围\n否则”1.3 的良性概率”没有意义\n\n\n对远离边界的样本不敏感\n一个 16 厘米的良性肿瘤不该翻动边界\n\n\n输出是平滑的 S 形\n从”确定恶性”平滑过渡到”确定良性”\n\n\n\n前三条 f = wx + b 一条都给不了。\n第四条指的是形状：我们希望预测值随着肿瘤变大，从 0 慢慢爬升到 1，而不是像直线那样冲过头再冲回来。中间在某个点附近快速切换——那条分界线才是真正该待的地方。\n\n\n\n\n\n\n提示这种形状叫 Sigmoid\n\n\n\n它的图像是一条 S 形曲线：两头无限逼近 0 和 1，中间陡峭。\n不管输入多大或多小，输出永远落在 (0, 1) 里面——永远不会超出范围。\n而且它对远处的点天然不敏感：输入从 12 变成 16，输出可能只是从 0.99 变成 0.999，几乎不动。那 3 个远端样本再也拽不动边界了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#逻辑回归",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#逻辑回归",
+    "title": "线性回归为什么做不了分类",
+    "section": "逻辑回归",
+    "text": "逻辑回归\n把上面这些需求装进一个算法，就是逻辑回归（logistic regression）。\n\n\n\n\n\n\n重要别看名字里有”回归”\n\n\n\n它是分类算法，不是回归。\n名字是历史遗留问题——因为它内部确实还算了 wx + b，只是外面套了一层把结果压到 (0,1) 的函数。\n\n\n它的工作方式大概是：\n\n内部照旧算 z = wx + b，这一步和线性回归一模一样\n用 Sigmoid 把 z 压到 (0, 1)：z 很大时输出接近 1，很小时接近 0\n输出的这个数，解释为”属于良性类的概率”\n拿 0.5 当阈值，得到最终判断：\\hat{y} = 1 或 0\n\n所以它给你的不是一个生硬的 0/1，而是一个有把握程度的概率——“这个肿瘤有 87% 的概率是良性”，比单纯的”良性”信息量大得多。\n\n\n\n\n线性回归\n逻辑回归\n\n\n\n\n输出范围\n(-\\infty, +\\infty)\n(0, 1)\n\n\n输出含义\n一个数\n概率\n\n\n典型损失\n平方误差\n交叉熵\n\n\n是否受远端样本影响\n影响很大\n影响很小\n\n\n用途\n回归\n分类",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04a-why-not-linear.html#下一课要解决什么",
+    "href": "part1-ml/ch04/04a-why-not-linear.html#下一课要解决什么",
+    "title": "线性回归为什么做不了分类",
+    "section": "下一课要解决什么",
+    "text": "下一课要解决什么\n这一课只回答了”为什么不能直接用线性回归”。还剩三个问题：\n\nSigmoid 具体长什么样，公式是什么\n有了新模型，损失函数该怎么定——为什么不能用平方误差\n梯度怎么求\n\n下一课从 Sigmoid 开始。\n\n\n\n\n\n\n注记数据说明\n\n\n\n本课用的 13 个样本是编的，但规律来自真实的医学直觉：恶性与良性在大小上有区分度，只是不绝对。\n真实的医学数据里，单靠大小远远不够——所以现实中的模型会用到几十个特征，而”多特征”这件事第 3 章已经解决了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "线性回归为什么做不了分类"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html",
+    "href": "part1-ml/ch03/03c-feature-scaling.html",
+    "title": "特征缩放",
+    "section": "",
+    "text": "第 2 章结尾留下一个怪现象：梯度下降跑二十步，w 从 1.0 走到了 3.68（涨了 2.68），而 b 从 0 只走到 0.026。\n这一课把它彻底解决。\n先看一眼损失曲面的形状。横轴 w、纵轴 b，越暗的地方损失越低：\n\n\n\n不缩放时的 J(w,b)：一条又窄又长的斜沟\n\n\n那条蓝线是梯度下降走过的路。注意它在做什么：横着走，b 一动不动。\n等高线被拉成了极细的斜条——这就是病态（ill-conditioned）。沿着沟底（长轴方向）走一步只能前进一点点，而垂直于沟底（短轴方向）稍微用力就冲上坡了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#问题出在哪",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#问题出在哪",
+    "title": "特征缩放",
+    "section": "",
+    "text": "第 2 章结尾留下一个怪现象：梯度下降跑二十步，w 从 1.0 走到了 3.68（涨了 2.68），而 b 从 0 只走到 0.026。\n这一课把它彻底解决。\n先看一眼损失曲面的形状。横轴 w、纵轴 b，越暗的地方损失越低：\n\n\n\n不缩放时的 J(w,b)：一条又窄又长的斜沟\n\n\n那条蓝线是梯度下降走过的路。注意它在做什么：横着走，b 一动不动。\n等高线被拉成了极细的斜条——这就是病态（ill-conditioned）。沿着沟底（长轴方向）走一步只能前进一点点，而垂直于沟底（短轴方向）稍微用力就冲上坡了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#为什么会这样",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#为什么会这样",
+    "title": "特征缩放",
+    "section": "为什么会这样",
+    "text": "为什么会这样\n看偏导的公式：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum\\left(\\hat{y}-y\\right)\\cdot x, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum\\left(\\hat{y}-y\\right)\n两者唯一的区别，就是前者乘了一个 x。\n这批房子的面积是 45 到 171，平均值大约 104。所以：\n\\left|\\frac{\\partial J}{\\partial w}\\right| \\approx 104 \\times \\left|\\frac{\\partial J}{\\partial b}\\right|\n梯度的大小，被特征本身的量级直接放大了。\n而更新时，两个参数用的是同一个 \\alpha：\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n于是问题来了：\n\n\\alpha 按”能让 w 稳定”的要求定 → 对 b 来说太小，b 几乎不动\n\\alpha 按”能让 b 前进”的要求定 → 对 w 来说太大，w 直接震荡甚至爆炸\n\n没有一个 \\alpha 能同时满足两边。 这就是量纲不对齐的代价。\n\n\n\n\n\n\n注记换一句更本质的说法\n\n\n\nx 的量级决定了 w 该有多大：\n\n若 x \\approx 100，则 w 应该是 0.0x 这个量级\n若 x \\approx 1，则 w 应该是 x 这个量级\n若 x \\approx 0.01，则 w 得是几百\n\n参数该有的”合理量级”差了好几个数量级，但你用的是一个统一的步长。步长是为某个特定量级设计的，别的量级自然就水土不服。\n表现出来就是：损失降一阵、卡住、抖两下、再降一点——某些维度来回摆，整体进展极慢。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#缩放的思路",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#缩放的思路",
+    "title": "特征缩放",
+    "section": "缩放的思路",
+    "text": "缩放的思路\n让所有特征的数值范围拉到同一个量级，于是所有参数该有的量级也就对齐了，一个 \\alpha 就够用。\n拿这批面积做标准化（减均值、除标准差）之后再看：\n\n\n\n标准化之后的 J(w,b)：等高线接近正圆\n\n\n现在等高线几乎是同心圆，梯度下降（蓝线）直着走向圆心，不再横着爬。\n\n\n\n\n\n\n提示这张图里藏着一个惊人的事实\n\n\n\n标准化之后，我实测跑了一次，\\alpha = 1.0：\n起点      J = 38435.79\n一步之后  J =   144.58   ← 正好是最优值\n一步到位。 不是近似，是精确到达。\n原因后面会解释（和 Hessian 有关），现在先记住结论：形状对的时候，梯度下降可以是神速的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#四种常见的缩放方式",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#四种常见的缩放方式",
+    "title": "特征缩放",
+    "section": "四种常见的缩放方式",
+    "text": "四种常见的缩放方式\n设某个特征在训练集上的取值为 x^{(1)}, \\dots, x^{(m)}。\n\n一、除以最大值\nx' = \\frac{x}{\\max(x)}\n最简单，一行代码。结果落在 (0, 1]（如果原值全是正的）。\n缺点：\\max 是个极端值，一个离群点就能毁掉整个缩放。而且它不会把数据中心化。\n\n\n二、均值归一化\nx' = \\frac{x - \\text{mean}(x)}{\\max(x) - \\min(x)}\n先减均值（中心移到 0 附近），再除以极差。\n结果大致落在 (-0.5, 0.5)。比第一种好，因为中心化了——但同样受极值影响。\n\n\n三、标准化（Z-score）\nx' = \\frac{x - \\text{mean}(x)}{\\text{std}(x)}\n减均值、除标准差。结果均值 0、标准差 1。\n这是最常用的一种。原因在下一节的数据里。\n\n\n四、Min-Max 归一化\nx' = \\frac{x - \\min(x)}{\\max(x) - \\min(x)}\n结果严格落在 [0, 1]。和均值归一化的区别是没有减均值，所以区间是 [0,1] 而不是 (-0.5, 0.5)。\n\n\n\n\n\n\n注记还有个 Robust Scaling\n\n\n\nx' = \\frac{x - \\text{median}(x)}{\\text{IQR}(x)} 用中位数和四分位距，对离群点不敏感。数据里有明显异常值时用它。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#四种方式的实际差别",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#四种方式的实际差别",
+    "title": "特征缩放",
+    "section": "四种方式的实际差别",
+    "text": "四种方式的实际差别\n我把上面四种方式都用在这批数据上，算出了各自的条件数（Hessian 的最大特征值除以最小特征值，这个数字越大，山谷越扁）：\n\n\n\n方式\n条件数\n合理的 \\alpha\n收敛所需步数\n\n\n\n\n不缩放\n105196\n1.6\\times10^{-4}\n约 24 万步\n\n\n除以最大值\n39\n1.41\n约 91 步\n\n\n均值归一化\n11\n1.83\n约 26 步\n\n\n标准化 Z-score\n1\n1.00\n1 步\n\n\n\n条件数从 10 万降到 1，收敛步数从 24 万降到 1。\n\n\n\n\n\n\n注记为什么标准化的条件数是 1\n\n\n\n标准化后 x' 的均值是 0、方差是 1。Hessian 是\nH = \\begin{bmatrix} \\text{mean}(x'^2) & \\text{mean}(x') \\\\ \\text{mean}(x') & 1 \\end{bmatrix} = \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}\n正好是单位矩阵——因为均值归零让两个方向正交了，方差归一让对角元相等了。\n单位矩阵的特征值全是 1，所以条件数是 1，此时取 \\alpha = 1，更新式 \\theta \\leftarrow \\theta - 1 \\cdot (\\theta - \\theta^*) 一步就落在 \\theta^* 上。\n\n\n这就是标准化成为默认选择的原因：它不只是”把数变小”，它直接消除了参数之间的耦合。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#该选哪个",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#该选哪个",
+    "title": "特征缩放",
+    "section": "该选哪个",
+    "text": "该选哪个\n\n\n\n场景\n推荐\n理由\n\n\n\n\n默认情况、梯度下降训练\n标准化\n条件数最优，几乎总能直接用\n\n\n神经网络输入层\nMin-Max 或标准化\n图像像素要压到 [0,1]\n\n\n数据有明显离群点\nRobust\n中位数/IQR 不怕极端值\n\n\n特征有明确的物理零点\n除以最大值\n保持”0 还是 0”这个含义\n\n\n教学演示、临时实验\n除以最大值\n一行代码，够用\n\n\n\n\n\n\n\n\n\n警告两个必须知道的例外\n\n\n\n一、树模型不需要缩放。\n决策树、随机森林、GBDT、XGBoost——它们的分裂只看”这个值大于还是小于阈值”，和数值大小无关。你把面积除以 1000，树的形状一模一样。\n所以第二部分的树模型不用做这一步，别多此一举。\n二、缩放参数只能在训练集上算。\n正确的做法是：用训练集算出均值和标准差，然后把这个值原样套到验证集和测试集上。\n如果对整个数据集算均值再切分，测试集的信息就泄露进训练过程了——第 1 章那道题的坑，这里又出现一次。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#实测到底有没有用",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#实测到底有没有用",
+    "title": "特征缩放",
+    "section": "实测：到底有没有用",
+    "text": "实测：到底有没有用\n光看表不算数，跑一遍。\n同一批数据，同一条起跑线（模型都是 f = x），各自用它最好的学习率：\ndef gradient_descent(x, w0, b0, alpha, steps):\n    for _ in range(steps):\n        pred = w0*x + b0\n        err  = pred - price\n        w0 = w0 - alpha * np.mean(err * x)\n        b0 = b0 - alpha * np.mean(err)\n    return w0, b0\n\n\n\n做法\n学习率\n跑多少步\n最终损失\n\n\n\n\n不缩放\n1.6\\times10^{-4}\n5000 步\n31805.76\n\n\n标准化\n1.0\n1 步\n144.58\n\n\n\n不缩放的那一栏值得多看两眼：跑五千步，损失还在 31805，离最优的 144 差着两个数量级。\n不是代码写错了，是这个山谷太长——理论上要二十四万步。\n\n\n\n\n\n\n重要结论\n\n\n\n特征缩放不是锦上添花的技巧，是能不能跑的问题。\n同一份数据、同一个算法：\n\n不缩放：5000 步后几乎没动，还得担心发散\n标准化：一步到位\n\n第 2 章那个”b 走得太慢”的困惑，到这里就该彻底清楚了：不是 b 懒，是 w 的尺子太长。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#核心概念",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#核心概念",
+    "title": "特征缩放",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n概念\n内容\n\n\n\n\n特征缩放\n把各特征的数值范围拉到同一量级\n\n\n病态\n损失曲面被拉成细长斜沟，梯度下降沿沟缓慢爬行\n\n\n条件数\nHessian 最大/最小特征值之比；越大越病态\n\n\n根因\n一个 \\alpha 要同时服务量级悬殊的多个参数\n\n\n除以最大值\n最简单，x/\\max；受离群点影响\n\n\n均值归一化\n(x-\\mu)/(\\max-\\min)，中心化 + 极差缩放\n\n\n标准化\n(x-\\mu)/\\sigma，最常用，条件数可降到 1\n\n\nMin-Max\n(x-\\min)/(\\max-\\min)，落在 [0,1]，适合网络输入\n\n\nRobust\n(x-\\text{median})/\\text{IQR}，抗离群点\n\n\n树模型\n不需要缩放，分裂只比较大小\n\n\n数据泄漏\n缩放参数只能在训练集上算",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03c-feature-scaling.html#下一课",
+    "href": "part1-ml/ch03/03c-feature-scaling.html#下一课",
+    "title": "特征缩放",
+    "section": "下一课",
+    "text": "下一课\n第 3 章的原理部分到这就齐了：多特征、向量化、梯度下降、特征缩放。下一课动手，用 sklearn 把这一整套流程跑一遍。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "特征缩放"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html",
+    "href": "part1-ml/ch03/03a-multiple-regression.html",
+    "title": "多元线性回归",
+    "section": "",
+    "text": "第 2 章只有面积一个特征。现实里房价显然不只由面积决定：\n\n\n\n房源\n面积\n楼层\n房龄\n卧室数\n离地铁\n\n\n\n\nA\n100 ㎡\n12\n3 年\n3\n400 m\n\n\nB\n100 ㎡\n1\n20 年\n2\n1200 m\n\n\n\n两套面积一样，价格很可能差几十万。只盯面积，模型永远解释不了这个差别。\n所以把特征从 1 个扩到 n 个。记第 i 个样本的 n 个特征为：\nx^{(i)} = \\left(x_1^{(i)},\\ x_2^{(i)},\\ \\dots,\\ x_n^{(i)}\\right)\n上标 (i) 是”第几个样本”，下标 j 是”第几个特征”。这两个索引别搞混。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#一个特征不够用",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#一个特征不够用",
+    "title": "多元线性回归",
+    "section": "",
+    "text": "第 2 章只有面积一个特征。现实里房价显然不只由面积决定：\n\n\n\n房源\n面积\n楼层\n房龄\n卧室数\n离地铁\n\n\n\n\nA\n100 ㎡\n12\n3 年\n3\n400 m\n\n\nB\n100 ㎡\n1\n20 年\n2\n1200 m\n\n\n\n两套面积一样，价格很可能差几十万。只盯面积，模型永远解释不了这个差别。\n所以把特征从 1 个扩到 n 个。记第 i 个样本的 n 个特征为：\nx^{(i)} = \\left(x_1^{(i)},\\ x_2^{(i)},\\ \\dots,\\ x_n^{(i)}\\right)\n上标 (i) 是”第几个样本”，下标 j 是”第几个特征”。这两个索引别搞混。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#把模型展开",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#把模型展开",
+    "title": "多元线性回归",
+    "section": "把模型展开",
+    "text": "把模型展开\n每个特征配一个权重：\nf(x) = w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 + b\n拿 A 房举例，假设 w = (2.8,\\ 0.5,\\ -1.2,\\ 8,\\ -0.02)、b = 40：\nf = 2.8 \\times 100 + 0.5 \\times 12 + (-1.2) \\times 3 + 8 \\times 3 + (-0.02) \\times 400 + 40 = 280 + 6 - 3.6 + 24 - 8 + 40 = \\mathbf{338.4}\\ \\text{万元}\n每一项的含义：\n\n\n\n项\n值\n读法\n\n\n\n\n2.8 \\times 100\n280\n面积每多 1 ㎡，价格加 2.8 万\n\n\n0.5 \\times 12\n6\n楼层每高 1 层，加 0.5 万\n\n\n-1.2 \\times 3\n−3.6\n房龄每多 1 年，减 1.2 万\n\n\n8 \\times 3\n24\n每多一个卧室，加 8 万\n\n\n-0.02 \\times 400\n−8\n离地铁每远 1 m，减 0.02 万\n\n\n\n\n\n\n\n\n\n注记权重的正负号本身就是知识\n\n\n\n权重是正的，这个特征推高价格；负的，拉低价格。\nw_2 = 0.5 为正，说明在这批数据里楼层越高越贵；w_3 = -1.2 为负，房龄越大越便宜。\n这些数是模型从数据里学到的，不是你写的。但前提是数据里真有这个规律——喂它一堆烂数据，它也会一本正经地学出离谱的权重。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#写成向量",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#写成向量",
+    "title": "多元线性回归",
+    "section": "写成向量",
+    "text": "写成向量\n四个特征就要写四项，二十个特征呢？\n把特征和权重各自打包成向量：\n\\mathbf{x} = \\begin{bmatrix} x_1 \\\\ x_2 \\\\ \\vdots \\\\ x_n \\end{bmatrix}, \\qquad \\mathbf{w} = \\begin{bmatrix} w_1 \\\\ w_2 \\\\ \\vdots \\\\ w_n \\end{bmatrix}\n模型就变成两个向量的点积加一个常数：\nf(\\mathbf{x}) = \\mathbf{w}^{\\top}\\mathbf{x} + b = \\sum_{j=1}^{n} w_j x_j + b\n\\mathbf{w}^{\\top} 是转置，写成行向量好和列向量 \\mathbf{x} 相乘。初学时把它当成”两个向量逐项相乘再求和”的记号即可。\n\n\n\n\n\n\n提示同一个东西的不同写法\n\n\n\n\\mathbf{w}^{\\top}\\mathbf{x}、\\mathbf{w} \\cdot \\mathbf{x}、\\langle \\mathbf{w}, \\mathbf{x} \\rangle、\\mathbf{x}^{\\top}\\mathbf{w} —— 全都是同一个东西：逐项相乘再求和，结果是一个数。\n看到不同写法别慌，认准”逐项乘、加起来”就行。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#这就是多元线性回归",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#这就是多元线性回归",
+    "title": "多元线性回归",
+    "section": "这就是多元线性回归",
+    "text": "这就是多元线性回归\n\n\n\n\n\n\n注记\n\n\n\n多元线性回归（multiple linear regression）：输入是多个特征组成的向量，输出仍是 \\mathbf{w}^{\\top}\\mathbf{x} + b。\n“线性”指的是对参数线性，不是”图像是一条直线”。哪怕你把面积平方变成新特征 x_2 = x_1^2，只要还是 w_2x_2 的形式，模型依然是线性的。\n\n\n损失函数和梯度的形式一点没变，只是每个参数多了一个下标：\nJ(\\mathbf{w}, b) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(\\mathbf{w}^{\\top}\\mathbf{x}^{(i)} + b - y^{(i)}\\right)^2\n\\frac{\\partial J}{\\partial w_j} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x_j^{(i)}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)\n好消息是：代码几乎不用改，因为 numpy 会把循环干掉。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#向量化到底省了什么",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#向量化到底省了什么",
+    "title": "多元线性回归",
+    "section": "向量化到底省了什么",
+    "text": "向量化到底省了什么\n要算 w_1x_1 + \\dots + w_nx_n。\n不用向量化，只能写循环：\ns = 0.0\nfor j in range(n):\n    s += w[j] * x[j]\n用向量化，一行：\ns = w @ x\n区别不只是少敲几个字。实测（这台机器上，n = 10^6）：\n\n\n\n写法\n耗时\n相对速度\n\n\n\n\nPython for 循环\n0.706 s\n1×\n\n\nnumpy 点积\n0.0083 s\n85×\n\n\n\n差了八十五倍，而且 n 越大差距越大。\n\n\n\n\n\n\n注记为什么快这么多\n\n\n\nPython 的 for 循环每转一圈都要做类型检查、对象查找、方法调用——这些工作在 C 里都是零成本的。\nnumpy 数组在内存里是一整块连续的数字，点积直接把整块交给底层 BLAS 库。BLAS 是几十年来为矩阵运算优化的 C/Fortran 代码，会用上 SIMD 指令和多核并行。\n到了深度学习这件事更极端：GPU 一次能算几千个乘加，Python 循环只能一个一个来。所以”能不能写成矩阵运算”直接决定你的代码跑几秒还是几小时。\n\n\n\n\n\n\n\n\n警告别急着迷信速度\n\n\n\n85 倍是 n = 10^6 时测的。如果 n = 5，写循环可能反而更快——numpy 每次调用都有固定开销。\n向量化的收益随数据规模增长。 小数据写清楚比写快重要。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#numpy-上手",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#numpy-上手",
+    "title": "多元线性回归",
+    "section": "numpy 上手",
+    "text": "numpy 上手\n下面这些够用很久。\n\n创建与形状\nimport numpy as np\n\nx = np.array([45, 52, 58])            # 一维，3 个元素\nX = np.array([[45, 3], [52, 7]])      # 二维：2 行 2 列\n\nx.shape    # (3,)\nX.shape    # (2, 2)\nX.ndim     # 2\n\n\n\n\n\n\n提示出错先看 shape\n\n\n\n绝大多数 bug 不是数学错了，是形状不对：本该 (m, n) 的矩阵变成了 (n, m)，本该是列向量却是一维数组。\n所以调试第一件事永远是打印 shape。\n\n\n\n\n逐元素相乘 和 点积\n最容易混的一对：\na = np.array([1, 2, 3])\nb = np.array([4, 5, 6])\n\na * b          # array([ 4, 10, 18])   对应位置各乘各的，结果还是向量\na @ b          # 32                    1*4 + 2*5 + 3*6，结果是一个数\nnp.dot(a, b)   # 32                    和 @ 完全一样\n\n\n\n运算符\n名字\n结果\n\n\n\n\n*\n逐元素乘 element-wise\n向量\n\n\n@\n矩阵乘 / 点积\n一维时是标量\n\n\nnp.dot\n同 @\n同 @\n\n\n\n我们的模型 \\mathbf{w}^{\\top}\\mathbf{x} 用的是后者。\n\n\n用点积算一遍模型\nw = np.array([2.8, 0.5, -1.2, 8.0, -0.02])   # 面积 楼层 房龄 卧室 地铁\nx = np.array([100,   12,   3,   3,  400])\nb = 40\n\nf = w @ x + b        # 338.4\n同样一次预测，循环要五行，点积一行，还快几十倍。\n\n\n广播\n形状不同的数组做运算时，numpy 会自动把小的”铺开”：\na = np.array([1, 2, 3])\na + 10     # array([11, 12, 13])   标量自动加到每个元素上\na * 2      # array([ 2,  4,  6])\n这就是为什么 \\mathbf{w}^{\\top}\\mathbf{x} + b 里的 + b 不用写循环——标量会自动加到每个样本上。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#核心概念",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#核心概念",
+    "title": "多元线性回归",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n多元线性回归\n多个特征，模型仍是 \\mathbf{w}^{\\top}\\mathbf{x} + b\n\n\n特征向量 \\mathbf{x}\n一个样本的 n 个特征组成的向量\n\n\n权重向量 \\mathbf{w}\n每个特征一个权重，它的正负号有实际含义\n\n\n点积\n逐项相乘再求和，结果是一个数，写作 \\mathbf{w}^{\\top}\\mathbf{x} 或 w @ x\n\n\n线性的含义\n指对参数线性，不是”图像是直线”\n\n\n向量化\n用数组整体运算代替 for 循环\n\n\n为什么快\n连续内存 + BLAS + SIMD/多核/GPU 并行\n\n\nnumpy 的坑\n* 是逐元素乘，@ 才是点积；出错先看 shape",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch03/03a-multiple-regression.html#下一课",
+    "href": "part1-ml/ch03/03a-multiple-regression.html#下一课",
+    "title": "多元线性回归",
+    "section": "下一课",
+    "text": "下一课\n特征从 1 个变成 n 个之后，第 2 章那个”b 走得慢”的问题会成倍恶化——每个特征的数值范围都不一样。\n下一课讲特征缩放，把这批烂摊子收拾掉。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 3 章　多元回归与特征缩放",
+      "多元线性回归"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html",
+    "href": "part1-ml/ch02/02f-summary.html",
+    "title": "总结：完整走一遍",
+    "section": "",
+    "text": "十二套房的成交记录，横轴面积、纵轴房价：\n\n\n\n一开始的样子：12 个点大致排成一条斜线\n\n\n目标从头到尾没变过：造一个函数 f，输入面积，输出房价。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#回到那批房子",
+    "href": "part1-ml/ch02/02f-summary.html#回到那批房子",
+    "title": "总结：完整走一遍",
+    "section": "",
+    "text": "十二套房的成交记录，横轴面积、纵轴房价：\n\n\n\n一开始的样子：12 个点大致排成一条斜线\n\n\n目标从头到尾没变过：造一个函数 f，输入面积，输出房价。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#这一章其实只做了四件事",
+    "href": "part1-ml/ch02/02f-summary.html#这一章其实只做了四件事",
+    "title": "总结：完整走一遍",
+    "section": "这一章其实只做了四件事",
+    "text": "这一章其实只做了四件事\n\n\n\n\n\n\n\n\n步骤\n做什么\n结果\n\n\n\n\n定模型\n假设关系是直线\nf(x) = wx + b\n\n\n定标准\n用一个数衡量”这条线多差”\nJ(w,b) = \\dfrac{1}{2m}\\sum(\\hat{y}-y)^2\n\n\n找方向\n算出每个参数该往哪调\n\\dfrac{\\partial J}{\\partial w} = \\dfrac{1}{m}\\sum(\\hat{y}-y)x，\\dfrac{\\partial J}{\\partial b} = \\dfrac{1}{m}\\sum(\\hat{y}-y)\n\n\n迈步子\n沿反方向走一小步\nw \\leftarrow w - \\alpha\\dfrac{\\partial J}{\\partial w}，b \\leftarrow b - \\alpha\\dfrac{\\partial J}{\\partial b}\n\n\n\n后面三步循环执行，直到 J 不再下降。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#一步一步看直线归位",
+    "href": "part1-ml/ch02/02f-summary.html#一步一步看直线归位",
+    "title": "总结：完整走一遍",
+    "section": "一步一步看直线归位",
+    "text": "一步一步看直线归位\n从 w = 1.0、b = 0（也就是 f(x) = x）出发，\\alpha = 4.5\\times10^{-5}：\n\n\n\n直线的演化：从完全不像，到基本贴合\n\n\n\n\n\n步\nw\nb\nJ\n这条线在做什么\n\n\n\n\n0\n1.000\n0.00\n37007.9\n太平，远低于所有点\n\n\n1\n2.240\n0.01\n10724.1\n一口气抬起一大截\n\n\n2\n2.907\n0.02\n3128.9\n继续靠近\n\n\n3\n3.265\n0.02\n934.1\n已经像样了\n\n\n5\n3.562\n0.02\n116.6\n只剩细调\n\n\n20\n3.682\n0.03\n42.1\n看起来已经很贴\n\n\n\n前两步干掉了 97% 的损失。 剩下十几步全是在磨最后那一点。\n对应的损失曲线：\n\n\n\n损失随步数下降，底部横线是真实最低点\n\n\n\n\n\n\n\n\n注记注意那个”过冲”\n\n\n\n第 0 步的 w=1.0 离最优很远，所以第一次更新的步子最大（w 一下跳到 2.24）。\n这正是梯度下降的设计：离得越远走得越猛，越靠近越谨慎。 你不需要告诉它”还有多远”。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#完整代码",
+    "href": "part1-ml/ch02/02f-summary.html#完整代码",
+    "title": "总结：完整走一遍",
+    "section": "完整代码",
+    "text": "完整代码\nimport numpy as np\n\narea  = np.array([55, 62, 70, 78, 85, 92, 100, 108, 115, 125, 135, 145], float)\nprice = np.array([212.5, 241.2, 261.2, 280.5, 311.1, 328.1,\n                  370.8, 416.8, 415.6, 448.8, 499.4, 532.5])\nm = len(area)\n\nw, b = 1.0, 0.0        # 初始参数\nalpha = 4.5e-5         # 学习率\n\nfor step in range(21):\n    y_hat = w * area + b       # 前向：算预测\n    err   = y_hat - price      # 残差\n    loss  = np.mean(err ** 2) / 2\n\n    dw = np.mean(err * area)   # 对 w 的偏导\n    db = np.mean(err)          # 对 b 的偏导\n\n    print(f\"{step:3d}  w={w:.4f}  b={b:.4f}  J={loss:.2f}\")\n\n    w = w - alpha * dw         # 同时更新\n    b = b - alpha * db\n二十几行，没有库调用，没有黑盒。这就是全部。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#这是哪种梯度下降",
+    "href": "part1-ml/ch02/02f-summary.html#这是哪种梯度下降",
+    "title": "总结：完整走一遍",
+    "section": "这是哪种梯度下降",
+    "text": "这是哪种梯度下降\n你算梯度的时候，用的是全部 12 个样本：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x^{(i)}\n那个 \\frac{1}{m}\\sum 就是”把所有样本的梯度加起来，再除以样本数”。每次更新只用了一个数——全体样本的平均梯度。\n这叫批量梯度下降（batch gradient descent）。\n\n\n\n\n\n\n\n\n\n名称\n每步用几个样本\n梯度怎么算\n特点\n\n\n\n\n批量 batch\n全部 m 个\n\\frac{1}{m}\\sum\n方向最准，但数据大时每步极慢\n\n\n随机 SGD\n1 个\n单个样本的梯度\n快但抖，方向只代表一个样本\n\n\n小批量 mini-batch\nk 个（如 32、256）\n\\frac{1}{k}\\sum\n折中，实际训练默认用法\n\n\n\n\n\n\n\n\n\n提示小批量只是把 m 换成 k\n\n\n\n公式长得一模一样，唯一区别是求和范围：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{k}\\sum_{j \\in \\text{本批}} \\left(\\hat{y}^{(j)} - y^{(j)}\\right)x^{(j)}\n本书前面用的全是批量版本——数据只有 12 个点，一次算完没关系。等到了深度学习，一条样本是几万维的张量，才必须分批。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#但最后没到底",
+    "href": "part1-ml/ch02/02f-summary.html#但最后没到底",
+    "title": "总结：完整走一遍",
+    "section": "但最后没到底",
+    "text": "但最后没到底\n看那张损失曲线：第 20 步停在 42.1，而绿点标的真实最低是 37.27，在它下面。\n差在哪？看参数：\n\n\n\n\n第 20 步的值\n真实最优\n\n\n\n\nw\n3.682\n3.575\n\n\nb\n0.026\n11.344\n\n\n\nw 已经到位了，b 还差得远——从 0 爬到 11.3，它爬了 20 步才到 0.026。\n前两课已经说过原因：\\partial J/\\partial w 乘了面积（量级约 100），\\partial J/\\partial b 只是残差本身（量级约 1）。同一个 \\alpha，两边的速度差了一百倍。\n结果就是：直线看起来已经贴合了（因为斜率对了），但整体位置还差一截——它比正确的位置略微靠下。\n\n\n\n\n\n\n警告这不是终点，是下一章的入口\n\n\n\n想靠调大 \\alpha 解决？不行——\\alpha 再大一点，w 那边直接爆炸（上一课红色那条）。\n唯一的正解是先把特征缩放到同一量级，让两个方向的梯度自然同尺度。那时同样的 \\alpha 会同时对 w 和 b 好用。\n这正是下一章要做的第一件事。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#核心概念全章",
+    "href": "part1-ml/ch02/02f-summary.html#核心概念全章",
+    "title": "总结：完整走一遍",
+    "section": "核心概念（全章）",
+    "text": "核心概念（全章）\n\n\n\n概念\n一句话\n\n\n\n\n线性回归\n用 f(x)=wx+b 拟合数据\n\n\n参数\nw（斜率）和 b（截距），是学出来的\n\n\n超参数\n学习率 \\alpha、迭代轮数，是你手动定的\n\n\n损失函数 J\n输入一组参数，输出一个数，越小越好\n\n\n均方误差\n\\frac{1}{2m}\\sum(\\hat{y}-y)^2，回归的标准损失\n\n\n残差\n\\hat{y}-y，竖直方向的差，不是点到直线的垂距\n\n\n导数 / 偏导\n该参数挪一点，损失变多少；符号给方向，大小给陡峭度\n\n\n梯度\n所有偏导组成的向量，指向最陡上坡方向\n\n\n梯度下降\n沿负梯度方向反复迈小步\n\n\n更新式\n\\theta \\leftarrow \\theta - \\alpha\\nabla J\n\n\n同时更新\n两个偏导都用旧参数算，算完再一起赋值\n\n\n学习率\n步长；太大震荡爆炸，太小慢到没用\n\n\n步长自适应\n越接近谷底梯度越小，步子自然变小\n\n\n批量梯度下降\n每步用全部样本算平均梯度\n\n\n小批量\n把 m 换成批大小 k，其余不变\n\n\n局部最优\n只能保证脚下是平的，不保证是全局最低\n\n\n病态 / 量纲\n各参数梯度量级差异大，导致收敛速度悬殊",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02f-summary.html#下一章",
+    "href": "part1-ml/ch02/02f-summary.html#下一章",
+    "title": "总结：完整走一遍",
+    "section": "下一章",
+    "text": "下一章\n第 2 章留下了一个具体的麻烦：b 走得太慢，损失停在 42 而不是 37.27。\n下一章（多元回归与特征缩放）先用两个特征把模型扩展开，再解决这个尺度问题。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "总结：完整走一遍"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html",
+    "title": "梯度的直观理解",
+    "section": "",
+    "text": "上一课说”沿着负梯度方向走”，但梯度到底是什么、为什么是那个方向、为什么步子大小会自己变——都没说清。\n这一课把梯度本身拆开看。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#这一课要解决什么",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#这一课要解决什么",
+    "title": "梯度的直观理解",
+    "section": "",
+    "text": "上一课说”沿着负梯度方向走”，但梯度到底是什么、为什么是那个方向、为什么步子大小会自己变——都没说清。\n这一课把梯度本身拆开看。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#先砍掉-b只剩一个参数",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#先砍掉-b只剩一个参数",
+    "title": "梯度的直观理解",
+    "section": "先砍掉 b：只剩一个参数",
+    "text": "先砍掉 b：只剩一个参数\n两个参数的东西不好画。先令 b = 0，J 就退化成一条曲线：\nJ(w) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(w x^{(i)} - y^{(i)}\\right)^2\n横轴只有一个 w，纵轴是损失。画出来是一条 U 形曲线，谷底在 w \\approx 3.68。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#导数在图上就是切线斜率",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#导数在图上就是切线斜率",
+    "title": "梯度的直观理解",
+    "section": "导数在图上就是切线斜率",
+    "text": "导数在图上就是切线斜率\n在曲线上任取一点，画一条贴着曲线的切线。这条线的斜率，就是这一点的导数 \\dfrac{dJ}{dw}。\n它同时告诉你两件事：\n\n\n\n导数的值\n含义\n该怎么做\n\n\n\n\n负数\n增大 w 会降低损失\n增大 w\n\n\n正数\n增大 w 会升高损失\n减小 w\n\n\n接近 0\n这里是平的\n差不多到头了\n\n\n\n\n\n\n\n\n\n注记符号决定方向，大小决定距离\n\n\n\n这是导数的两个独立信息，别混在一起。\n符号 = 往左还是往右。 绝对值 = 这个坡有多陡 —— 也就是离谷底大概还有多远。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#乘上--alpha-之后",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#乘上--alpha-之后",
+    "title": "梯度的直观理解",
+    "section": "乘上 -\\alpha 之后",
+    "text": "乘上 -\\alpha 之后\n更新式是：\nw \\leftarrow w - \\alpha \\frac{dJ}{dw}\n-\\alpha \\times 导数 = 这一步的位移。图上看三处：\n\n\n\n同一条曲线上的三个位置：坡越陡，这一步越大\n\n\n\n\n\n位置\n导数\n乘 -\\alpha 后的位移\n现象\n\n\n\n\nw = 1.0\n-27562\n+0.99\n坡很陡，跨度大\n\n\nw = 3.0\n-7011\n+0.25\n坡缓了，步子也小了\n\n\nw = 3.68\n-24\n+0.0009\n几乎平了，原地不动\n\n\n\n（\\alpha = 3.6 \\times 10^{-5}）\n\n\n\n\n\n\n提示这里藏着一个很漂亮的性质\n\n\n\n你不需要告诉程序”该走多远”。\n离谷底远时，坡陡，梯度大，步子自动就大；靠近谷底时，坡缓，梯度小，步子自动变小。整个过程是自适应的，唯一的旋钮只有 \\alpha。\n如果换成”每步固定走 0.5”，你会永远在谷底附近来回弹跳，永远落不下去。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#这也解释了一个训练中的常见现象",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#这也解释了一个训练中的常见现象",
+    "title": "梯度的直观理解",
+    "section": "这也解释了一个训练中的常见现象",
+    "text": "这也解释了一个训练中的常见现象\n跑过训练的人都知道：loss 一开始掉得飞快，后面越来越慢，最后几乎不动。\n这不是训练卡住了，是梯度在正常工作——越接近谷底，坡越平，走一步换来的进步就越少。\n\n\n\n阶段\n梯度\nloss 变化\n\n\n\n\n刚开始\n大\n每步掉几千\n\n\n中期\n中\n每步掉几百\n\n\n接近谷底\n小\n每步掉个位数\n\n\n\n所以看到 loss 曲线”前陡后平”是好现象。真正要担心的是它一直平着不动。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#两个参数各管各的方向",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#两个参数各管各的方向",
+    "title": "梯度的直观理解",
+    "section": "两个参数：各管各的方向",
+    "text": "两个参数：各管各的方向\nb 放回来之后，曲面有两个方向。这时候不再是”一个导数”，而是每个方向一个偏导：\n\\frac{\\partial J}{\\partial w}, \\qquad \\frac{\\partial J}{\\partial b}\n把它们装成一个向量，就是梯度：\n\\nabla J = \\left( \\frac{\\partial J}{\\partial w},\\ \\frac{\\partial J}{\\partial b} \\right)\n\n\n\n\n\n\n注记怎么理解这个向量\n\n\n\n它是一支箭头，钉在你脚下的地面上，指向”最陡的上坡方向”。\n\n箭头的方向 = 往哪边走最陡\n箭头的长度 = 有多陡\n\n下山当然要反着走：\\theta \\leftarrow \\theta - \\alpha \\nabla J。\n两个分量是独立算出来的，但它们同时被应用——这就是上一课强调”同时更新”的原因。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#为什么偏偏是最陡的方向",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#为什么偏偏是最陡的方向",
+    "title": "梯度的直观理解",
+    "section": "为什么偏偏是”最陡”的方向",
+    "text": "为什么偏偏是”最陡”的方向\n这一小段要一点线性代数，看不懂可以跳到下一节，结论记住就行。\n假设你要往某个方向 \\mathbf{u}（单位向量）走一小步，损失的变化率叫方向导数：\nD_{\\mathbf{u}} J = \\nabla J \\cdot \\mathbf{u}\n也就是梯度和方向向量的内积。\n而内积有个性质：\\mathbf{a} \\cdot \\mathbf{b} = |\\mathbf{a}||\\mathbf{b}|\\cos\\theta。当两个向量方向相同时（\\cos\\theta = 1），内积取最大值。\n所以：\n\n\\mathbf{u} 与梯度同向 → 变化率最大 → 上升最快\n\\mathbf{u} 与梯度反向 → 变化率最小（最负） → 下降最快\n\n这就是”沿负梯度走”不是近似、不是经验，而是数学上的精确最优——在只用一步、只看眼前的前提下。\n\n\n\n\n\n\n警告但”最陡”不等于”最快到谷底”\n\n\n\n这是最容易误解的一点。\n梯度只保证”眼下这一步的方向最好”，不保证全局最快。地形是弯的，你走一步之后坡度就变了。\n像在雾里下山：每次都朝脚下最陡的地方走，可能绕远路，也可能掉进小坑出不来（上一课的那个谷）。\n它是个局部策略，不是全局策略。 深度学习的全部优化技巧，基本都在跟这件事作斗争。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#学习率只是缩放",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#学习率只是缩放",
+    "title": "梯度的直观理解",
+    "section": "学习率只是缩放",
+    "text": "学习率只是缩放\n回到更新式，看两个因子的分工：\nw \\leftarrow w \\;-\\; \\underbrace{\\alpha}_{\\text{缩放倍数}} \\cdot \\underbrace{\\frac{\\partial J}{\\partial w}}_{\\text{方向 + 陡峭程度}}\n\n梯度决定往哪走、走多远（自带尺度）\n\\alpha 只是在梯度的基础上再乘一个倍数\n\n所以 \\alpha 不改变方向。哪怕 \\alpha = 0.000001，方向也还是负梯度方向，只是慢得像蜗牛。\n这一点很重要：学不动的时候，先别怀疑方向错了，多半是步长的问题。\n下一个专门讲 \\alpha 怎么选、太大太小的具体表现。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02d-gradient-intuition.html#核心概念",
+    "href": "part1-ml/ch02/02d-gradient-intuition.html#核心概念",
+    "title": "梯度的直观理解",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n导数 \\frac{dJ}{dw}\n曲线在该点切线的斜率；符号给方向，大小给陡峭度\n\n\n偏导\n多参数时，只对一个求导，其余按住不动\n\n\n梯度 \\nabla J\n所有偏导组成的向量，指向最陡上坡方向\n\n\n负梯度\n最陡下坡方向，数学上精确最优（局部）\n\n\n步长自适应\n坡陡步子大，坡缓步子小，无需人工设定\n\n\n\\alpha 的作用\n只缩放梯度长度，不改变方向\n\n\n局部性\n只保证眼前这一步最优，不保证全局最快",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "梯度的直观理解"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html",
+    "href": "part1-ml/ch02/02b-loss-function.html",
+    "title": "损失函数",
+    "section": "",
+    "text": "上一课最后说，机器没有眼睛，它需要两样东西：\n\n一个数字，能衡量”这条线现在有多差”\n一套办法，能告诉它”w 该往大调还是往小调”\n\n这一课解决第一件。第二件是梯度，下一课。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#上一课留下的两个问题",
+    "href": "part1-ml/ch02/02b-loss-function.html#上一课留下的两个问题",
+    "title": "损失函数",
+    "section": "",
+    "text": "上一课最后说，机器没有眼睛，它需要两样东西：\n\n一个数字，能衡量”这条线现在有多差”\n一套办法，能告诉它”w 该往大调还是往小调”\n\n这一课解决第一件。第二件是梯度，下一课。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#损失函数是什么",
+    "href": "part1-ml/ch02/02b-loss-function.html#损失函数是什么",
+    "title": "损失函数",
+    "section": "损失函数是什么",
+    "text": "损失函数是什么\n把它当成一个普通的函数来看待：\n\n\n\n输入\n一组 w 和 b（也就是一条具体的直线）\n\n\n输出\n一个数字，越大说明这条线越差\n\n\n名字\n损失函数 loss function，记作 J(w, b)\n\n\n\n它做的事情只有一件：把”这条线好不好”变成一个可以比较的数字。\n人眼扫一眼图就知道 D 线比 A 线好。机器不能。但如果把两条线都送进 J，得到 37007 和 40，机器就能比大小——这就是它全部需要的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#公式是怎么来的",
+    "href": "part1-ml/ch02/02b-loss-function.html#公式是怎么来的",
+    "title": "损失函数",
+    "section": "公式是怎么来的",
+    "text": "公式是怎么来的\n对每个店，直线上给出的预测和真实成交价之间差了一截：\n\\hat{y}^{(i)} - y^{(i)}\n直接把这些差加起来不行，有三个问题：\n一、正负会抵消。 有的点预测高了，有的点预测低了，一加可能变成接近 0，明明差得离谱却显示”完美”。\n解决办法：平方。负数平方变正，正数还是正。\n二、点越多，总和越大。 12 个点的总误差一定比 3 个点大，但这不代表模型更差——只是点更多。\n解决办法：除以点数 m，取平均。\n三、平方后的数太大。 误差是几百万元，平方就是几十万，写起来累。\n解决办法：再乘 \\frac{1}{2}。这一项纯粹是为了后面求导时把平方的 2 抵消掉，让公式好看。它不改变最低点在哪——把整条曲线压低一半，谷底还是那个谷底。\n合起来：\nJ(w, b) = \\frac{1}{2m} \\sum_{i=1}^{m} \\left( \\hat{y}^{(i)} - y^{(i)} \\right)^2\n其中 \\hat{y}^{(i)} = w x^{(i)} + b。\n这就是均方误差（mean squared error, MSE），回归问题的标准损失。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#这个公式到底在算什么",
+    "href": "part1-ml/ch02/02b-loss-function.html#这个公式到底在算什么",
+    "title": "损失函数",
+    "section": "这个公式到底在算什么",
+    "text": "这个公式到底在算什么\n逐层拆开看：\n\n\n\n部分\n含义\n\n\n\n\n\\hat{y} - y\n每个点上，预测价比真实价差了多少\n\n\n平方\n消掉正负，并让大错罚得更重\n\n\n\\sum\n把所有点的错加起来\n\n\n\\div m\n平均到每个点\n\n\n\\div 2\n求导时省事\n\n\n\n所以 J 读作：平均到每个点，模型猜错了多少（的平方）。\n\n\n\n\n\n\n警告一个容易搞错的地方\n\n\n\n这里的”距离”是竖直方向的差，不是点到直线的垂直距离。\n竖直距离才是”预测价减真实价”。垂直距离是几何概念，和价格的高低无关，用它算出来的损失没有意义。\n看图上那几条虚线就明白了——全是竖着画的。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#亲手算一次",
+    "href": "part1-ml/ch02/02b-loss-function.html#亲手算一次",
+    "title": "损失函数",
+    "section": "亲手算一次",
+    "text": "亲手算一次\n取三个点：面积 62、100、145 平方米，真实成交价 241.2、370.8、532.5 万元。\n先用那条明显很差的线 A：w = 1.0、b = 0。\n\n\n\n面积 x\n真实 y\n预测 \\hat{y}\n\\hat{y} - y\n平方\n\n\n\n\n62\n241.2\n62.0\n−179.2\n32112.64\n\n\n100\n370.8\n100.0\n−270.8\n73332.64\n\n\n145\n532.5\n145.0\n−387.5\n150156.25\n\n\n\n\\sum = 255601.53, \\qquad J = \\frac{255601.53}{2 \\times 3} = 42600.26\n再用那条基本贴合的线 D：w = 3.5、b = 20。\n\n\n\n面积 x\n真实 y\n预测 \\hat{y}\n\\hat{y} - y\n平方\n\n\n\n\n62\n241.2\n237.0\n−4.2\n17.64\n\n\n100\n370.8\n370.0\n−0.8\n0.64\n\n\n145\n532.5\n527.5\n−5.0\n25.00\n\n\n\n\\sum = 43.28, \\qquad J = \\frac{43.28}{2 \\times 3} = 7.21\n\n\n\n参数\nJ\n\n\n\n\nw=1.0,\\ b=0\n42600\n\n\nw=3.5,\\ b=20\n7.21\n\n\n\n差了将近 6000 倍。\n用全部 12 个点算一遍，结论一样：J(1.0, 0) = 37007.88，J(3.5, 20) = 40.36。\n\n\n\n\n\n\n注记\n\n\n\n线拟合得越好，J 越小。“找一条好线”和”找一个小的 J“是同一件事。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#先只看-w把-b-固定成-0",
+    "href": "part1-ml/ch02/02b-loss-function.html#先只看-w把-b-固定成-0",
+    "title": "损失函数",
+    "section": "先只看 w：把 b 固定成 0",
+    "text": "先只看 w：把 b 固定成 0\n两个参数不好画图。先砍掉一个：令 b = 0，只剩 w。\n这时 J 就退化成一条曲线：\nJ(w) = \\frac{1}{2m} \\sum_{i=1}^{m} \\left( w x^{(i)} - y^{(i)} \\right)^2\n横轴是 w，纵轴是 J(w)：\n\n\n\n只有 w 一个变量时，损失是一条 U 形曲线\n\n\n\nw = 1.0 时，J = 37007，在曲线的左端高处\nw = 3.68 时，J = 42，在谷底\n\nw 从 1 调到 3.68，损失从三万七掉到 42。这就是”调参数”在数学上的样子——沿着曲线往低处走。\n\n\n\n\n\n\n提示谷底为什么不是 0\n\n\n\n因为强行让 b = 0，相当于要求这条线必须穿过原点。而这批数据真实最优的 b 约是 11.3，被按死在 0 上，这条线怎么调都差一截。\n42 已经是 b=0 条件下的极限。等 b 也放开，损失还能再降——真实最低点是 37.27。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#b-也放开jwb-是一张地形图",
+    "href": "part1-ml/ch02/02b-loss-function.html#b-也放开jwb-是一张地形图",
+    "title": "损失函数",
+    "section": "b 也放开：J(w,b) 是一张地形图",
+    "text": "b 也放开：J(w,b) 是一张地形图\n两个参数，J 就是一个二维曲面。形状像一只碗：中间低，四周高，碗底只有一个点。\n碗底那一点，就是最优的 (w, b)。\n但三维曲面不好读——从一个角度看，近处的山会挡住远处的谷。所以换成等高线图，也就是地理课上的地形图：\n\n横轴 w，纵轴 b，这是”地面坐标”\n每一圈是 J 相同的所有点连成的线\n越暗越低，越亮越高\n圈越密，坡越陡\n\n\n\n\nJ(w,b) 的等高线图。中心最暗处是最低点\n\n\n图上标了四个点，都是上一课出现过的那几条线：\n\n\n\n点\n参数\nJ 的量级\n位置\n\n\n\n\nA\nw=1.0,\\ b=0\n37008\n左下角，最亮，坡最高\n\n\nB\nw=2.4,\\ b=30\n千级\n已进中间地带\n\n\nC\nw=3.2,\\ b=45\n百级\n接近暗区边缘\n\n\nD\nw=3.5,\\ b=20\n40.36\n很近，但还没到底（真底是 37.27）\n\n\n\n从 A 走到 D，就是上一课”把线慢慢转过去、抬上去”那个过程，在参数空间里的路线。\n\n\n\n\n\n\n注记这个”碗”是斜的\n\n\n\n仔细看等高线：它是一条从左下到右上的长条，不是正圆的。\n原因很实在——w 和 b 可以互相补偿。w 调小一点、b 调大一点，落在同一条等高线上，损失几乎不变（因为这条线的走向没大变）。\n等高线拉得越长，说明这个方向越”平”，优化时越难判断该往哪走。这一点到后面讲特征缩放时还会回来。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#核心概念",
+    "href": "part1-ml/ch02/02b-loss-function.html#核心概念",
+    "title": "损失函数",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n概念\n内容\n\n\n\n\n损失函数 J(w,b)\n输入一组参数，输出一个数，越小说明拟合越好\n\n\n均方误差 MSE\n\\dfrac{1}{2m}\\sum(\\hat{y}-y)^2，回归的标准损失\n\n\n\\frac{1}{2} 的作用\n让求导更干净，不影响最低点位置\n\n\n距离的方向\n竖直方向（残差），不是点到直线的垂距\n\n\nJ(w) 曲线\nb 固定时是一条 U 形曲线，谷底是最优 w\n\n\nJ(w,b) 曲面\n一只碗，碗底是唯一最低点\n\n\n等高线图\n碗的二维读法，越暗越低",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch02/02b-loss-function.html#还差一步",
+    "href": "part1-ml/ch02/02b-loss-function.html#还差一步",
+    "title": "损失函数",
+    "section": "还差一步",
+    "text": "还差一步\n现在有了 J，可以判断哪条线更好。但还差一件事：\n\n站在曲线的某个点上，怎么知道往左走还是往右走？\n\nJ 只告诉你”现在多高”，不告诉你”哪边下坡”。下一课讲梯度——它回答的正是这个问题。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 2 章　线性回归与梯度下降",
+      "损失函数"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch01/01d-review.html",
+    "href": "part1-ml/ch01/01d-review.html",
+    "title": "回顾",
+    "section": "",
+    "text": "概念\n一句话\n\n\n\n\n机器学习\n从数据里找出一个函数，而不是人手写规则\n\n\n样本\n一条数据，表格里的一行\n\n\n特征 x\n模型的输入，比如面积\n\n\n标签 y\n模型要预测的目标，比如房价\n\n\n模型\n一个带参数的函数\n\n\n参数 w, b\n模型内部可调的数字，不同取值给出不同预测\n\n\n监督学习\n训练数据带答案\n\n\n无监督学习\n训练数据没有答案，找数据自身的结构\n\n\n强化学习\n与环境交互，靠奖励学策略\n\n\n回归\n标签是连续的值\n\n\n分类\n标签是离散的类别\n\n\n\n下一章只做一件事：把”找出一组合适的 w 和 b“这件事，做出来。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 1 章　机器学习在解决什么问题",
+      "回顾"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch01/01b-nouns.html",
+    "href": "part1-ml/ch01/01b-nouns.html",
+    "title": "名词对应",
+    "section": "",
+    "text": "下面是一批房子的成交记录。每一行是一套房子，记着面积和当时的成交价。\n\n\n\n面积（平方米）\n成交价（万元）\n\n\n\n\n62\n241\n\n\n85\n311\n\n\n100\n371\n\n\n125\n449\n\n\n145\n533\n\n\n\n把整批数据画在图上，横轴是面积，纵轴是房价：\n\n\n\n每个点是一套房子：横坐标是面积，纵坐标是房价\n\n\n图里有几个词需要一次对齐：\n\n\n\n名词\n对照到图上\n在这张表里\n\n\n\n\n样本 sample\n一个点\n一套房子，一行\n\n\n特征 feature，x\n横坐标\n面积\n\n\n标签 label，y\n纵坐标\n成交价\n\n\n模型 model，f\n一个函数\n输入面积，输出预测价格\n\n\n参数 parameter，w, b\n函数里还没定的数\n见下面\n\n\n\n用最简单的一种模型来试：假设房价和面积成正比，画出来就是一条直线。\n\\hat{y} = w x + b\n\\hat{y} 读作”y hat”，帽子表示这是模型猜的，不是真实成交价。w 和 b 就是参数。\n\n代入数字算一次\nw 的单位是万元每平方米，b 的单位是万元。\n假设 w = 3.5（万元/㎡），b = 20（万元）：\n\n\n\n面积\n计算\n预测价格\n真实成交价\n\n\n\n\n62 ㎡\n3.5 \\times 62 + 20\n237 万元\n241 万元\n\n\n100 ㎡\n3.5 \\times 100 + 20\n370 万元\n371 万元\n\n\n145 ㎡\n3.5 \\times 145 + 20\n527.5 万元\n533 万元\n\n\n\n换一组参数 w = 1.0、b = 0：\n\n\n\n面积\n计算\n预测价格\n真实成交价\n\n\n\n\n100 ㎡\n1.0 \\times 100 + 0\n100 万元\n371 万元\n\n\n\n同一个模型，w 和 b 不同，预测差出 270 万。\n\n\n\n\n\n\n提示单位为什么必须写清楚\n\n\n\nw = 3.5 和 w = 35000 可能是同一条线——前者单位是”万元/㎡“，后者单位是”元/㎡“。数字本身没有意义，单位定了，数字才有意义。\n\n\n所以”训练模型”这句话，具体到这件事上就是：找出一组合适的 w 和 b。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 1 章　机器学习在解决什么问题",
+      "名词对应"
     ]
   },
   {
@@ -66,685 +1394,8 @@
     ]
   },
   {
-    "objectID": "16-to-neural-networks.html",
-    "href": "16-to-neural-networks.html",
-    "title": "第 16 章　从 ML 到神经网络",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 16 章　从 ML 到神经网络"
-    ]
-  },
-  {
-    "objectID": "14-dimensionality-reduction.html",
-    "href": "14-dimensionality-reduction.html",
-    "title": "第 14 章　降维与推荐",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 14 章　降维与推荐"
-    ]
-  },
-  {
-    "objectID": "12-ensembles-kernels.html",
-    "href": "12-ensembles-kernels.html",
-    "title": "第 12 章　集成与核方法",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 12 章　集成与核方法"
-    ]
-  },
-  {
-    "objectID": "10-polynomial-features.html",
-    "href": "10-polynomial-features.html",
-    "title": "第 10 章　多项式特征",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 10 章　多项式特征"
-    ]
-  },
-  {
-    "objectID": "08-regularization.html",
-    "href": "08-regularization.html",
-    "title": "第 8 章　正则化",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 8 章　正则化"
-    ]
-  },
-  {
-    "objectID": "06-classification-metrics.html",
-    "href": "06-classification-metrics.html",
-    "title": "第 6 章　评估分类器",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 6 章　评估分类器"
-    ]
-  },
-  {
-    "objectID": "04-logistic-regression.html",
-    "href": "04-logistic-regression.html",
-    "title": "第 4 章　逻辑回归与交叉熵",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 4 章　逻辑回归与交叉熵"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html",
-    "href": "03c-feature-scaling.html",
-    "title": "特征缩放",
-    "section": "",
-    "text": "第 2 章结尾留下一个怪现象：梯度下降跑二十步，w 从 1.0 走到了 3.68（涨了 2.68），而 b 从 0 只走到 0.026。\n这一课把它彻底解决。\n先看一眼损失曲面的形状。横轴 w、纵轴 b，越暗的地方损失越低：\n\n\n\n不缩放时的 J(w,b)：一条又窄又长的斜沟\n\n\n那条蓝线是梯度下降走过的路。注意它在做什么：横着走，b 一动不动。\n等高线被拉成了极细的斜条——这就是病态（ill-conditioned）。沿着沟底（长轴方向）走一步只能前进一点点，而垂直于沟底（短轴方向）稍微用力就冲上坡了。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#问题出在哪",
-    "href": "03c-feature-scaling.html#问题出在哪",
-    "title": "特征缩放",
-    "section": "",
-    "text": "第 2 章结尾留下一个怪现象：梯度下降跑二十步，w 从 1.0 走到了 3.68（涨了 2.68），而 b 从 0 只走到 0.026。\n这一课把它彻底解决。\n先看一眼损失曲面的形状。横轴 w、纵轴 b，越暗的地方损失越低：\n\n\n\n不缩放时的 J(w,b)：一条又窄又长的斜沟\n\n\n那条蓝线是梯度下降走过的路。注意它在做什么：横着走，b 一动不动。\n等高线被拉成了极细的斜条——这就是病态（ill-conditioned）。沿着沟底（长轴方向）走一步只能前进一点点，而垂直于沟底（短轴方向）稍微用力就冲上坡了。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#为什么会这样",
-    "href": "03c-feature-scaling.html#为什么会这样",
-    "title": "特征缩放",
-    "section": "为什么会这样",
-    "text": "为什么会这样\n看偏导的公式：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum\\left(\\hat{y}-y\\right)\\cdot x, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum\\left(\\hat{y}-y\\right)\n两者唯一的区别，就是前者乘了一个 x。\n这批房子的面积是 45 到 171，平均值大约 104。所以：\n\\left|\\frac{\\partial J}{\\partial w}\\right| \\approx 104 \\times \\left|\\frac{\\partial J}{\\partial b}\\right|\n梯度的大小，被特征本身的量级直接放大了。\n而更新时，两个参数用的是同一个 \\alpha：\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n于是问题来了：\n\n\\alpha 按”能让 w 稳定”的要求定 → 对 b 来说太小，b 几乎不动\n\\alpha 按”能让 b 前进”的要求定 → 对 w 来说太大，w 直接震荡甚至爆炸\n\n没有一个 \\alpha 能同时满足两边。 这就是量纲不对齐的代价。\n\n\n\n\n\n\n注记换一句更本质的说法\n\n\n\nx 的量级决定了 w 该有多大：\n\n若 x \\approx 100，则 w 应该是 0.0x 这个量级\n若 x \\approx 1，则 w 应该是 x 这个量级\n若 x \\approx 0.01，则 w 得是几百\n\n参数该有的”合理量级”差了好几个数量级，但你用的是一个统一的步长。步长是为某个特定量级设计的，别的量级自然就水土不服。\n表现出来就是：损失降一阵、卡住、抖两下、再降一点——某些维度来回摆，整体进展极慢。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#缩放的思路",
-    "href": "03c-feature-scaling.html#缩放的思路",
-    "title": "特征缩放",
-    "section": "缩放的思路",
-    "text": "缩放的思路\n让所有特征的数值范围拉到同一个量级，于是所有参数该有的量级也就对齐了，一个 \\alpha 就够用。\n拿这批面积做标准化（减均值、除标准差）之后再看：\n\n\n\n标准化之后的 J(w,b)：等高线接近正圆\n\n\n现在等高线几乎是同心圆，梯度下降（蓝线）直着走向圆心，不再横着爬。\n\n\n\n\n\n\n提示这张图里藏着一个惊人的事实\n\n\n\n标准化之后，我实测跑了一次，\\alpha = 1.0：\n起点      J = 38435.79\n一步之后  J =   144.58   ← 正好是最优值\n一步到位。 不是近似，是精确到达。\n原因后面会解释（和 Hessian 有关），现在先记住结论：形状对的时候，梯度下降可以是神速的。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#四种常见的缩放方式",
-    "href": "03c-feature-scaling.html#四种常见的缩放方式",
-    "title": "特征缩放",
-    "section": "四种常见的缩放方式",
-    "text": "四种常见的缩放方式\n设某个特征在训练集上的取值为 x^{(1)}, \\dots, x^{(m)}。\n\n一、除以最大值\nx' = \\frac{x}{\\max(x)}\n最简单，一行代码。结果落在 (0, 1]（如果原值全是正的）。\n缺点：\\max 是个极端值，一个离群点就能毁掉整个缩放。而且它不会把数据中心化。\n\n\n二、均值归一化\nx' = \\frac{x - \\text{mean}(x)}{\\max(x) - \\min(x)}\n先减均值（中心移到 0 附近），再除以极差。\n结果大致落在 (-0.5, 0.5)。比第一种好，因为中心化了——但同样受极值影响。\n\n\n三、标准化（Z-score）\nx' = \\frac{x - \\text{mean}(x)}{\\text{std}(x)}\n减均值、除标准差。结果均值 0、标准差 1。\n这是最常用的一种。原因在下一节的数据里。\n\n\n四、Min-Max 归一化\nx' = \\frac{x - \\min(x)}{\\max(x) - \\min(x)}\n结果严格落在 [0, 1]。和均值归一化的区别是没有减均值，所以区间是 [0,1] 而不是 (-0.5, 0.5)。\n\n\n\n\n\n\n注记还有个 Robust Scaling\n\n\n\nx' = \\frac{x - \\text{median}(x)}{\\text{IQR}(x)} 用中位数和四分位距，对离群点不敏感。数据里有明显异常值时用它。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#四种方式的实际差别",
-    "href": "03c-feature-scaling.html#四种方式的实际差别",
-    "title": "特征缩放",
-    "section": "四种方式的实际差别",
-    "text": "四种方式的实际差别\n我把上面四种方式都用在这批数据上，算出了各自的条件数（Hessian 的最大特征值除以最小特征值，这个数字越大，山谷越扁）：\n\n\n\n方式\n条件数\n合理的 \\alpha\n收敛所需步数\n\n\n\n\n不缩放\n105196\n1.6\\times10^{-4}\n约 24 万步\n\n\n除以最大值\n39\n1.41\n约 91 步\n\n\n均值归一化\n11\n1.83\n约 26 步\n\n\n标准化 Z-score\n1\n1.00\n1 步\n\n\n\n条件数从 10 万降到 1，收敛步数从 24 万降到 1。\n\n\n\n\n\n\n注记为什么标准化的条件数是 1\n\n\n\n标准化后 x' 的均值是 0、方差是 1。Hessian 是\nH = \\begin{bmatrix} \\text{mean}(x'^2) & \\text{mean}(x') \\\\ \\text{mean}(x') & 1 \\end{bmatrix} = \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}\n正好是单位矩阵——因为均值归零让两个方向正交了，方差归一让对角元相等了。\n单位矩阵的特征值全是 1，所以条件数是 1，此时取 \\alpha = 1，更新式 \\theta \\leftarrow \\theta - 1 \\cdot (\\theta - \\theta^*) 一步就落在 \\theta^* 上。\n\n\n这就是标准化成为默认选择的原因：它不只是”把数变小”，它直接消除了参数之间的耦合。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#该选哪个",
-    "href": "03c-feature-scaling.html#该选哪个",
-    "title": "特征缩放",
-    "section": "该选哪个",
-    "text": "该选哪个\n\n\n\n场景\n推荐\n理由\n\n\n\n\n默认情况、梯度下降训练\n标准化\n条件数最优，几乎总能直接用\n\n\n神经网络输入层\nMin-Max 或标准化\n图像像素要压到 [0,1]\n\n\n数据有明显离群点\nRobust\n中位数/IQR 不怕极端值\n\n\n特征有明确的物理零点\n除以最大值\n保持”0 还是 0”这个含义\n\n\n教学演示、临时实验\n除以最大值\n一行代码，够用\n\n\n\n\n\n\n\n\n\n警告两个必须知道的例外\n\n\n\n一、树模型不需要缩放。\n决策树、随机森林、GBDT、XGBoost——它们的分裂只看”这个值大于还是小于阈值”，和数值大小无关。你把面积除以 1000，树的形状一模一样。\n所以第二部分的树模型不用做这一步，别多此一举。\n二、缩放参数只能在训练集上算。\n正确的做法是：用训练集算出均值和标准差，然后把这个值原样套到验证集和测试集上。\n如果对整个数据集算均值再切分，测试集的信息就泄露进训练过程了——第 1 章那道题的坑，这里又出现一次。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#实测到底有没有用",
-    "href": "03c-feature-scaling.html#实测到底有没有用",
-    "title": "特征缩放",
-    "section": "实测：到底有没有用",
-    "text": "实测：到底有没有用\n光看表不算数，跑一遍。\n同一批数据，同一条起跑线（模型都是 f = x），各自用它最好的学习率：\ndef gradient_descent(x, w0, b0, alpha, steps):\n    for _ in range(steps):\n        pred = w0*x + b0\n        err  = pred - price\n        w0 = w0 - alpha * np.mean(err * x)\n        b0 = b0 - alpha * np.mean(err)\n    return w0, b0\n\n\n\n做法\n学习率\n跑多少步\n最终损失\n\n\n\n\n不缩放\n1.6\\times10^{-4}\n5000 步\n31805.76\n\n\n标准化\n1.0\n1 步\n144.58\n\n\n\n不缩放的那一栏值得多看两眼：跑五千步，损失还在 31805，离最优的 144 差着两个数量级。\n不是代码写错了，是这个山谷太长——理论上要二十四万步。\n\n\n\n\n\n\n重要结论\n\n\n\n特征缩放不是锦上添花的技巧，是能不能跑的问题。\n同一份数据、同一个算法：\n\n不缩放：5000 步后几乎没动，还得担心发散\n标准化：一步到位\n\n第 2 章那个”b 走得太慢”的困惑，到这里就该彻底清楚了：不是 b 懒，是 w 的尺子太长。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#核心概念",
-    "href": "03c-feature-scaling.html#核心概念",
-    "title": "特征缩放",
-    "section": "核心概念",
-    "text": "核心概念\n\n\n\n概念\n内容\n\n\n\n\n特征缩放\n把各特征的数值范围拉到同一量级\n\n\n病态\n损失曲面被拉成细长斜沟，梯度下降沿沟缓慢爬行\n\n\n条件数\nHessian 最大/最小特征值之比；越大越病态\n\n\n根因\n一个 \\alpha 要同时服务量级悬殊的多个参数\n\n\n除以最大值\n最简单，x/\\max；受离群点影响\n\n\n均值归一化\n(x-\\mu)/(\\max-\\min)，中心化 + 极差缩放\n\n\n标准化\n(x-\\mu)/\\sigma，最常用，条件数可降到 1\n\n\nMin-Max\n(x-\\min)/(\\max-\\min)，落在 [0,1]，适合网络输入\n\n\nRobust\n(x-\\text{median})/\\text{IQR}，抗离群点\n\n\n树模型\n不需要缩放，分裂只比较大小\n\n\n数据泄漏\n缩放参数只能在训练集上算",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03c-feature-scaling.html#下一课",
-    "href": "03c-feature-scaling.html#下一课",
-    "title": "特征缩放",
-    "section": "下一课",
-    "text": "下一课\n第 3 章的原理部分到这就齐了：多特征、向量化、梯度下降、特征缩放。下一课动手，用 sklearn 把这一整套流程跑一遍。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "特征缩放"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html",
-    "href": "03a-multiple-regression.html",
-    "title": "多元线性回归",
-    "section": "",
-    "text": "第 2 章只有面积一个特征。现实里房价显然不只由面积决定：\n\n\n\n房源\n面积\n楼层\n房龄\n卧室数\n离地铁\n\n\n\n\nA\n100 ㎡\n12\n3 年\n3\n400 m\n\n\nB\n100 ㎡\n1\n20 年\n2\n1200 m\n\n\n\n两套面积一样，价格很可能差几十万。只盯面积，模型永远解释不了这个差别。\n所以把特征从 1 个扩到 n 个。记第 i 个样本的 n 个特征为：\nx^{(i)} = \\left(x_1^{(i)},\\ x_2^{(i)},\\ \\dots,\\ x_n^{(i)}\\right)\n上标 (i) 是”第几个样本”，下标 j 是”第几个特征”。这两个索引别搞混。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#一个特征不够用",
-    "href": "03a-multiple-regression.html#一个特征不够用",
-    "title": "多元线性回归",
-    "section": "",
-    "text": "第 2 章只有面积一个特征。现实里房价显然不只由面积决定：\n\n\n\n房源\n面积\n楼层\n房龄\n卧室数\n离地铁\n\n\n\n\nA\n100 ㎡\n12\n3 年\n3\n400 m\n\n\nB\n100 ㎡\n1\n20 年\n2\n1200 m\n\n\n\n两套面积一样，价格很可能差几十万。只盯面积，模型永远解释不了这个差别。\n所以把特征从 1 个扩到 n 个。记第 i 个样本的 n 个特征为：\nx^{(i)} = \\left(x_1^{(i)},\\ x_2^{(i)},\\ \\dots,\\ x_n^{(i)}\\right)\n上标 (i) 是”第几个样本”，下标 j 是”第几个特征”。这两个索引别搞混。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#把模型展开",
-    "href": "03a-multiple-regression.html#把模型展开",
-    "title": "多元线性回归",
-    "section": "把模型展开",
-    "text": "把模型展开\n每个特征配一个权重：\nf(x) = w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 + b\n拿 A 房举例，假设 w = (2.8,\\ 0.5,\\ -1.2,\\ 8,\\ -0.02)、b = 40：\nf = 2.8 \\times 100 + 0.5 \\times 12 + (-1.2) \\times 3 + 8 \\times 3 + (-0.02) \\times 400 + 40 = 280 + 6 - 3.6 + 24 - 8 + 40 = \\mathbf{338.4}\\ \\text{万元}\n每一项的含义：\n\n\n\n项\n值\n读法\n\n\n\n\n2.8 \\times 100\n280\n面积每多 1 ㎡，价格加 2.8 万\n\n\n0.5 \\times 12\n6\n楼层每高 1 层，加 0.5 万\n\n\n-1.2 \\times 3\n−3.6\n房龄每多 1 年，减 1.2 万\n\n\n8 \\times 3\n24\n每多一个卧室，加 8 万\n\n\n-0.02 \\times 400\n−8\n离地铁每远 1 m，减 0.02 万\n\n\n\n\n\n\n\n\n\n注记权重的正负号本身就是知识\n\n\n\n权重是正的，这个特征推高价格；负的，拉低价格。\nw_2 = 0.5 为正，说明在这批数据里楼层越高越贵；w_3 = -1.2 为负，房龄越大越便宜。\n这些数是模型从数据里学到的，不是你写的。但前提是数据里真有这个规律——喂它一堆烂数据，它也会一本正经地学出离谱的权重。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#写成向量",
-    "href": "03a-multiple-regression.html#写成向量",
-    "title": "多元线性回归",
-    "section": "写成向量",
-    "text": "写成向量\n四个特征就要写四项，二十个特征呢？\n把特征和权重各自打包成向量：\n\\mathbf{x} = \\begin{bmatrix} x_1 \\\\ x_2 \\\\ \\vdots \\\\ x_n \\end{bmatrix}, \\qquad \\mathbf{w} = \\begin{bmatrix} w_1 \\\\ w_2 \\\\ \\vdots \\\\ w_n \\end{bmatrix}\n模型就变成两个向量的点积加一个常数：\nf(\\mathbf{x}) = \\mathbf{w}^{\\top}\\mathbf{x} + b = \\sum_{j=1}^{n} w_j x_j + b\n\\mathbf{w}^{\\top} 是转置，写成行向量好和列向量 \\mathbf{x} 相乘。初学时把它当成”两个向量逐项相乘再求和”的记号即可。\n\n\n\n\n\n\n提示同一个东西的不同写法\n\n\n\n\\mathbf{w}^{\\top}\\mathbf{x}、\\mathbf{w} \\cdot \\mathbf{x}、\\langle \\mathbf{w}, \\mathbf{x} \\rangle、\\mathbf{x}^{\\top}\\mathbf{w} —— 全都是同一个东西：逐项相乘再求和，结果是一个数。\n看到不同写法别慌，认准”逐项乘、加起来”就行。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#这就是多元线性回归",
-    "href": "03a-multiple-regression.html#这就是多元线性回归",
-    "title": "多元线性回归",
-    "section": "这就是多元线性回归",
-    "text": "这就是多元线性回归\n\n\n\n\n\n\n注记\n\n\n\n多元线性回归（multiple linear regression）：输入是多个特征组成的向量，输出仍是 \\mathbf{w}^{\\top}\\mathbf{x} + b。\n“线性”指的是对参数线性，不是”图像是一条直线”。哪怕你把面积平方变成新特征 x_2 = x_1^2，只要还是 w_2x_2 的形式，模型依然是线性的。\n\n\n损失函数和梯度的形式一点没变，只是每个参数多了一个下标：\nJ(\\mathbf{w}, b) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(\\mathbf{w}^{\\top}\\mathbf{x}^{(i)} + b - y^{(i)}\\right)^2\n\\frac{\\partial J}{\\partial w_j} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x_j^{(i)}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)\n好消息是：代码几乎不用改，因为 numpy 会把循环干掉。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#向量化到底省了什么",
-    "href": "03a-multiple-regression.html#向量化到底省了什么",
-    "title": "多元线性回归",
-    "section": "向量化到底省了什么",
-    "text": "向量化到底省了什么\n要算 w_1x_1 + \\dots + w_nx_n。\n不用向量化，只能写循环：\ns = 0.0\nfor j in range(n):\n    s += w[j] * x[j]\n用向量化，一行：\ns = w @ x\n区别不只是少敲几个字。实测（这台机器上，n = 10^6）：\n\n\n\n写法\n耗时\n相对速度\n\n\n\n\nPython for 循环\n0.706 s\n1×\n\n\nnumpy 点积\n0.0083 s\n85×\n\n\n\n差了八十五倍，而且 n 越大差距越大。\n\n\n\n\n\n\n注记为什么快这么多\n\n\n\nPython 的 for 循环每转一圈都要做类型检查、对象查找、方法调用——这些工作在 C 里都是零成本的。\nnumpy 数组在内存里是一整块连续的数字，点积直接把整块交给底层 BLAS 库。BLAS 是几十年来为矩阵运算优化的 C/Fortran 代码，会用上 SIMD 指令和多核并行。\n到了深度学习这件事更极端：GPU 一次能算几千个乘加，Python 循环只能一个一个来。所以”能不能写成矩阵运算”直接决定你的代码跑几秒还是几小时。\n\n\n\n\n\n\n\n\n警告别急着迷信速度\n\n\n\n85 倍是 n = 10^6 时测的。如果 n = 5，写循环可能反而更快——numpy 每次调用都有固定开销。\n向量化的收益随数据规模增长。 小数据写清楚比写快重要。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#numpy-上手",
-    "href": "03a-multiple-regression.html#numpy-上手",
-    "title": "多元线性回归",
-    "section": "numpy 上手",
-    "text": "numpy 上手\n下面这些够用很久。\n\n创建与形状\nimport numpy as np\n\nx = np.array([45, 52, 58])            # 一维，3 个元素\nX = np.array([[45, 3], [52, 7]])      # 二维：2 行 2 列\n\nx.shape    # (3,)\nX.shape    # (2, 2)\nX.ndim     # 2\n\n\n\n\n\n\n提示出错先看 shape\n\n\n\n绝大多数 bug 不是数学错了，是形状不对：本该 (m, n) 的矩阵变成了 (n, m)，本该是列向量却是一维数组。\n所以调试第一件事永远是打印 shape。\n\n\n\n\n逐元素相乘 和 点积\n最容易混的一对：\na = np.array([1, 2, 3])\nb = np.array([4, 5, 6])\n\na * b          # array([ 4, 10, 18])   对应位置各乘各的，结果还是向量\na @ b          # 32                    1*4 + 2*5 + 3*6，结果是一个数\nnp.dot(a, b)   # 32                    和 @ 完全一样\n\n\n\n运算符\n名字\n结果\n\n\n\n\n*\n逐元素乘 element-wise\n向量\n\n\n@\n矩阵乘 / 点积\n一维时是标量\n\n\nnp.dot\n同 @\n同 @\n\n\n\n我们的模型 \\mathbf{w}^{\\top}\\mathbf{x} 用的是后者。\n\n\n用点积算一遍模型\nw = np.array([2.8, 0.5, -1.2, 8.0, -0.02])   # 面积 楼层 房龄 卧室 地铁\nx = np.array([100,   12,   3,   3,  400])\nb = 40\n\nf = w @ x + b        # 338.4\n同样一次预测，循环要五行，点积一行，还快几十倍。\n\n\n广播\n形状不同的数组做运算时，numpy 会自动把小的”铺开”：\na = np.array([1, 2, 3])\na + 10     # array([11, 12, 13])   标量自动加到每个元素上\na * 2      # array([ 2,  4,  6])\n这就是为什么 \\mathbf{w}^{\\top}\\mathbf{x} + b 里的 + b 不用写循环——标量会自动加到每个样本上。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#核心概念",
-    "href": "03a-multiple-regression.html#核心概念",
-    "title": "多元线性回归",
-    "section": "核心概念",
-    "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n多元线性回归\n多个特征，模型仍是 \\mathbf{w}^{\\top}\\mathbf{x} + b\n\n\n特征向量 \\mathbf{x}\n一个样本的 n 个特征组成的向量\n\n\n权重向量 \\mathbf{w}\n每个特征一个权重，它的正负号有实际含义\n\n\n点积\n逐项相乘再求和，结果是一个数，写作 \\mathbf{w}^{\\top}\\mathbf{x} 或 w @ x\n\n\n线性的含义\n指对参数线性，不是”图像是直线”\n\n\n向量化\n用数组整体运算代替 for 循环\n\n\n为什么快\n连续内存 + BLAS + SIMD/多核/GPU 并行\n\n\nnumpy 的坑\n* 是逐元素乘，@ 才是点积；出错先看 shape",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "03a-multiple-regression.html#下一课",
-    "href": "03a-multiple-regression.html#下一课",
-    "title": "多元线性回归",
-    "section": "下一课",
-    "text": "下一课\n特征从 1 个变成 n 个之后，第 2 章那个”b 走得慢”的问题会成倍恶化——每个特征的数值范围都不一样。\n下一课讲特征缩放，把这批烂摊子收拾掉。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 3 章　多元回归与特征缩放",
-      "多元线性回归"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html",
-    "href": "02f-summary.html",
-    "title": "总结：完整走一遍",
-    "section": "",
-    "text": "十二套房的成交记录，横轴面积、纵轴房价：\n\n\n\n一开始的样子：12 个点大致排成一条斜线\n\n\n目标从头到尾没变过：造一个函数 f，输入面积，输出房价。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#回到那批房子",
-    "href": "02f-summary.html#回到那批房子",
-    "title": "总结：完整走一遍",
-    "section": "",
-    "text": "十二套房的成交记录，横轴面积、纵轴房价：\n\n\n\n一开始的样子：12 个点大致排成一条斜线\n\n\n目标从头到尾没变过：造一个函数 f，输入面积，输出房价。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#这一章其实只做了四件事",
-    "href": "02f-summary.html#这一章其实只做了四件事",
-    "title": "总结：完整走一遍",
-    "section": "这一章其实只做了四件事",
-    "text": "这一章其实只做了四件事\n\n\n\n\n\n\n\n\n步骤\n做什么\n结果\n\n\n\n\n定模型\n假设关系是直线\nf(x) = wx + b\n\n\n定标准\n用一个数衡量”这条线多差”\nJ(w,b) = \\dfrac{1}{2m}\\sum(\\hat{y}-y)^2\n\n\n找方向\n算出每个参数该往哪调\n\\dfrac{\\partial J}{\\partial w} = \\dfrac{1}{m}\\sum(\\hat{y}-y)x，\\dfrac{\\partial J}{\\partial b} = \\dfrac{1}{m}\\sum(\\hat{y}-y)\n\n\n迈步子\n沿反方向走一小步\nw \\leftarrow w - \\alpha\\dfrac{\\partial J}{\\partial w}，b \\leftarrow b - \\alpha\\dfrac{\\partial J}{\\partial b}\n\n\n\n后面三步循环执行，直到 J 不再下降。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#一步一步看直线归位",
-    "href": "02f-summary.html#一步一步看直线归位",
-    "title": "总结：完整走一遍",
-    "section": "一步一步看直线归位",
-    "text": "一步一步看直线归位\n从 w = 1.0、b = 0（也就是 f(x) = x）出发，\\alpha = 4.5\\times10^{-5}：\n\n\n\n直线的演化：从完全不像，到基本贴合\n\n\n\n\n\n步\nw\nb\nJ\n这条线在做什么\n\n\n\n\n0\n1.000\n0.00\n37007.9\n太平，远低于所有点\n\n\n1\n2.240\n0.01\n10724.1\n一口气抬起一大截\n\n\n2\n2.907\n0.02\n3128.9\n继续靠近\n\n\n3\n3.265\n0.02\n934.1\n已经像样了\n\n\n5\n3.562\n0.02\n116.6\n只剩细调\n\n\n20\n3.682\n0.03\n42.1\n看起来已经很贴\n\n\n\n前两步干掉了 97% 的损失。 剩下十几步全是在磨最后那一点。\n对应的损失曲线：\n\n\n\n损失随步数下降，底部横线是真实最低点\n\n\n\n\n\n\n\n\n注记注意那个”过冲”\n\n\n\n第 0 步的 w=1.0 离最优很远，所以第一次更新的步子最大（w 一下跳到 2.24）。\n这正是梯度下降的设计：离得越远走得越猛，越靠近越谨慎。 你不需要告诉它”还有多远”。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#完整代码",
-    "href": "02f-summary.html#完整代码",
-    "title": "总结：完整走一遍",
-    "section": "完整代码",
-    "text": "完整代码\nimport numpy as np\n\narea  = np.array([55, 62, 70, 78, 85, 92, 100, 108, 115, 125, 135, 145], float)\nprice = np.array([212.5, 241.2, 261.2, 280.5, 311.1, 328.1,\n                  370.8, 416.8, 415.6, 448.8, 499.4, 532.5])\nm = len(area)\n\nw, b = 1.0, 0.0        # 初始参数\nalpha = 4.5e-5         # 学习率\n\nfor step in range(21):\n    y_hat = w * area + b       # 前向：算预测\n    err   = y_hat - price      # 残差\n    loss  = np.mean(err ** 2) / 2\n\n    dw = np.mean(err * area)   # 对 w 的偏导\n    db = np.mean(err)          # 对 b 的偏导\n\n    print(f\"{step:3d}  w={w:.4f}  b={b:.4f}  J={loss:.2f}\")\n\n    w = w - alpha * dw         # 同时更新\n    b = b - alpha * db\n二十几行，没有库调用，没有黑盒。这就是全部。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#这是哪种梯度下降",
-    "href": "02f-summary.html#这是哪种梯度下降",
-    "title": "总结：完整走一遍",
-    "section": "这是哪种梯度下降",
-    "text": "这是哪种梯度下降\n你算梯度的时候，用的是全部 12 个样本：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x^{(i)}\n那个 \\frac{1}{m}\\sum 就是”把所有样本的梯度加起来，再除以样本数”。每次更新只用了一个数——全体样本的平均梯度。\n这叫批量梯度下降（batch gradient descent）。\n\n\n\n\n\n\n\n\n\n名称\n每步用几个样本\n梯度怎么算\n特点\n\n\n\n\n批量 batch\n全部 m 个\n\\frac{1}{m}\\sum\n方向最准，但数据大时每步极慢\n\n\n随机 SGD\n1 个\n单个样本的梯度\n快但抖，方向只代表一个样本\n\n\n小批量 mini-batch\nk 个（如 32、256）\n\\frac{1}{k}\\sum\n折中，实际训练默认用法\n\n\n\n\n\n\n\n\n\n提示小批量只是把 m 换成 k\n\n\n\n公式长得一模一样，唯一区别是求和范围：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{k}\\sum_{j \\in \\text{本批}} \\left(\\hat{y}^{(j)} - y^{(j)}\\right)x^{(j)}\n本书前面用的全是批量版本——数据只有 12 个点，一次算完没关系。等到了深度学习，一条样本是几万维的张量，才必须分批。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#但最后没到底",
-    "href": "02f-summary.html#但最后没到底",
-    "title": "总结：完整走一遍",
-    "section": "但最后没到底",
-    "text": "但最后没到底\n看那张损失曲线：第 20 步停在 42.1，而绿点标的真实最低是 37.27，在它下面。\n差在哪？看参数：\n\n\n\n\n第 20 步的值\n真实最优\n\n\n\n\nw\n3.682\n3.575\n\n\nb\n0.026\n11.344\n\n\n\nw 已经到位了，b 还差得远——从 0 爬到 11.3，它爬了 20 步才到 0.026。\n前两课已经说过原因：\\partial J/\\partial w 乘了面积（量级约 100），\\partial J/\\partial b 只是残差本身（量级约 1）。同一个 \\alpha，两边的速度差了一百倍。\n结果就是：直线看起来已经贴合了（因为斜率对了），但整体位置还差一截——它比正确的位置略微靠下。\n\n\n\n\n\n\n警告这不是终点，是下一章的入口\n\n\n\n想靠调大 \\alpha 解决？不行——\\alpha 再大一点，w 那边直接爆炸（上一课红色那条）。\n唯一的正解是先把特征缩放到同一量级，让两个方向的梯度自然同尺度。那时同样的 \\alpha 会同时对 w 和 b 好用。\n这正是下一章要做的第一件事。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#核心概念全章",
-    "href": "02f-summary.html#核心概念全章",
-    "title": "总结：完整走一遍",
-    "section": "核心概念（全章）",
-    "text": "核心概念（全章）\n\n\n\n概念\n一句话\n\n\n\n\n线性回归\n用 f(x)=wx+b 拟合数据\n\n\n参数\nw（斜率）和 b（截距），是学出来的\n\n\n超参数\n学习率 \\alpha、迭代轮数，是你手动定的\n\n\n损失函数 J\n输入一组参数，输出一个数，越小越好\n\n\n均方误差\n\\frac{1}{2m}\\sum(\\hat{y}-y)^2，回归的标准损失\n\n\n残差\n\\hat{y}-y，竖直方向的差，不是点到直线的垂距\n\n\n导数 / 偏导\n该参数挪一点，损失变多少；符号给方向，大小给陡峭度\n\n\n梯度\n所有偏导组成的向量，指向最陡上坡方向\n\n\n梯度下降\n沿负梯度方向反复迈小步\n\n\n更新式\n\\theta \\leftarrow \\theta - \\alpha\\nabla J\n\n\n同时更新\n两个偏导都用旧参数算，算完再一起赋值\n\n\n学习率\n步长；太大震荡爆炸，太小慢到没用\n\n\n步长自适应\n越接近谷底梯度越小，步子自然变小\n\n\n批量梯度下降\n每步用全部样本算平均梯度\n\n\n小批量\n把 m 换成批大小 k，其余不变\n\n\n局部最优\n只能保证脚下是平的，不保证是全局最低\n\n\n病态 / 量纲\n各参数梯度量级差异大，导致收敛速度悬殊",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02f-summary.html#下一章",
-    "href": "02f-summary.html#下一章",
-    "title": "总结：完整走一遍",
-    "section": "下一章",
-    "text": "下一章\n第 2 章留下了一个具体的麻烦：b 走得太慢，损失停在 42 而不是 37.27。\n下一章（多元回归与特征缩放）先用两个特征把模型扩展开，再解决这个尺度问题。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "总结：完整走一遍"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html",
-    "href": "02d-gradient-intuition.html",
-    "title": "梯度的直观理解",
-    "section": "",
-    "text": "上一课说”沿着负梯度方向走”，但梯度到底是什么、为什么是那个方向、为什么步子大小会自己变——都没说清。\n这一课把梯度本身拆开看。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#这一课要解决什么",
-    "href": "02d-gradient-intuition.html#这一课要解决什么",
-    "title": "梯度的直观理解",
-    "section": "",
-    "text": "上一课说”沿着负梯度方向走”，但梯度到底是什么、为什么是那个方向、为什么步子大小会自己变——都没说清。\n这一课把梯度本身拆开看。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#先砍掉-b只剩一个参数",
-    "href": "02d-gradient-intuition.html#先砍掉-b只剩一个参数",
-    "title": "梯度的直观理解",
-    "section": "先砍掉 b：只剩一个参数",
-    "text": "先砍掉 b：只剩一个参数\n两个参数的东西不好画。先令 b = 0，J 就退化成一条曲线：\nJ(w) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(w x^{(i)} - y^{(i)}\\right)^2\n横轴只有一个 w，纵轴是损失。画出来是一条 U 形曲线，谷底在 w \\approx 3.68。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#导数在图上就是切线斜率",
-    "href": "02d-gradient-intuition.html#导数在图上就是切线斜率",
-    "title": "梯度的直观理解",
-    "section": "导数在图上就是切线斜率",
-    "text": "导数在图上就是切线斜率\n在曲线上任取一点，画一条贴着曲线的切线。这条线的斜率，就是这一点的导数 \\dfrac{dJ}{dw}。\n它同时告诉你两件事：\n\n\n\n导数的值\n含义\n该怎么做\n\n\n\n\n负数\n增大 w 会降低损失\n增大 w\n\n\n正数\n增大 w 会升高损失\n减小 w\n\n\n接近 0\n这里是平的\n差不多到头了\n\n\n\n\n\n\n\n\n\n注记符号决定方向，大小决定距离\n\n\n\n这是导数的两个独立信息，别混在一起。\n符号 = 往左还是往右。 绝对值 = 这个坡有多陡 —— 也就是离谷底大概还有多远。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#乘上--alpha-之后",
-    "href": "02d-gradient-intuition.html#乘上--alpha-之后",
-    "title": "梯度的直观理解",
-    "section": "乘上 -\\alpha 之后",
-    "text": "乘上 -\\alpha 之后\n更新式是：\nw \\leftarrow w - \\alpha \\frac{dJ}{dw}\n-\\alpha \\times 导数 = 这一步的位移。图上看三处：\n\n\n\n同一条曲线上的三个位置：坡越陡，这一步越大\n\n\n\n\n\n位置\n导数\n乘 -\\alpha 后的位移\n现象\n\n\n\n\nw = 1.0\n-27562\n+0.99\n坡很陡，跨度大\n\n\nw = 3.0\n-7011\n+0.25\n坡缓了，步子也小了\n\n\nw = 3.68\n-24\n+0.0009\n几乎平了，原地不动\n\n\n\n（\\alpha = 3.6 \\times 10^{-5}）\n\n\n\n\n\n\n提示这里藏着一个很漂亮的性质\n\n\n\n你不需要告诉程序”该走多远”。\n离谷底远时，坡陡，梯度大，步子自动就大；靠近谷底时，坡缓，梯度小，步子自动变小。整个过程是自适应的，唯一的旋钮只有 \\alpha。\n如果换成”每步固定走 0.5”，你会永远在谷底附近来回弹跳，永远落不下去。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#这也解释了一个训练中的常见现象",
-    "href": "02d-gradient-intuition.html#这也解释了一个训练中的常见现象",
-    "title": "梯度的直观理解",
-    "section": "这也解释了一个训练中的常见现象",
-    "text": "这也解释了一个训练中的常见现象\n跑过训练的人都知道：loss 一开始掉得飞快，后面越来越慢，最后几乎不动。\n这不是训练卡住了，是梯度在正常工作——越接近谷底，坡越平，走一步换来的进步就越少。\n\n\n\n阶段\n梯度\nloss 变化\n\n\n\n\n刚开始\n大\n每步掉几千\n\n\n中期\n中\n每步掉几百\n\n\n接近谷底\n小\n每步掉个位数\n\n\n\n所以看到 loss 曲线”前陡后平”是好现象。真正要担心的是它一直平着不动。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#两个参数各管各的方向",
-    "href": "02d-gradient-intuition.html#两个参数各管各的方向",
-    "title": "梯度的直观理解",
-    "section": "两个参数：各管各的方向",
-    "text": "两个参数：各管各的方向\nb 放回来之后，曲面有两个方向。这时候不再是”一个导数”，而是每个方向一个偏导：\n\\frac{\\partial J}{\\partial w}, \\qquad \\frac{\\partial J}{\\partial b}\n把它们装成一个向量，就是梯度：\n\\nabla J = \\left( \\frac{\\partial J}{\\partial w},\\ \\frac{\\partial J}{\\partial b} \\right)\n\n\n\n\n\n\n注记怎么理解这个向量\n\n\n\n它是一支箭头，钉在你脚下的地面上，指向”最陡的上坡方向”。\n\n箭头的方向 = 往哪边走最陡\n箭头的长度 = 有多陡\n\n下山当然要反着走：\\theta \\leftarrow \\theta - \\alpha \\nabla J。\n两个分量是独立算出来的，但它们同时被应用——这就是上一课强调”同时更新”的原因。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#为什么偏偏是最陡的方向",
-    "href": "02d-gradient-intuition.html#为什么偏偏是最陡的方向",
-    "title": "梯度的直观理解",
-    "section": "为什么偏偏是”最陡”的方向",
-    "text": "为什么偏偏是”最陡”的方向\n这一小段要一点线性代数，看不懂可以跳到下一节，结论记住就行。\n假设你要往某个方向 \\mathbf{u}（单位向量）走一小步，损失的变化率叫方向导数：\nD_{\\mathbf{u}} J = \\nabla J \\cdot \\mathbf{u}\n也就是梯度和方向向量的内积。\n而内积有个性质：\\mathbf{a} \\cdot \\mathbf{b} = |\\mathbf{a}||\\mathbf{b}|\\cos\\theta。当两个向量方向相同时（\\cos\\theta = 1），内积取最大值。\n所以：\n\n\\mathbf{u} 与梯度同向 → 变化率最大 → 上升最快\n\\mathbf{u} 与梯度反向 → 变化率最小（最负） → 下降最快\n\n这就是”沿负梯度走”不是近似、不是经验，而是数学上的精确最优——在只用一步、只看眼前的前提下。\n\n\n\n\n\n\n警告但”最陡”不等于”最快到谷底”\n\n\n\n这是最容易误解的一点。\n梯度只保证”眼下这一步的方向最好”，不保证全局最快。地形是弯的，你走一步之后坡度就变了。\n像在雾里下山：每次都朝脚下最陡的地方走，可能绕远路，也可能掉进小坑出不来（上一课的那个谷）。\n它是个局部策略，不是全局策略。 深度学习的全部优化技巧，基本都在跟这件事作斗争。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#学习率只是缩放",
-    "href": "02d-gradient-intuition.html#学习率只是缩放",
-    "title": "梯度的直观理解",
-    "section": "学习率只是缩放",
-    "text": "学习率只是缩放\n回到更新式，看两个因子的分工：\nw \\leftarrow w \\;-\\; \\underbrace{\\alpha}_{\\text{缩放倍数}} \\cdot \\underbrace{\\frac{\\partial J}{\\partial w}}_{\\text{方向 + 陡峭程度}}\n\n梯度决定往哪走、走多远（自带尺度）\n\\alpha 只是在梯度的基础上再乘一个倍数\n\n所以 \\alpha 不改变方向。哪怕 \\alpha = 0.000001，方向也还是负梯度方向，只是慢得像蜗牛。\n这一点很重要：学不动的时候，先别怀疑方向错了，多半是步长的问题。\n下一个专门讲 \\alpha 怎么选、太大太小的具体表现。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02d-gradient-intuition.html#核心概念",
-    "href": "02d-gradient-intuition.html#核心概念",
-    "title": "梯度的直观理解",
-    "section": "核心概念",
-    "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n导数 \\frac{dJ}{dw}\n曲线在该点切线的斜率；符号给方向，大小给陡峭度\n\n\n偏导\n多参数时，只对一个求导，其余按住不动\n\n\n梯度 \\nabla J\n所有偏导组成的向量，指向最陡上坡方向\n\n\n负梯度\n最陡下坡方向，数学上精确最优（局部）\n\n\n步长自适应\n坡陡步子大，坡缓步子小，无需人工设定\n\n\n\\alpha 的作用\n只缩放梯度长度，不改变方向\n\n\n局部性\n只保证眼前这一步最优，不保证全局最快",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "梯度的直观理解"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html",
-    "href": "02b-loss-function.html",
-    "title": "损失函数",
-    "section": "",
-    "text": "上一课最后说，机器没有眼睛，它需要两样东西：\n\n一个数字，能衡量”这条线现在有多差”\n一套办法，能告诉它”w 该往大调还是往小调”\n\n这一课解决第一件。第二件是梯度，下一课。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#上一课留下的两个问题",
-    "href": "02b-loss-function.html#上一课留下的两个问题",
-    "title": "损失函数",
-    "section": "",
-    "text": "上一课最后说，机器没有眼睛，它需要两样东西：\n\n一个数字，能衡量”这条线现在有多差”\n一套办法，能告诉它”w 该往大调还是往小调”\n\n这一课解决第一件。第二件是梯度，下一课。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#损失函数是什么",
-    "href": "02b-loss-function.html#损失函数是什么",
-    "title": "损失函数",
-    "section": "损失函数是什么",
-    "text": "损失函数是什么\n把它当成一个普通的函数来看待：\n\n\n\n输入\n一组 w 和 b（也就是一条具体的直线）\n\n\n输出\n一个数字，越大说明这条线越差\n\n\n名字\n损失函数 loss function，记作 J(w, b)\n\n\n\n它做的事情只有一件：把”这条线好不好”变成一个可以比较的数字。\n人眼扫一眼图就知道 D 线比 A 线好。机器不能。但如果把两条线都送进 J，得到 37007 和 40，机器就能比大小——这就是它全部需要的。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#公式是怎么来的",
-    "href": "02b-loss-function.html#公式是怎么来的",
-    "title": "损失函数",
-    "section": "公式是怎么来的",
-    "text": "公式是怎么来的\n对每个店，直线上给出的预测和真实成交价之间差了一截：\n\\hat{y}^{(i)} - y^{(i)}\n直接把这些差加起来不行，有三个问题：\n一、正负会抵消。 有的点预测高了，有的点预测低了，一加可能变成接近 0，明明差得离谱却显示”完美”。\n解决办法：平方。负数平方变正，正数还是正。\n二、点越多，总和越大。 12 个点的总误差一定比 3 个点大，但这不代表模型更差——只是点更多。\n解决办法：除以点数 m，取平均。\n三、平方后的数太大。 误差是几百万元，平方就是几十万，写起来累。\n解决办法：再乘 \\frac{1}{2}。这一项纯粹是为了后面求导时把平方的 2 抵消掉，让公式好看。它不改变最低点在哪——把整条曲线压低一半，谷底还是那个谷底。\n合起来：\nJ(w, b) = \\frac{1}{2m} \\sum_{i=1}^{m} \\left( \\hat{y}^{(i)} - y^{(i)} \\right)^2\n其中 \\hat{y}^{(i)} = w x^{(i)} + b。\n这就是均方误差（mean squared error, MSE），回归问题的标准损失。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#这个公式到底在算什么",
-    "href": "02b-loss-function.html#这个公式到底在算什么",
-    "title": "损失函数",
-    "section": "这个公式到底在算什么",
-    "text": "这个公式到底在算什么\n逐层拆开看：\n\n\n\n部分\n含义\n\n\n\n\n\\hat{y} - y\n每个点上，预测价比真实价差了多少\n\n\n平方\n消掉正负，并让大错罚得更重\n\n\n\\sum\n把所有点的错加起来\n\n\n\\div m\n平均到每个点\n\n\n\\div 2\n求导时省事\n\n\n\n所以 J 读作：平均到每个点，模型猜错了多少（的平方）。\n\n\n\n\n\n\n警告一个容易搞错的地方\n\n\n\n这里的”距离”是竖直方向的差，不是点到直线的垂直距离。\n竖直距离才是”预测价减真实价”。垂直距离是几何概念，和价格的高低无关，用它算出来的损失没有意义。\n看图上那几条虚线就明白了——全是竖着画的。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#亲手算一次",
-    "href": "02b-loss-function.html#亲手算一次",
-    "title": "损失函数",
-    "section": "亲手算一次",
-    "text": "亲手算一次\n取三个点：面积 62、100、145 平方米，真实成交价 241.2、370.8、532.5 万元。\n先用那条明显很差的线 A：w = 1.0、b = 0。\n\n\n\n面积 x\n真实 y\n预测 \\hat{y}\n\\hat{y} - y\n平方\n\n\n\n\n62\n241.2\n62.0\n−179.2\n32112.64\n\n\n100\n370.8\n100.0\n−270.8\n73332.64\n\n\n145\n532.5\n145.0\n−387.5\n150156.25\n\n\n\n\\sum = 255601.53, \\qquad J = \\frac{255601.53}{2 \\times 3} = 42600.26\n再用那条基本贴合的线 D：w = 3.5、b = 20。\n\n\n\n面积 x\n真实 y\n预测 \\hat{y}\n\\hat{y} - y\n平方\n\n\n\n\n62\n241.2\n237.0\n−4.2\n17.64\n\n\n100\n370.8\n370.0\n−0.8\n0.64\n\n\n145\n532.5\n527.5\n−5.0\n25.00\n\n\n\n\\sum = 43.28, \\qquad J = \\frac{43.28}{2 \\times 3} = 7.21\n\n\n\n参数\nJ\n\n\n\n\nw=1.0,\\ b=0\n42600\n\n\nw=3.5,\\ b=20\n7.21\n\n\n\n差了将近 6000 倍。\n用全部 12 个点算一遍，结论一样：J(1.0, 0) = 37007.88，J(3.5, 20) = 40.36。\n\n\n\n\n\n\n注记\n\n\n\n线拟合得越好，J 越小。“找一条好线”和”找一个小的 J“是同一件事。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#先只看-w把-b-固定成-0",
-    "href": "02b-loss-function.html#先只看-w把-b-固定成-0",
-    "title": "损失函数",
-    "section": "先只看 w：把 b 固定成 0",
-    "text": "先只看 w：把 b 固定成 0\n两个参数不好画图。先砍掉一个：令 b = 0，只剩 w。\n这时 J 就退化成一条曲线：\nJ(w) = \\frac{1}{2m} \\sum_{i=1}^{m} \\left( w x^{(i)} - y^{(i)} \\right)^2\n横轴是 w，纵轴是 J(w)：\n\n\n\n只有 w 一个变量时，损失是一条 U 形曲线\n\n\n\nw = 1.0 时，J = 37007，在曲线的左端高处\nw = 3.68 时，J = 42，在谷底\n\nw 从 1 调到 3.68，损失从三万七掉到 42。这就是”调参数”在数学上的样子——沿着曲线往低处走。\n\n\n\n\n\n\n提示谷底为什么不是 0\n\n\n\n因为强行让 b = 0，相当于要求这条线必须穿过原点。而这批数据真实最优的 b 约是 11.3，被按死在 0 上，这条线怎么调都差一截。\n42 已经是 b=0 条件下的极限。等 b 也放开，损失还能再降——真实最低点是 37.27。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#b-也放开jwb-是一张地形图",
-    "href": "02b-loss-function.html#b-也放开jwb-是一张地形图",
-    "title": "损失函数",
-    "section": "b 也放开：J(w,b) 是一张地形图",
-    "text": "b 也放开：J(w,b) 是一张地形图\n两个参数，J 就是一个二维曲面。形状像一只碗：中间低，四周高，碗底只有一个点。\n碗底那一点，就是最优的 (w, b)。\n但三维曲面不好读——从一个角度看，近处的山会挡住远处的谷。所以换成等高线图，也就是地理课上的地形图：\n\n横轴 w，纵轴 b，这是”地面坐标”\n每一圈是 J 相同的所有点连成的线\n越暗越低，越亮越高\n圈越密，坡越陡\n\n\n\n\nJ(w,b) 的等高线图。中心最暗处是最低点\n\n\n图上标了四个点，都是上一课出现过的那几条线：\n\n\n\n点\n参数\nJ 的量级\n位置\n\n\n\n\nA\nw=1.0,\\ b=0\n37008\n左下角，最亮，坡最高\n\n\nB\nw=2.4,\\ b=30\n千级\n已进中间地带\n\n\nC\nw=3.2,\\ b=45\n百级\n接近暗区边缘\n\n\nD\nw=3.5,\\ b=20\n40.36\n很近，但还没到底（真底是 37.27）\n\n\n\n从 A 走到 D，就是上一课”把线慢慢转过去、抬上去”那个过程，在参数空间里的路线。\n\n\n\n\n\n\n注记这个”碗”是斜的\n\n\n\n仔细看等高线：它是一条从左下到右上的长条，不是正圆的。\n原因很实在——w 和 b 可以互相补偿。w 调小一点、b 调大一点，落在同一条等高线上，损失几乎不变（因为这条线的走向没大变）。\n等高线拉得越长，说明这个方向越”平”，优化时越难判断该往哪走。这一点到后面讲特征缩放时还会回来。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#核心概念",
-    "href": "02b-loss-function.html#核心概念",
-    "title": "损失函数",
-    "section": "核心概念",
-    "text": "核心概念\n\n\n\n概念\n内容\n\n\n\n\n损失函数 J(w,b)\n输入一组参数，输出一个数，越小说明拟合越好\n\n\n均方误差 MSE\n\\dfrac{1}{2m}\\sum(\\hat{y}-y)^2，回归的标准损失\n\n\n\\frac{1}{2} 的作用\n让求导更干净，不影响最低点位置\n\n\n距离的方向\n竖直方向（残差），不是点到直线的垂距\n\n\nJ(w) 曲线\nb 固定时是一条 U 形曲线，谷底是最优 w\n\n\nJ(w,b) 曲面\n一只碗，碗底是唯一最低点\n\n\n等高线图\n碗的二维读法，越暗越低",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "02b-loss-function.html#还差一步",
-    "href": "02b-loss-function.html#还差一步",
-    "title": "损失函数",
-    "section": "还差一步",
-    "text": "还差一步\n现在有了 J，可以判断哪条线更好。但还差一件事：\n\n站在曲线的某个点上，怎么知道往左走还是往右走？\n\nJ 只告诉你”现在多高”，不告诉你”哪边下坡”。下一课讲梯度——它回答的正是这个问题。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 2 章　线性回归与梯度下降",
-      "损失函数"
-    ]
-  },
-  {
-    "objectID": "01d-review.html",
-    "href": "01d-review.html",
-    "title": "回顾",
-    "section": "",
-    "text": "概念\n一句话\n\n\n\n\n机器学习\n从数据里找出一个函数，而不是人手写规则\n\n\n样本\n一条数据，表格里的一行\n\n\n特征 x\n模型的输入，比如面积\n\n\n标签 y\n模型要预测的目标，比如房价\n\n\n模型\n一个带参数的函数\n\n\n参数 w, b\n模型内部可调的数字，不同取值给出不同预测\n\n\n监督学习\n训练数据带答案\n\n\n无监督学习\n训练数据没有答案，找数据自身的结构\n\n\n强化学习\n与环境交互，靠奖励学策略\n\n\n回归\n标签是连续的值\n\n\n分类\n标签是离散的类别\n\n\n\n下一章只做一件事：把”找出一组合适的 w 和 b“这件事，做出来。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 1 章　机器学习在解决什么问题",
-      "回顾"
-    ]
-  },
-  {
-    "objectID": "01b-nouns.html",
-    "href": "01b-nouns.html",
-    "title": "名词对应",
-    "section": "",
-    "text": "下面是一批房子的成交记录。每一行是一套房子，记着面积和当时的成交价。\n\n\n\n面积（平方米）\n成交价（万元）\n\n\n\n\n62\n241\n\n\n85\n311\n\n\n100\n371\n\n\n125\n449\n\n\n145\n533\n\n\n\n把整批数据画在图上，横轴是面积，纵轴是房价：\n\n\n\n每个点是一套房子：横坐标是面积，纵坐标是房价\n\n\n图里有几个词需要一次对齐：\n\n\n\n名词\n对照到图上\n在这张表里\n\n\n\n\n样本 sample\n一个点\n一套房子，一行\n\n\n特征 feature，x\n横坐标\n面积\n\n\n标签 label，y\n纵坐标\n成交价\n\n\n模型 model，f\n一个函数\n输入面积，输出预测价格\n\n\n参数 parameter，w, b\n函数里还没定的数\n见下面\n\n\n\n用最简单的一种模型来试：假设房价和面积成正比，画出来就是一条直线。\n\\hat{y} = w x + b\n\\hat{y} 读作”y hat”，帽子表示这是模型猜的，不是真实成交价。w 和 b 就是参数。\n\n代入数字算一次\nw 的单位是万元每平方米，b 的单位是万元。\n假设 w = 3.5（万元/㎡），b = 20（万元）：\n\n\n\n面积\n计算\n预测价格\n真实成交价\n\n\n\n\n62 ㎡\n3.5 \\times 62 + 20\n237 万元\n241 万元\n\n\n100 ㎡\n3.5 \\times 100 + 20\n370 万元\n371 万元\n\n\n145 ㎡\n3.5 \\times 145 + 20\n527.5 万元\n533 万元\n\n\n\n换一组参数 w = 1.0、b = 0：\n\n\n\n面积\n计算\n预测价格\n真实成交价\n\n\n\n\n100 ㎡\n1.0 \\times 100 + 0\n100 万元\n371 万元\n\n\n\n同一个模型，w 和 b 不同，预测差出 270 万。\n\n\n\n\n\n\n提示单位为什么必须写清楚\n\n\n\nw = 3.5 和 w = 35000 可能是同一条线——前者单位是”万元/㎡“，后者单位是”元/㎡“。数字本身没有意义，单位定了，数字才有意义。\n\n\n所以”训练模型”这句话，具体到这件事上就是：找出一组合适的 w 和 b。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 1 章　机器学习在解决什么问题",
-      "名词对应"
-    ]
-  },
-  {
-    "objectID": "01a-rules-and-data.html",
-    "href": "01a-rules-and-data.html",
+    "objectID": "part1-ml/ch01/01a-rules-and-data.html",
+    "href": "part1-ml/ch01/01a-rules-and-data.html",
     "title": "规则与数据",
     "section": "",
     "text": "写程序通常是这样一个方向：人把规则想好，交给程序，程序处理数据给出答案。\n\n\n代码\nflowchart LR\n  A[\"规则（人写）\"] --&gt; C[\"程序\"]\n  B[\"数据\"] --&gt; C\n  C --&gt; D[\"答案\"]\n\n\n\n\n\n\nflowchart LR\n  A[\"规则（人写）\"] --&gt; C[\"程序\"]\n  B[\"数据\"] --&gt; C\n  C --&gt; D[\"答案\"]\n\n\n\n\n\n\n判断一封邮件是不是垃圾邮件，你写：\nif \"中奖\" in text or \"免费领取\" in text:\n    return \"垃圾邮件\"\n跑起来没问题。但对方把”中奖”改成”中 奖”、“中*奖”、“恭喜中奖”，你就得再加三条规则。再往后是几百条、几千条。规则永远补不完，因为对手在变，而你的规则是死的。\n还有一类任务，规则连写都写不出来。下面是几件计算机每天都在做的事：\n\n\n\n\n\n\n\n任务\n你怎么用 if 写规则？\n\n\n\n\n判断一张照片里是不是猫\n“有两只耳朵”？折耳猫呢？背影呢？夜里拍的糊的呢？\n\n\n把一段语音变成文字\n同一个人说同一句话，每次波形都不一样\n\n\n把中文翻成英文\n语序、语气、成语，没有固定模板\n\n\n认出信封上的手写邮编\n每个人写的 3 都不一样\n\n\n\n这些任务的共同点：人能给出答案，但说不出规则。你一眼就知道那是只猫，但你无法把这个判断过程写成 if。\n机器学习换了个方向：\n\n\n代码\nflowchart LR\n  A[\"数据\"] --&gt; C[\"学习算法\"]\n  B[\"答案（人标注）\"] --&gt; C\n  C --&gt; D[\"规则（自动得到）\"]\n\n\n\n\n\n\nflowchart LR\n  A[\"数据\"] --&gt; C[\"学习算法\"]\n  B[\"答案（人标注）\"] --&gt; C\n  C --&gt; D[\"规则（自动得到）\"]\n\n\n\n\n\n\n你给机器十万封已经标注好的邮件——这封是垃圾、这封不是——它自己找出一套判断规则。你不告诉它规则，你只给它例子。\n\n\n\n\n\n\n注记\n\n\n\n这件事说起来只有一句：从数据里找出一个函数。\n它叫什么名字不重要，重要的是它是个函数——给输入，出输出。",
@@ -755,8 +1406,8 @@
     ]
   },
   {
-    "objectID": "01c-paradigms.html",
-    "href": "01c-paradigms.html",
+    "objectID": "part1-ml/ch01/01c-paradigms.html",
+    "href": "part1-ml/ch01/01c-paradigms.html",
     "title": "三种范式",
     "section": "",
     "text": "机器学习按”训练时有没有标准答案”分成三大类。\n\n监督学习\n数据里既给输入，也给正确答案。\n\n\n\n场景\n输入 x\n标签 y\n\n\n\n\n房价预测\n面积、房龄、楼层\n成交价\n\n\n垃圾邮件\n邮件正文\n是 / 否\n\n\n手写数字识别\n一张 28×28 的图\n0–9 中的某一个\n\n\n机器翻译\n一句中文\n对应的英文\n\n\n医学影像\nCT 图\n良性 / 恶性\n\n\n\n共同点：每个样本都有一个已知的答案。模型的任务是学会从输入推到答案。\n这是本书的主线，第 2–12 章全在这里。\n\n\n无监督学习\n数据里只有输入，没有答案。\n\n\n\n场景\n输入\n想得到什么\n\n\n\n\n用户分群\n每个用户的消费行为\n把相似的用户归成几类\n\n\n新闻聚类\n几千篇文章\n自动分出”体育”“财经”“科技”\n\n\n异常检测\n服务器每分钟的指标\n找出不对劲的那几分钟\n\n\n\n它不回答”这条数据的答案是什么”，而是回答”这批数据自己长什么样”。\n第 13–14 章。\n\n\n强化学习\n既没有现成的数据，也没有标准答案。只有一个环境，你做一个动作，环境回一个奖励。\n\n\n\n场景\n动作\n奖励\n\n\n\n\n下棋\n走一步\n赢了 +1，输了 −1\n\n\n机器人走路\n关节怎么用力\n走得远给正分，摔倒给负分\n\n\n游戏 AI\n按哪个键\n得分上升\n\n\n\n它的难点在于：没人告诉你这一步走得对不对，你只知道最后输赢。中间哪一步错了，得自己倒推。\n只作了解，本书附录一页带过。\n\n\n监督学习内部再分两半\n按标签的类型分：\n\n\n\n\n回归\n分类\n\n\n\n\n标签\n连续的数字\n有限的几个类别\n\n\n例子\n房价 371 万\n垃圾 / 正常\n\n\n模型的输出\n一个实数\n各类的概率，如 [0.92, 0.08]\n\n\n本书章节\n第 2–3 章\n第 4–6 章\n\n\n\n“明天会不会下雨”是分类，“明天下多少毫米雨”是回归。同一个问题两种定法都成立，取决于你把标签定义成什么。",
@@ -767,8 +1418,8 @@
     ]
   },
   {
-    "objectID": "02a-linear-regression.html",
-    "href": "02a-linear-regression.html",
+    "objectID": "part1-ml/ch02/02a-linear-regression.html",
+    "href": "part1-ml/ch02/02a-linear-regression.html",
     "title": "线性回归",
     "section": "",
     "text": "上一章留下一个问题：给定一批房子，怎么找出那组 w 和 b。\n\n先把目标说清楚\n现在有 12 套房的成交记录，画在图上：\n\n\n\n横轴面积（平方米），纵轴房价（万元），12 个点\n\n\n这些点大致排成一条斜线。我们的目标是一个函数：\n\n输入一个面积，输出一个房价。 记作 f(x)。\n\n只要能造出这个函数，以后来一套没卖过的房子，把面积填进去，它就能给出一个价格估计。\n\n\n可以用曲线，但先用直线\n这些点不是笔直排的。理论上你可以画一条弯的曲线，让它更贴近每个点。\n但先别急。先假设关系是一条直线：\nf(x) = wx + b\n这么做的理由很实在：直线只有两个参数，好理解、好计算、不容易过拟合。等你把直线玩明白了，再去弯也不迟。\n\n\n\n\n\n\n注记\n\n\n\n用一条直线去拟合数据，这件事叫「线性回归」。\n\n\n这个名称值得记住——它是后面一切的地基。深度学习的每一个网络，最后都在做类似的事：找一组参数，让输出尽量贴近真实值。只是参数从 2 个变成几百万个，函数从直线变成了一层层堆叠的矩阵运算。\n\n\n先随便放一条线\nw 和 b 还不知道。那就先瞎猜一个：w = 1.0、b = 0。也就是 f(x) = x——面积多少平米，就卖多少万元。\n画上去看看：\n\n\n\n随便放的一条线，离数据点很远\n\n\n差得离谱。100 平米的房子真实成交 371 万，这条线说 100 万。\n但它至少是一条线。接下来只要把它”转”过去、“抬”上去。\n\n\n慢慢调\n直线有两个可以动的地方：\n\n改 w，线的陡不陡会变（旋转）\n改 b，线的高低会变（上下平移）\n\n调几次看看：\n\n\n\n四条线：从胡乱摆放，到基本贴合\n\n\n\n\n\n参数\n这条线在做什么\n\n\n\n\nw = 1.0, b = 0\n太平，太低，完全不像\n\n\nw = 2.4, b = 30\n陡了一点，还是偏低\n\n\nw = 3.2, b = 45\n角度接近了，但整体偏高\n\n\nw = 3.5, b = 20\n抬起角度、压低头部，基本贴合\n\n\n\n图里 w = 3.5、b = 20 时，100 平米的预测是 3.5 \\times 100 + 20 = 370 万，真实 371 万。\n\n\n所以”训练”到底是什么\n把它说白：\n\n训练，就是在所有可能的 w 和 b 里，挑出一组让这条线尽量贴近所有点的。\n\n人眼一看图就知道”再陡一点”，但机器没有眼睛。机器需要两个东西：\n\n一个数字，能衡量”这条线现在有多差”——这就是损失函数\n一套办法，能告诉它”w 该往大调还是往小调”——这就是梯度\n\n这两件事是下一课的内容。这一课只需要记住结论：找线 = 找参数。\n\n\n\n\n\n\n注记核心概念\n\n\n\n线性回归：用一条直线 f(x) = wx + b 去拟合数据，找出一组让预测尽量接近真实值的 w 和 b。\nw 控制斜率，b 控制截距。这两个数决定了这条线的一切。",
@@ -779,8 +1430,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html",
-    "href": "02c-gradient-descent.html",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html",
+    "href": "part1-ml/ch02/02c-gradient-descent.html",
     "title": "梯度下降",
     "section": "",
     "text": "上一课造出了损失函数 J(w,b)：给它一组参数，它告诉你这条线有多差。\n现在的问题是：\n\n站在曲面上的某一点，怎么知道该往哪走，才能让 J 变小？\n\n答案是梯度下降（gradient descent）。这是整个深度学习里最核心的一个算法——后面所有的训练，不管模型多大，底层都是它。",
@@ -791,8 +1442,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#这一课要回答什么",
-    "href": "02c-gradient-descent.html#这一课要回答什么",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#这一课要回答什么",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#这一课要回答什么",
     "title": "梯度下降",
     "section": "",
     "text": "上一课造出了损失函数 J(w,b)：给它一组参数，它告诉你这条线有多差。\n现在的问题是：\n\n站在曲面上的某一点，怎么知道该往哪走，才能让 J 变小？\n\n答案是梯度下降（gradient descent）。这是整个深度学习里最核心的一个算法——后面所有的训练，不管模型多大，底层都是它。",
@@ -803,8 +1454,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#先给个画面",
-    "href": "02c-gradient-descent.html#先给个画面",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#先给个画面",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#先给个画面",
     "title": "梯度下降",
     "section": "先给个画面",
     "text": "先给个画面\n想象你被空投到一片山谷里，蒙着眼，任务是走到谷底。\n你能做的只有一件事：用脚感受脚下的坡度。\n\n感觉一下哪个方向最陡、最向下\n朝那个方向迈一小步\n站定，重新感受一次\n再迈一步\n\n一直重复，直到脚下已经平坦（四周都不再下降），你就到了谷底。\n这就是梯度下降。 不规划全局，只处理眼前这一步。\n对应到我们的问题：\n\n\n\n山谷\n机器学习\n\n\n\n\n你站的位置\n一组具体的 (w, b)\n\n\n地面高度\n损失 J(w,b)\n\n\n脚下的坡度\n梯度 \\nabla J\n\n\n迈一步\n更新一次参数\n\n\n走到谷底\n找到让损失最小的一组参数",
@@ -815,8 +1466,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#看一眼真实的曲面",
-    "href": "02c-gradient-descent.html#看一眼真实的曲面",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#看一眼真实的曲面",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#看一眼真实的曲面",
     "title": "梯度下降",
     "section": "看一眼真实的曲面",
     "text": "看一眼真实的曲面\n\n\n\n损失曲面与下降路径。白线是参数走过的路，绿点是终点\n\n\n横轴 w、纵轴 b，这是”地面坐标”；高度是损失。\n那条白线就是”走”出来的轨迹：从左上角出发，一路滑进中间那条深沟，最后停在绿点附近。\n\n\n\n\n\n\n注记纵轴为什么写着 log(1+J)\n\n\n\n原始损失的跨度太大了：从 37 到 37000，差一千倍。直接画，谷底会被压成一条看不见的缝。\n取对数只是把高度压缩了，形状没变。就像把一座山按比例压扁——哪里高哪里低，一点没变。",
@@ -827,8 +1478,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#麻烦谷不止一个",
-    "href": "02c-gradient-descent.html#麻烦谷不止一个",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#麻烦谷不止一个",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#麻烦谷不止一个",
     "title": "梯度下降",
     "section": "麻烦：谷不止一个",
     "text": "麻烦：谷不止一个\n上面那张图里的地形很简单，只有一个底。但真实的损失曲面往往不止一个坑。\n下图是一条剖面的示意（把多个参数压成一条横轴）：\n\n\n\n局部最低点与全局最低点\n\n\n从最左边出发，顺着坡往下走，你会掉进中间那个小坑，然后停住——因为四周都不再下降了。\n但右边还有一条更深的沟。你到不了那里，因为你根本不知道它存在。\n\n\n\n\n\n\n警告局部最优\n\n\n\n停在”局部最低点”而不是”全局最低点”，是所有基于梯度的优化方法的通病。\n它只能保证”我脚下是平的”，没法保证”这是全世界最低的地方”。\n不过：我们这条 J(w,b) 是个例外——它是一个碗，只有一个最低点，数学上叫凸函数。所以线性回归的梯度下降只要迭代足够多次，一定能找到全局最优。（“足够多次”是关键——第 2 章最后一课会看到一个反例。）\n深度学习里没有这种保证了。到第 16 章会回来看这件事。",
@@ -839,8 +1490,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#数学准备导数和偏导",
-    "href": "02c-gradient-descent.html#数学准备导数和偏导",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#数学准备导数和偏导",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#数学准备导数和偏导",
     "title": "梯度下降",
     "section": "数学准备：导数和偏导",
     "text": "数学准备：导数和偏导\n要”感受坡度”，需要用导数。\n一句话：导数描述”往某个方向挪一点点，函数值会变多少”。\n\\frac{dJ}{dw}\n读作”J 对 w 的导数”。它是个数：\n\n正数 → w 增大，J 会变大（所以该让 w 减小）\n负数 → w 增大，J 会变小（所以该让 w 增大）\n接近 0 → 这里是平地，差不多到谷底了\n\n现在的问题是，J 有两个自变量（w 和 b）。这时要用偏导数：\n\\frac{\\partial J}{\\partial w}, \\qquad \\frac{\\partial J}{\\partial b}\n符号从 d 变成 \\partial（读作”偏”），意思是：只对这一个变量求导，把另一个当成常数。\n物理上理解：你想知道”只往 w 方向挪”，那就把 b 按住不动，单独看高度怎么变。\n\n把两个偏导算出来\nJ 的定义是：\nJ(w,b) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(wx^{(i)} + b - y^{(i)}\\right)^2\n对 w 求偏导（b 当常数，用链式法则，平方的导数乘上内部对 w 的导数 x^{(i)}）：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{2m}\\sum 2\\left(wx^{(i)}+b-y^{(i)}\\right)\\cdot x^{(i)} = \\frac{1}{m}\\sum\\left(\\hat{y}^{(i)}-y^{(i)}\\right)x^{(i)}\n对 b 求偏导（内部对 b 的导数是 1）：\n\\frac{\\partial J}{\\partial b} = \\frac{1}{2m}\\sum 2\\left(wx^{(i)}+b-y^{(i)}\\right)\\cdot 1 = \\frac{1}{m}\\sum\\left(\\hat{y}^{(i)}-y^{(i)}\\right)\n看到那个 \\frac{1}{2} 的作用了吗——它和平方求导下来的 2 正好抵消。当初加它的理由就是这个。\n\n\n\n\n\n\n提示两个偏导在说什么\n\n\n\n\\dfrac{\\partial J}{\\partial b} 就是所有残差的平均值。残差是”预测减真值”，所以这个数为负，说明整体预测偏低，该把 b 调大。\n\\dfrac{\\partial J}{\\partial w} 是残差乘面积后的平均值。面积越大的房子，它的残差对 w 的影响越大——因为面积大的点上，w 的一点变化会放大成更大的预测偏差。",
@@ -851,8 +1502,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#梯度",
-    "href": "02c-gradient-descent.html#梯度",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#梯度",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#梯度",
     "title": "梯度下降",
     "section": "梯度",
     "text": "梯度\n把两个偏导装进一个向量，就是梯度：\n\\nabla J = \\left( \\frac{\\partial J}{\\partial w},\\ \\frac{\\partial J}{\\partial b} \\right)\n\n\n\n\n\n\n注记梯度的两个性质（记住这两条就够）\n\n\n\n\n方向：梯度指向函数上升最快的方向\n大小：梯度越陡，说明坡越陡\n\n所以”下坡最快”的方向就是梯度的反方向——这就是更新式里那个减号的来历。",
@@ -863,8 +1514,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#更新公式",
-    "href": "02c-gradient-descent.html#更新公式",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#更新公式",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#更新公式",
     "title": "梯度下降",
     "section": "更新公式",
     "text": "更新公式\nw \\leftarrow w - \\alpha \\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha \\frac{\\partial J}{\\partial b}\n逐个符号拆开：\n\n\n\n\n\n\n\n\n符号\n含义\n备注\n\n\n\n\nw, b\n当前的参数\n要改的东西\n\n\n\\leftarrow\n赋值\n不是”等于”，是”用右边算出的新值覆盖左边”\n\n\n\\alpha\n学习率\n你手动设定的数，不是学出来的\n\n\n\\dfrac{\\partial J}{\\partial w}\n偏导\n坡度，告诉方向\n\n\n-\\alpha\\cdot(\\text{偏导})\n这一步走多远、朝哪走\n方向反着来，长度由 \\alpha 控制\n\n\n\n合起来读：新参数 = 老参数 − 学习率 × 当前的坡。",
@@ -875,8 +1526,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#学习率-alpha",
-    "href": "02c-gradient-descent.html#学习率-alpha",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#学习率-alpha",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#学习率-alpha",
     "title": "梯度下降",
     "section": "学习率 \\alpha",
     "text": "学习率 \\alpha\n它决定每一步迈多大。这是你调模型时最先要动的旋钮。\n\n\n\n\\alpha\n现象\n叫法\n\n\n\n\n太小\n每一步几乎不动，要跑几万步才到\n收敛慢\n\n\n合适\n几十步内落到谷底附近\n—\n\n\n太大\n一步跨过谷底，到对面更高的地方，再来一步更高\n发散\n\n\n极大\n第一次更新就直接算出无穷大或 NaN\n爆炸\n\n\n\n用一个比喻：下山时步长。\n\n步子太小：天黑也下不去\n步子适中：几十步到底\n步子太大：一步跨过谷底，直接冲到对面山坡上，越走越往山顶去\n\n\n\n\n\n\n\n警告学习率太大会怎样\n\n\n\nNaN（not a number）是最常见的崩溃信号。看到 loss 变成 nan，第一个要怀疑的就是学习率太大。",
@@ -887,8 +1538,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#一个必须写对的细节同时更新",
-    "href": "02c-gradient-descent.html#一个必须写对的细节同时更新",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#一个必须写对的细节同时更新",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#一个必须写对的细节同时更新",
     "title": "梯度下降",
     "section": "一个必须写对的细节：同时更新",
     "text": "一个必须写对的细节：同时更新\n这是线性回归那门课里最容易被忽略、又最容易写错的地方。\nw 和 b 的更新必须同时完成。也就是：\n\n先用当前的 w、b 算出两个偏导\n算出两个新值，暂时存着\n最后一起赋值\n\n\n\n\n\n\n\n重要错误写法\n\n\n\n# 错的：w 已经变了，再算 b 的更新时用的是新的 w\nw = w - alpha * dJ_dw(w, b)\nb = b - alpha * dJ_db(w, b)     # ← 这里的 w 已经不是原来的 w 了\n\n正确写法\n# 对的：两个偏导都基于旧的 w、b\ndw = dJ_dw(w, b)\ndb = dJ_db(w, b)\nw = w - alpha * dw\nb = b - alpha * db\n\n\n\n为什么必须这样？因为梯度是在当前这个点上测出来的。一旦 w 变了，你脚下的位置就变了，原来测的坡度对新位置不再成立。混着用，等于在拿 A 点的坡去指导 B 点的移动。\n单变量时两者结果一样（只有一个参数，没得混），所以很多人写错了也发现不了。两变量时就会出错。",
@@ -899,8 +1550,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#正确写法",
-    "href": "02c-gradient-descent.html#正确写法",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#正确写法",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#正确写法",
     "title": "梯度下降",
     "section": "正确写法",
     "text": "正确写法\n# 对的：两个偏导都基于旧的 w、b\ndw = dJ_dw(w, b)\ndb = dJ_db(w, b)\nw = w - alpha * dw\nb = b - alpha * db",
@@ -911,8 +1562,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#真实走一遍",
-    "href": "02c-gradient-descent.html#真实走一遍",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#真实走一遍",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#真实走一遍",
     "title": "梯度下降",
     "section": "真实走一遍",
     "text": "真实走一遍\n用我们的数据（12 套房），从 w = 1.0、b = 0 出发，学习率取 \\alpha = 4.5 \\times 10^{-5}。\n第一步手算：\n\n12 个残差 \\hat{y} - y 的平均值是 -262.38 → \\dfrac{\\partial J}{\\partial b} = -262.38\n残差乘面积再平均是 -27562 → \\dfrac{\\partial J}{\\partial w} = -27562\n\nw_{\\text{new}} = 1.0 - 4.5\\times10^{-5}\\times(-27562) = 2.2403 b_{\\text{new}} = 0 - 4.5\\times10^{-5}\\times(-262.38) = 0.0118\n跑五步：\n\n\n\n步\nw\nb\nJ\n\n\n\n\n0\n1.0000\n0.0000\n37007.88\n\n\n1\n2.2403\n0.0118\n10724.14\n\n\n2\n2.9070\n0.0182\n3128.88\n\n\n3\n3.2655\n0.0216\n934.07\n\n\n4\n3.4581\n0.0235\n299.83\n\n\n5\n3.5617\n0.0245\n116.55\n\n\n\n五步，损失从三万七降到一百一十六。\n\n\n\n\n\n\n提示注意 b 几乎没动\n\n\n\n五步下来 w 走了 2.5，b 只走了 0.02。\n不是算错了——是 w 的梯度（-27562）比 b 的梯度（-262）大了整整一百倍。同一个学习率，梯度大的参数走得飞快，梯度小的几乎原地不动。\n原因是面积的数值（几十到一百多）远大于截距——量纲差了一百倍。这就是第 3 章”特征缩放”要解决的问题。现在先记住这个现象。",
@@ -923,8 +1574,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#核心概念",
-    "href": "02c-gradient-descent.html#核心概念",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#核心概念",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#核心概念",
     "title": "梯度下降",
     "section": "核心概念",
     "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n梯度下降\n反复沿负梯度方向迈小步，直到损失不再下降\n\n\n导数 \\frac{dJ}{dw}\n往这个方向挪一点，函数变多少；正负号给方向\n\n\n偏导 \\frac{\\partial J}{\\partial w}\n多变量时只对一个求导，其余当常数\n\n\n梯度 \\nabla J\n所有偏导组成的向量，指向上升最快的方向\n\n\n更新式\n\\theta \\leftarrow \\theta - \\alpha\\,\\nabla J\n\n\n学习率 \\alpha\n步长；太小走得慢，太大直接发散\n\n\n同时更新\n两个偏导都用旧参数算，算完再一起赋值\n\n\n局部最优\n只能保证脚下是平的，不保证是全局最低",
@@ -935,8 +1586,8 @@
     ]
   },
   {
-    "objectID": "02c-gradient-descent.html#下一课",
-    "href": "02c-gradient-descent.html#下一课",
+    "objectID": "part1-ml/ch02/02c-gradient-descent.html#下一课",
+    "href": "part1-ml/ch02/02c-gradient-descent.html#下一课",
     "title": "梯度下降",
     "section": "下一课",
     "text": "下一课\n这一课是”知道大概在干什么”。下一课往深里走：\n\n为什么梯度方向恰好是最陡的方向（不是”差不多陡”，是数学上的精确）\n学习率的选取和收敛判断：怎么知道该停了\n学习率太大的发散到底长什么样（画出来）\n梯度消失、梯度爆炸是怎么回事",
@@ -947,8 +1598,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html",
-    "href": "02e-learning-rate.html",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html",
+    "href": "part1-ml/ch02/02e-learning-rate.html",
     "title": "学习率",
     "section": "",
     "text": "梯度给了方向，\\alpha 给了步长。方向不用管——数学已经保证了负梯度是最陡下坡；但走多大一步，得你决定。\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n\\alpha 不是模型学出来的，是你写死在代码里的一个数。它叫超参数（hyperparameter）——和参数 w, b 的区别就在这：参数是学出来的，超参数是你定的。",
@@ -959,8 +1610,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#唯一需要你手动调的旋钮",
-    "href": "02e-learning-rate.html#唯一需要你手动调的旋钮",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#唯一需要你手动调的旋钮",
+    "href": "part1-ml/ch02/02e-learning-rate.html#唯一需要你手动调的旋钮",
     "title": "学习率",
     "section": "",
     "text": "梯度给了方向，\\alpha 给了步长。方向不用管——数学已经保证了负梯度是最陡下坡；但走多大一步，得你决定。\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n\\alpha 不是模型学出来的，是你写死在代码里的一个数。它叫超参数（hyperparameter）——和参数 w, b 的区别就在这：参数是学出来的，超参数是你定的。",
@@ -971,8 +1622,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#太大的时候会发生什么",
-    "href": "02e-learning-rate.html#太大的时候会发生什么",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#太大的时候会发生什么",
+    "href": "part1-ml/ch02/02e-learning-rate.html#太大的时候会发生什么",
     "title": "学习率",
     "section": "太大的时候会发生什么",
     "text": "太大的时候会发生什么\n步子太大，一脚跨过谷底，落到对面更高的坡上。到了对面，梯度指向另一边，你又跨回来，而且比上次更远。\n\n\n\n左：损失随步数的变化（对数轴）；右：参数 w 的轨迹\n\n\n图上红色那条（\\alpha = 2.4 \\times 10^{-4}）：损失不是下降，是指数级上升，右图里 w 在正负之间疯狂震荡、幅度越来越大。\n跑几万步之后，数值会超出浮点数范围，变成：\nloss = nan\n\n\n\n\n\n\n警告看到 nan 先怀疑学习率\n\n\n\nNaN（not a number）是数值溢出后的结果。训练中出现，第一个要查的就是学习率是不是太大了。\n第二个要查的才是数据里有异常值（比如面积填了 10000 这种）。",
@@ -983,8 +1634,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#太小的时候会发生什么",
-    "href": "02e-learning-rate.html#太小的时候会发生什么",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#太小的时候会发生什么",
+    "href": "part1-ml/ch02/02e-learning-rate.html#太小的时候会发生什么",
     "title": "学习率",
     "section": "太小的时候会发生什么",
     "text": "太小的时候会发生什么\n步子太小，每一步都只挪一点点。\n灰色那条（\\alpha = 10^{-5}）：60 步之后损失还在 10^4 量级，离谷底 40 差了三个数量级。同样跑到 2000 步，它能收敛——但代价是时间。\n\n\n\n学习率\n到谷底需要\n代价\n\n\n\n\n10^{-5}\n几千步\n慢，但稳\n\n\n4.5\\times10^{-5}\n约 10 步\n快\n\n\n\n现实里，一次训练等不起几千倍的时间。“太小”不会报错，只会让你以为模型不行。",
@@ -995,8 +1646,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#四种表现对照",
-    "href": "02e-learning-rate.html#四种表现对照",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#四种表现对照",
+    "href": "part1-ml/ch02/02e-learning-rate.html#四种表现对照",
     "title": "学习率",
     "section": "四种表现对照",
     "text": "四种表现对照\n\n\n\n\\alpha\n损失曲线\n参数轨迹\n结论\n\n\n\n\n10^{-5}\n缓慢下滑\n平滑逼近\n太慢\n\n\n4.5\\times10^{-5}\n几步内陡降到底\n平滑逼近\n合适\n\n\n1.9\\times10^{-4}\n先降后再抖\n来回振荡后收敛\n偏大，能忍\n\n\n2.4\\times10^{-4}\n一路上冲\n震荡且放大\n爆炸\n\n\n\n注意第三行：\\alpha = 1.9\\times10^{-4} 时损失还在下降，只是参数在谷底附近左右弹跳。这种”能用但不好看”的状态最容易被忽略——它比合适值慢得多。",
@@ -1007,8 +1658,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#一步一步走到谷底",
-    "href": "02e-learning-rate.html#一步一步走到谷底",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#一步一步走到谷底",
+    "href": "part1-ml/ch02/02e-learning-rate.html#一步一步走到谷底",
     "title": "学习率",
     "section": "一步一步走到谷底",
     "text": "一步一步走到谷底\n用我们的数据，\\alpha = 4.5\\times10^{-5}，从 w = 1.0、b = 0 出发，学习率全程不变：\n\n\n\n步\nw\nb\n损失 J\n当前的 \\partial J/\\partial w\n\n\n\n\n0\n1.0000\n0.00000\n37007.88\n−27562\n\n\n1\n2.2403\n0.01181\n10724.14\n−14816\n\n\n2\n2.9070\n0.01817\n3128.88\n−7965\n\n\n3\n3.2655\n0.02161\n934.07\n−4282\n\n\n4\n3.4581\n0.02348\n299.83\n−2302\n\n\n5\n3.5617\n0.02450\n116.55\n−1237\n\n\n6\n3.6174\n0.02506\n63.59\n−665\n\n\n7\n3.6473\n0.02539\n48.29\n−358\n\n\n8\n3.6634\n0.02558\n43.86\n−192\n\n\n9\n3.6720\n0.02570\n42.59\n−103\n\n\n10\n3.6767\n0.02578\n42.22\n−103\n\n\n\n十步，损失从三万七掉到 42。 但真实最低点是 37.27——还差一截，原因见最后那段。\n看每一行发生了什么：\n\n梯度在变小：−27562 → −14816 → −7965 … 每步约剩三分之一。这是在告诉我们”离谷底越来越近了”。\n步子跟着变小：w 第一次跳了 1.24，第十次只挪了 0.005。\\alpha 没变，是梯度自己小了。\n损失下降也在变慢：前两步就干掉了 90%，后面全是细调。\n\n\n\n\n\n\n\n提示这就是”训练”的样子\n\n\n\n不是每一步都掉一大截。真正的曲线是：开头猛，后面磨。\n如果你看到的是一条匀速下降的直线，通常说明还没进入收敛区，或者学习率小得离谱。",
@@ -1019,8 +1670,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#一个必须注意的现象b-几乎没动",
-    "href": "02e-learning-rate.html#一个必须注意的现象b-几乎没动",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#一个必须注意的现象b-几乎没动",
+    "href": "part1-ml/ch02/02e-learning-rate.html#一个必须注意的现象b-几乎没动",
     "title": "学习率",
     "section": "一个必须注意的现象：b 几乎没动",
     "text": "一个必须注意的现象：b 几乎没动\n十步下来，w 从 1.0 走到 3.68（涨了 2.68），而 b 从 0 走到 0.0258（涨了 0.026）——差一百倍。\n真实最优的 b 在 20 左右。也就是说：w 早就到位了，b 还在原地爬。\n原因在梯度大小：\n\n\n\n\n\n\n\n\n参数\n梯度公式\n数量级\n\n\n\n\n\\dfrac{\\partial J}{\\partial w}\n\\frac{1}{m}\\sum(\\hat{y}-y)\\cdot x\n乘了面积（几十到一百多），大\n\n\n\\dfrac{\\partial J}{\\partial b}\n\\frac{1}{m}\\sum(\\hat{y}-y)\n没乘，只剩残差本身，小\n\n\n\n同一个 \\alpha，梯度大的参数走得飞快，梯度小的走不动。\n\n\n\n\n\n\n注记这不是懒，是量纲问题\n\n\n\n面积是”几十到一百多”，截距是”个位数”。量纲差一百倍，梯度就差一百倍。\n解决办法不是给 b 单独配一个 \\alpha——那只是打补丁。正解是把特征缩放到同一量级，让梯度自然同尺度。这是第 3 章的事。",
@@ -1031,8 +1682,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#那到底怎么选",
-    "href": "02e-learning-rate.html#那到底怎么选",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#那到底怎么选",
+    "href": "part1-ml/ch02/02e-learning-rate.html#那到底怎么选",
     "title": "学习率",
     "section": "那到底怎么选",
     "text": "那到底怎么选\n没有公式能一次算对，但有可靠做法。\n一、从常用值起步\n\n\n\n场景\n起步值\n\n\n\n\n小数据、手写模型\n10^{-2} 到 10^{-3}\n\n\n一般神经网络\n10^{-3} 到 10^{-4}\n\n\n微调预训练模型\n10^{-5} 到 10^{-6}\n\n\n\n二、看损失曲线的形状，不看最终值\n\n\n\n你看到的\n判断\n\n\n\n\n前几步掉到底然后平\n合适，或略偏大\n\n\n平稳缓慢下降\n偏小，可放大 3–10 倍\n\n\n上下抖、锯齿状\n偏大\n\n\n一路上升、迟早 nan\n太大\n\n\n\n三、先粗后细\n按 10 倍或 3 倍的间隔试（10^{-3}, 3\\times10^{-4}, 10^{-4}…），找到”不抖且下降快”的那个，再在附近细调。",
@@ -1043,8 +1694,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#进阶它不一定要固定",
-    "href": "02e-learning-rate.html#进阶它不一定要固定",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#进阶它不一定要固定",
+    "href": "part1-ml/ch02/02e-learning-rate.html#进阶它不一定要固定",
     "title": "学习率",
     "section": "进阶：它不一定要固定",
     "text": "进阶：它不一定要固定\n上面全程用的是固定值。实际训练更常见的是让它随时间变小：\n\n前期大步走，快速接近谷底\n后期小步磨，避免在谷底附近来回跳\n\n这叫学习率调度（learning rate schedule），常见的有阶梯衰减、余弦退火、预热。先知道有这回事，第 16 章讲训练技巧时再展开。",
@@ -1055,8 +1706,8 @@
     ]
   },
   {
-    "objectID": "02e-learning-rate.html#核心概念",
-    "href": "02e-learning-rate.html#核心概念",
+    "objectID": "part1-ml/ch02/02e-learning-rate.html#核心概念",
+    "href": "part1-ml/ch02/02e-learning-rate.html#核心概念",
     "title": "学习率",
     "section": "核心概念",
     "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n学习率 \\alpha\n每次更新的步长，是超参数，不是学出来的\n\n\n太大\n跨过谷底 → 震荡 → 数值爆炸\n\n\n太小\n不报错，但慢到没有实用价值\n\n\n合适\n几十步内损失降几个数量级\n\n\n步长自适应\n梯度随接近谷底而变小，步长自动变小\n\n\n与特征尺度绑定\n量纲不同 → 梯度量级不同 → 同一 \\alpha 效果天差地别\n\n\n判断方法\n看曲线形状：抖=大，慢=小\n\n\n调度\n前期大后期小，比固定值更常用",
@@ -1067,8 +1718,8 @@
     ]
   },
   {
-    "objectID": "02g-exercises.html",
-    "href": "02g-exercises.html",
+    "objectID": "part1-ml/ch02/02g-exercises.html",
+    "href": "part1-ml/ch02/02g-exercises.html",
     "title": "习题",
     "section": "",
     "text": "二十套房的成交记录，面积（平方米）与成交价（万元）：\n\n\n\n面积\n成交价\n面积\n成交价\n\n\n\n\n45\n197.5\n104\n379.3\n\n\n52\n231.0\n110\n373.8\n\n\n58\n241.2\n117\n389.5\n\n\n63\n219.1\n124\n458.5\n\n\n68\n227.5\n132\n458.3\n\n\n74\n273.0\n140\n497.6\n\n\n80\n306.5\n148\n483.8\n\n\n86\n319.4\n156\n526.3\n\n\n92\n362.0\n163\n533.4\n\n\n98\n362.1\n171\n568.2\n\n\n\n\n\n\n二十套房：横轴面积，纵轴成交价\n\n\n样本数 m = 20。",
@@ -1079,8 +1730,8 @@
     ]
   },
   {
-    "objectID": "02g-exercises.html#一批新房源",
-    "href": "02g-exercises.html#一批新房源",
+    "objectID": "part1-ml/ch02/02g-exercises.html#一批新房源",
+    "href": "part1-ml/ch02/02g-exercises.html#一批新房源",
     "title": "习题",
     "section": "",
     "text": "二十套房的成交记录，面积（平方米）与成交价（万元）：\n\n\n\n面积\n成交价\n面积\n成交价\n\n\n\n\n45\n197.5\n104\n379.3\n\n\n52\n231.0\n110\n373.8\n\n\n58\n241.2\n117\n389.5\n\n\n63\n219.1\n124\n458.5\n\n\n68\n227.5\n132\n458.3\n\n\n74\n273.0\n140\n497.6\n\n\n80\n306.5\n148\n483.8\n\n\n86\n319.4\n156\n526.3\n\n\n92\n362.0\n163\n533.4\n\n\n98\n362.1\n171\n568.2\n\n\n\n\n\n\n二十套房：横轴面积，纵轴成交价\n\n\n样本数 m = 20。",
@@ -1091,8 +1742,8 @@
     ]
   },
   {
-    "objectID": "02g-exercises.html#用到的公式",
-    "href": "02g-exercises.html#用到的公式",
+    "objectID": "part1-ml/ch02/02g-exercises.html#用到的公式",
+    "href": "part1-ml/ch02/02g-exercises.html#用到的公式",
     "title": "习题",
     "section": "用到的公式",
     "text": "用到的公式\n损失（均方误差，带 \\frac{1}{2}）：\nJ(w,b) = \\frac{1}{2m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)^2, \\qquad \\hat{y}^{(i)} = w x^{(i)} + b\n两个偏导：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x^{(i)}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)\n更新：\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}",
@@ -1103,8 +1754,8 @@
     ]
   },
   {
-    "objectID": "02g-exercises.html#题目",
-    "href": "02g-exercises.html#题目",
+    "objectID": "part1-ml/ch02/02g-exercises.html#题目",
+    "href": "part1-ml/ch02/02g-exercises.html#题目",
     "title": "习题",
     "section": "题目",
     "text": "题目\n从 w = 2.5、b = 30 出发。\n第一题　算出这条线在这 20 套房上的损失 J(2.5, 30)。\n第二题　算出 \\dfrac{\\partial J}{\\partial w} 和 \\dfrac{\\partial J}{\\partial b} 在这一点的值。它们的正负号说明什么？\n第三题　取学习率 \\alpha = 2\\times10^{-5}，更新一步。写出新的 w、b，并算出新的损失。\n第四题　损失降了多少？降幅是多少百分比？为什么一步只降这么多？\n第五题　接着跑满 50 步，w 和 b 分别到了多少？再和最小二乘的解析最优解（w \\approx 2.99、b \\approx 59.55）对比，你看到了什么现象？\n\n\n\n\n\n\n提示建议\n\n\n\n前四题手算可行（二十个点虽然多，但结构一样）。第五题直接写循环跑，不要手算。\n如果你想省事，用 numpy：\nimport numpy as np\narea  = np.array([45,52,58,63,68,74,80,86,92,98,\n                  104,110,117,124,132,140,148,156,163,171], float)\nprice = np.array([197.5,231.0,241.2,219.1,227.5,273.0,306.5,319.4,362.0,362.1,\n                  379.3,373.8,389.5,458.5,458.3,497.6,483.8,526.3,533.4,568.2])",
@@ -1115,8 +1766,8 @@
     ]
   },
   {
-    "objectID": "02g-exercises.html#答案",
-    "href": "02g-exercises.html#答案",
+    "objectID": "part1-ml/ch02/02g-exercises.html#答案",
+    "href": "part1-ml/ch02/02g-exercises.html#答案",
     "title": "习题",
     "section": "答案",
     "text": "答案\n\n\n\n\n\n\n注记第一题\n\n\n\n\n\n先算每个点的预测 \\hat{y} = 2.5x + 30，再算残差、平方：\nJ = \\frac{1}{2 \\times 20}\\sum_{i=1}^{20}\\left(\\hat{y}^{(i)}-y^{(i)}\\right)^2 = \\frac{141450.5}{40} = \\mathbf{3536.26}\n中间那个 141450.5 是二十个残差平方的总和。手算时一格一格填，最后求和，和这个对上就说明你算对了。\n\n\n\n\n\n\n\n\n\n注记第二题\n\n\n\n\n\n\\frac{\\partial J}{\\partial w} = \\mathbf{-9048.60}, \\qquad \\frac{\\partial J}{\\partial b} = \\mathbf{-80.275}\n两个都是负数。负号的含义：增大这个参数会让损失下降，所以下一步应该让它变大。\n这也是”沿负梯度走”在起作用——负梯度是 +9048.60 和 +80.275，方向朝正。\n\n\n\n\n\n\n\n\n\n注记第三题\n\n\n\n\n\n\\Delta w = -\\alpha\\frac{\\partial J}{\\partial w} = -2\\times10^{-5}\\times(-9048.60) = +0.180972 \\Delta b = -\\alpha\\frac{\\partial J}{\\partial b} = -2\\times10^{-5}\\times(-80.275) = +0.001605\nw_{\\text{new}} = 2.5 + 0.181 = \\mathbf{2.6810}, \\qquad b_{\\text{new}} = 30 + 0.0016 = \\mathbf{30.0016}\nJ_{\\text{new}} = \\mathbf{2099.29}\n\n\n\n\n\n\n\n\n\n注记第四题\n\n\n\n\n\n3536.26 - 2099.29 = 1436.97, \\qquad \\frac{1436.97}{3536.26} \\approx 40.6\\%\n一步降了四成，但只有四成——因为这一步里：\n\nw 动了 0.18（从 2.5 到 2.68）\nb 只动了 0.0016\n\n几乎全部进步都来自斜率，截距等于没动。这是第 2 章反复出现的那个现象：\\partial J/\\partial w 比 \\partial J/\\partial b 大了两个数量级，同一个 \\alpha 下两边速度差得远。\n\n\n\n\n\n\n\n\n\n注记第五题\n\n\n\n\n\n跑满 50 步：\n\n\n\n\nw\nb\nJ\n\n\n\n\n起点\n2.5000\n30.0000\n3536.26\n\n\n50 步后\n3.2383\n30.0097\n195.41\n\n\n解析最优\n2.9875\n59.5500\n144.58\n\n\n\n两个现象：\n\nw 冲过头了。它跑到 3.24，而最优是 2.99——因为 b 被卡在 30 附近拖后腿，模型只能靠加大斜率去补偿。\nb 几乎没动。50 步只从 30 爬到 30.01，而它本该到 59.55。\n\n结论和正文一致：这不是学习率调错，是量纲问题。面积是几十到一百多，截距是个位数，两边的梯度量级差一百倍。下一章的特征缩放就是干这件事的。",
@@ -1127,8 +1778,8 @@
     ]
   },
   {
-    "objectID": "02g-exercises.html#想再练的话",
-    "href": "02g-exercises.html#想再练的话",
+    "objectID": "part1-ml/ch02/02g-exercises.html#想再练的话",
+    "href": "part1-ml/ch02/02g-exercises.html#想再练的话",
     "title": "习题",
     "section": "想再练的话",
     "text": "想再练的话\n\n把学习率改成 5\\times10^{-4}，再跑一步，看看 J 会变成什么样（剧透：会从 3536 涨到 88029）。\n用 numpy 把 5000 步跑完，画出损失曲线，看它在多少步之后基本不动了。\n自己造一批数据：$y = -1.5x + 200 + $ 噪声，从 w=0, b=0 出发，能不能收敛？",
@@ -1139,8 +1790,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html",
-    "href": "03b-multivariate-gd.html",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html",
     "title": "多元线性回归的梯度下降",
     "section": "",
     "text": "上一课把模型扩展成了 \\mathbf{w}^{\\top}\\mathbf{x} + b。梯度下降的算法一个字都没改：\nw_j \\leftarrow w_j - \\alpha\\frac{\\partial J}{\\partial w_j}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n偏导的式子也一样，就是每个权重配一个：\n\\frac{\\partial J}{\\partial w_j} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x_j^{(i)}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)\n\n\n\n\n\n\n注记和单特征时的唯一区别\n\n\n\n单特征时只有 \\partial J/\\partial w 一个偏导；现在有 n 个（j = 1 \\dots n）。\n公式的长相完全一样——每个特征的偏导，就是残差乘上那个特征，再求平均。\n\\partial J/\\partial b 尤其简单：它连特征都不乘，就是残差的平均值。",
@@ -1151,8 +1802,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html#公式没变只是下标多了",
-    "href": "03b-multivariate-gd.html#公式没变只是下标多了",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html#公式没变只是下标多了",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html#公式没变只是下标多了",
     "title": "多元线性回归的梯度下降",
     "section": "",
     "text": "上一课把模型扩展成了 \\mathbf{w}^{\\top}\\mathbf{x} + b。梯度下降的算法一个字都没改：\nw_j \\leftarrow w_j - \\alpha\\frac{\\partial J}{\\partial w_j}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n偏导的式子也一样，就是每个权重配一个：\n\\frac{\\partial J}{\\partial w_j} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x_j^{(i)}, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)\n\n\n\n\n\n\n注记和单特征时的唯一区别\n\n\n\n单特征时只有 \\partial J/\\partial w 一个偏导；现在有 n 个（j = 1 \\dots n）。\n公式的长相完全一样——每个特征的偏导，就是残差乘上那个特征，再求平均。\n\\partial J/\\partial b 尤其简单：它连特征都不乘，就是残差的平均值。",
@@ -1163,8 +1814,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html#用真实数据算几步",
-    "href": "03b-multivariate-gd.html#用真实数据算几步",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html#用真实数据算几步",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html#用真实数据算几步",
     "title": "多元线性回归的梯度下降",
     "section": "用真实数据算几步",
     "text": "用真实数据算几步\n二十套房，每套三个特征：面积（㎡）、楼层、房龄（年）。\n\n\n\n面积\n楼层\n房龄\n成交价（万元）\n\n\n\n\n45\n1\n22\n139.2\n\n\n52\n3\n18\n180.9\n\n\n58\n5\n25\n185.5\n\n\n…\n…\n…\n…\n\n\n\n从 \\mathbf{w} = (1.0,\\ 0.5,\\ -0.5)、b = 0 出发，\\alpha = 10^{-5}。第一步：\n\n\n\n\n\n\n\n\n参数\n当前的偏导\n含义\n\n\n\n\n\\partial J/\\partial w_1（面积）\n−25859.58\n增加面积会大幅降低损失\n\n\n\\partial J/\\partial w_2（楼层）\n−2741.49\n增加楼层也会降低，但幅度小得多\n\n\n\\partial J/\\partial w_3（房龄）\n−2420.15\n同上\n\n\n\\partial J/\\partial b\n−222.70\n截距也该增大\n\n\n\n全部为负 → 四个参数都该增大。\n跑五步：\n\n\n\n步\nw_1 面积\nw_2 楼层\nw_3 房龄\nb\nJ\n\n\n\n\n0\n1.0000\n0.50\n−0.50\n0.0000\n27413.75\n\n\n1\n1.2586\n0.53\n−0.48\n0.0022\n21018.64\n\n\n2\n1.4849\n0.55\n−0.45\n0.0042\n16122.27\n\n\n3\n1.6829\n0.57\n−0.44\n0.0059\n12373.39\n\n\n4\n1.8561\n0.59\n−0.42\n0.0074\n9503.08\n\n\n5\n2.0077\n0.61\n−0.41\n0.0087\n7305.44\n\n\n\n损失从 27413 降到 7305，在稳步下降。\n\n\n\n\n\n\n警告看这一列就懂了\n\n\n\n五步下来：\n\nw_1（面积）走了 1.01\nw_2（楼层）走了 0.11\nw_3（房龄）走了 0.09\nb 走了 0.0087\n\n同一个学习率，四个参数的进度差了一百多倍。\n原因还是量纲：面积是几十到一百多，楼层是 1–20，房龄是 1–30，截距是个位数的常数。梯度里乘的那个 x_j 有多大，梯度就有多大。\n这叫病态（ill-conditioned）。第 2 章只有两个参数时它已经碍事了；现在有四个，只会更糟。\n下一课的特征缩放就是专门治它的。",
@@ -1175,8 +1826,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html#正规方程",
-    "href": "03b-multivariate-gd.html#正规方程",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html#正规方程",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html#正规方程",
     "title": "多元线性回归的梯度下降",
     "section": "正规方程",
     "text": "正规方程\n梯度下降是”一步步摸下去”。但线性回归有个特权：损失是凸的，最低点可以用公式直接解出来。\n令梯度为零：\n\\frac{\\partial J}{\\partial \\theta} = 0\n把所有参数（包括 b）合成一个向量 \\theta = (b, w_1, \\dots, w_n)，把所有样本的特征矩阵左边补一列 1，记作 A：\nA = \\begin{bmatrix} 1 & x_1^{(1)} & \\cdots & x_n^{(1)} \\\\ \\vdots & & & \\vdots \\\\ 1 & x_1^{(m)} & \\cdots & x_n^{(m)} \\end{bmatrix}\n那么损失可以写成 J(\\theta) = \\dfrac{1}{2m}\\lVert A\\theta - y \\rVert^2。令它的梯度为零，解出：\n\\boxed{\\ \\theta = \\left(A^{\\top}A\\right)^{-1} A^{\\top}y\\ }\n这就是正规方程（normal equation）。一步到位，不用迭代、不用学习率。\n用上面那批数据算出来：\n\\theta = (b,\\ w_1,\\ w_2,\\ w_3) = (66.4635,\\ 2.3876,\\ 3.0348,\\ -1.6815), \\qquad J = 26.35\n对比梯度下降跑五步后的 7305——正规方程直接给出了 26.35。\n\n\n\n\n\n\n提示为什么学出来的权重和”真实”的不一样\n\n\n\n数据是我按 2.6 \\times \\text{面积} + 1.5 \\times \\text{楼层} - 1.8 \\times \\text{房龄} + 60 造的，但解出来是 2.39, 3.03, -1.68。\n两个原因：样本只有 20 个、还加了噪声；而且我故意让楼层和面积同向增长（大房子楼层也高），这使得两个特征共线，模型分不清涨价的功劳该归谁。\n共线性会让权重变得不可解释。这是真实数据里极常见的问题，后面讲正则化时会再碰它。\n\n\n\n正规方程 vs 梯度下降\n\n\n\n\n正规方程\n梯度下降\n\n\n\n\n要不要调学习率\n不用\n要\n\n\n要不要迭代\n不用，一步到位\n要跑很多轮\n\n\n计算量\n(A^{\\top}A)^{-1} 是 O(n^3)\n每步 O(mn)\n\n\n特征很多时（n &gt; 10^4）\n慢到不可用\n依然可行\n\n\n特征共线时\nA^{\\top}A 可能不可逆\n照样能跑\n\n\n适用\n小规模线性回归\n几乎所有别的模型\n\n\n\n\n\n\n\n\n\n注记现实中很少真的去求逆\n\n\n\nsklearn 的 LinearRegression 底层用的是 最小二乘的 SVD 解法，不是直接算 (A^{\\top}A)^{-1}。\n因为求逆在数值上不稳定（条件数一大就崩），而 SVD 稳得多。这里写 (A^{\\top}A)^{-1} 是为了说明数学原理，不是让你照着写代码。",
@@ -1187,8 +1838,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html#标量对向量的求导",
-    "href": "03b-multivariate-gd.html#标量对向量的求导",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html#标量对向量的求导",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html#标量对向量的求导",
     "title": "多元线性回归的梯度下降",
     "section": "标量对向量的求导",
     "text": "标量对向量的求导\n到这里你可能发现了：\\theta 展开后有好几个分量，一个个写偏导很啰嗦。上面那个正规方程的推导，我是直接跳到结果的。\n中间那一步——怎么对一整个向量求导——就是矩阵求导要解决的事。\n\n它在求什么\nJ 是一个标量（一个数），\\theta 是一个向量（n 个数）。\n“标量对向量求导”的结果，是一个向量，形状和分母一样，每个分量是 J 对那个分量的偏导：\n\\frac{\\partial J}{\\partial \\theta} = \\begin{bmatrix} \\partial J/\\partial \\theta_1 \\\\ \\vdots \\\\ \\partial J/\\partial \\theta_n \\end{bmatrix}\n也就是说：矩阵求导不是新数学，只是把 n 个偏导打包成一个向量。 你已经在做的事，换个记号而已。\n\n\n够用的三条规则\n\n\n\n\n\n\n\n\n规则\n式子\n说明\n\n\n\n\n线性\n\\dfrac{\\partial (a^{\\top}\\theta)}{\\partial \\theta} = a\n结果和 a 同形\n\n\n平方\n\\dfrac{\\partial (\\theta^{\\top}\\theta)}{\\partial \\theta} = 2\\theta\n就是标量里 x^2 求导得 2x\n\n\n链式\n若 u = A\\theta + c，则 \\dfrac{\\partial f(u)}{\\partial \\theta} = A^{\\top}\\dfrac{\\partial f}{\\partial u}\n转置挪到前面\n\n\n\n第三条是全部难点所在。记住一句话：A 变成 A^{\\top}，乘在前面。\n\n\n推导 MSE 的梯度\nJ(\\theta) = \\frac{1}{2m}\\lVert A\\theta - y\\rVert^2 = \\frac{1}{2m}(A\\theta - y)^{\\top}(A\\theta - y)\n令 u = A\\theta - y，于是 J = \\frac{1}{2m}u^{\\top}u。分三步：\n第一步，对 u 求导（用平方规则）：\n\\frac{\\partial J}{\\partial u} = \\frac{1}{2m} \\cdot 2u = \\frac{1}{m}u\n第二步，从 u 回到 \\theta（用链式规则，u = A\\theta - y 里 A 的转置挪到前面）：\n\\frac{\\partial J}{\\partial \\theta} = A^{\\top}\\frac{\\partial J}{\\partial u}\n第三步，合起来：\n\\boxed{\\ \\frac{\\partial J}{\\partial \\theta} = \\frac{1}{m}A^{\\top}(A\\theta - y)\\ }\n三行就完事了。对比一下：展开成标量要写 n+1 个求和式。\n\n\n这和之前那个公式是同一个东西\n把 A^{\\top}(A\\theta - y) 按分量写开，第 j 个分量是”A 的第 j 列”和”残差向量”的点积：\n\\frac{1}{m}\\sum_{i=1}^{m}\\left(\\hat{y}^{(i)} - y^{(i)}\\right)x_j^{(i)}\n就是前面那个 \\dfrac{\\partial J}{\\partial w_j}，一模一样。\n\n\n\n\n\n\n注记我实测验证过\n\n\n\n用同一组数据和同一组参数，分别用「逐参数循环求偏导」和「矩阵公式」算梯度：\n逐参数：dw = [-25859.58, -2741.49, -2420.15]   db = -222.695\n矩阵式：[b, w] = [-222.695, -25859.58, -2741.49, -2420.15]\n完全一致（顺序不同而已，因为矩阵式把 b 放在第一列）。\n矩阵求导不会给你更准的答案，它给你更短的推导和更快的代码。\n\n\n\n\n写进代码\nimport numpy as np\n\nA = np.c_[np.ones(m), X]        # 左边补一列 1，给 b 用\ntheta = np.zeros(A.shape[1])    # [b, w1, w2, ...]\n\ndef gradient(theta):\n    residual = A @ theta - y\n    return (1.0 / m) * (A.T @ residual)\n三行代码，替代了整个 for 循环。n 从 3 变成 300 时，这三行一个字都不用改。\n\n\n\n\n\n\n提示顺便：正规方程也是这三行推出来的\n\n\n\n令 \\dfrac{1}{m}A^{\\top}(A\\theta - y) = 0，两边乘 m：\nA^{\\top}A\\theta = A^{\\top}y \\;\\Longrightarrow\\; \\theta = (A^{\\top}A)^{-1}A^{\\top}y\n刚才那个”一步到位”的解，就是这么来的。矩阵求导的价值在这里体现得最清楚：一个公式推出另一个公式。",
@@ -1199,8 +1850,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html#核心概念",
-    "href": "03b-multivariate-gd.html#核心概念",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html#核心概念",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html#核心概念",
     "title": "多元线性回归的梯度下降",
     "section": "核心概念",
     "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\n多参数梯度下降\n公式和单特征完全一样，只是每个 w_j 各有一个偏导\n\n\n偏导含义\n残差乘对应特征再求平均；b 的偏导就是残差平均\n\n\n病态\n各特征量级不同 → 梯度量级悬殊 → 同一步长下进度差百倍\n\n\n正规方程\n\\theta = (A^{\\top}A)^{-1}A^{\\top}y，一步解出最优\n\n\n正规方程的代价\nO(n^3)，特征多时不可用；共线时可能不可逆\n\n\n标量对向量求导\n结果是同形状的向量，每个分量是一个偏导\n\n\n链式规则\n\\dfrac{\\partial f(A\\theta)}{\\partial \\theta} = A^{\\top}\\dfrac{\\partial f}{\\partial u}，转置挪到前面\n\n\nMSE 的梯度\n\\dfrac{1}{m}A^{\\top}(A\\theta - y)，三行推完\n\n\n意义\n矩阵求导不改变结果，只缩短推导、加快代码",
@@ -1211,8 +1862,8 @@
     ]
   },
   {
-    "objectID": "03b-multivariate-gd.html#下一课",
-    "href": "03b-multivariate-gd.html#下一课",
+    "objectID": "part1-ml/ch03/03b-multivariate-gd.html#下一课",
+    "href": "part1-ml/ch03/03b-multivariate-gd.html#下一课",
     "title": "多元线性回归的梯度下降",
     "section": "下一课",
     "text": "下一课\n现在知道了四个参数为什么进步速度差一百倍。下一课动手术：特征缩放。\n目标很具体——让上面那张表里，w_1、w_2、w_3、b 的进度看起来差不多。",
@@ -1223,8 +1874,8 @@
     ]
   },
   {
-    "objectID": "03d-extras.html",
-    "href": "03d-extras.html",
+    "objectID": "part1-ml/ch03/03d-extras.html",
+    "href": "part1-ml/ch03/03d-extras.html",
     "title": "额外拓展",
     "section": "",
     "text": "训练跑起来之后，损失曲线就是你的仪表盘。\n不画图的人怎么判断训练得好不好？只能看最后那个数。但最后那个数什么也说明不了——它可能是收敛后的稳态，也可能是刚刚开始下降，还可能是在震荡中被你碰巧看到的一个低点。\n画出来，一眼就知道。\n\n\n\n\n\n六种损失曲线：两条线是训练损失和验证损失\n\n\n\n\n\n你看到的\n病因\n怎么办\n\n\n\n\n两条一起降，最后贴得很近\n正常\n继续，或者可以停了\n\n\n训练还在降，验证开始抬头\n过拟合\n早停、加正则、加数据\n\n\n剧烈震荡，整体还在往上\n学习率太大\n缩小 10 倍\n\n\n一直在降但慢得看不到头\n学习率太小\n放大 3–10 倍\n\n\n两条都停在很高的位置\n欠拟合\n加特征、换更复杂的模型\n\n\n毛刺极多，看不出趋势\n批太小 / 数据太脏\n增大 batch、检查数据\n\n\n\n\n\n\n\n\n\n提示两条线一定要一起画\n\n\n\n只画训练损失是不够的——它几乎只会下降，看不出任何问题。\n训练 + 验证两条线的关系，才是信息所在。 它们之间的缝（gap）就是过拟合的程度。\n\n\n\n\n\n看验证损失，不看训练损失：\n\n验证损失连续若干轮不再下降 → 停\n验证损失开始上升 → 立刻停，而且要回到上升前那一轮的模型\n\n这叫早停（early stopping）。它是性价比最高的正则化手段：零成本，只要保存最好的那一轮。\n\n\n\n\n\n\n图\n用来看什么\n\n\n\n\n损失曲线（两条）\n学习率、过拟合、何时停\n\n\n预测值 vs 真实值散点\n模型在哪些区间系统性偏高或偏低\n\n\n残差分布\n有没有系统性偏差（比如总是低估大房子）\n\n\n参数分布\n权重是不是失控地变大了",
@@ -1235,8 +1886,8 @@
     ]
   },
   {
-    "objectID": "03d-extras.html#一画图是个好习惯",
-    "href": "03d-extras.html#一画图是个好习惯",
+    "objectID": "part1-ml/ch03/03d-extras.html#一画图是个好习惯",
+    "href": "part1-ml/ch03/03d-extras.html#一画图是个好习惯",
     "title": "额外拓展",
     "section": "",
     "text": "训练跑起来之后，损失曲线就是你的仪表盘。\n不画图的人怎么判断训练得好不好？只能看最后那个数。但最后那个数什么也说明不了——它可能是收敛后的稳态，也可能是刚刚开始下降，还可能是在震荡中被你碰巧看到的一个低点。\n画出来，一眼就知道。\n\n\n\n\n\n六种损失曲线：两条线是训练损失和验证损失\n\n\n\n\n\n你看到的\n病因\n怎么办\n\n\n\n\n两条一起降，最后贴得很近\n正常\n继续，或者可以停了\n\n\n训练还在降，验证开始抬头\n过拟合\n早停、加正则、加数据\n\n\n剧烈震荡，整体还在往上\n学习率太大\n缩小 10 倍\n\n\n一直在降但慢得看不到头\n学习率太小\n放大 3–10 倍\n\n\n两条都停在很高的位置\n欠拟合\n加特征、换更复杂的模型\n\n\n毛刺极多，看不出趋势\n批太小 / 数据太脏\n增大 batch、检查数据\n\n\n\n\n\n\n\n\n\n提示两条线一定要一起画\n\n\n\n只画训练损失是不够的——它几乎只会下降，看不出任何问题。\n训练 + 验证两条线的关系，才是信息所在。 它们之间的缝（gap）就是过拟合的程度。\n\n\n\n\n\n看验证损失，不看训练损失：\n\n验证损失连续若干轮不再下降 → 停\n验证损失开始上升 → 立刻停，而且要回到上升前那一轮的模型\n\n这叫早停（early stopping）。它是性价比最高的正则化手段：零成本，只要保存最好的那一轮。\n\n\n\n\n\n\n图\n用来看什么\n\n\n\n\n损失曲线（两条）\n学习率、过拟合、何时停\n\n\n预测值 vs 真实值散点\n模型在哪些区间系统性偏高或偏低\n\n\n残差分布\n有没有系统性偏差（比如总是低估大房子）\n\n\n参数分布\n权重是不是失控地变大了",
@@ -1247,8 +1898,8 @@
     ]
   },
   {
-    "objectID": "03d-extras.html#二特征工程",
-    "href": "03d-extras.html#二特征工程",
+    "objectID": "part1-ml/ch03/03d-extras.html#二特征工程",
+    "href": "part1-ml/ch03/03d-extras.html#二特征工程",
     "title": "额外拓展",
     "section": "二、特征工程",
     "text": "二、特征工程\n你已经有的特征，未必是模型最容易用的形式。\n特征工程（feature engineering）就是：在原始特征的基础上，造出新的特征。 造出来的特征不增加信息，但换个形状，模型可能一下就学得动了。\n\n一个具体例子\n两套房，面积都是 100 ㎡：\n\n\n\n房源\n面积\n卧室数\n直觉上\n\n\n\n\nA\n100\n2\n每个卧室 50 ㎡，宽敞\n\n\nB\n100\n5\n每个卧室 20 ㎡，局促\n\n\n\n如果模型只有 w_1 \\cdot \\text{面积} + w_2 \\cdot \\text{卧室数}，它必须靠调整 w_1, w_2 去凑出”宽敞”这件事——但”宽敞”其实是两个量的比值。\n造一个新特征：\nx_3 = \\frac{\\text{面积}}{\\text{卧室数}}\nA 是 50，B 是 20。模型只要给 x_3 一个正权重，立刻就能区分这两套房。\n\n\n\n\n\n\n注记关键在”线性模型只会做加法”\n\n\n\n模型能算的是 w_1x_1 + w_2x_2 + \\dots——每个特征单独加权，再加起来。\n它做不了除法、做不了乘法、做不了比较。\n所以凡是”比值”、“乘积”、“差值”、“是否大于”这类关系，你得手动造出来，模型才看得见。\n\n\n\n\n常见的造法\n\n\n\n造法\n例子\n适用\n\n\n\n\n比值\n面积/房间数、价/面积\n单位化某种量\n\n\n乘积\n楼层 × 有无电梯\n交互效应\n\n\n差值\n今年 − 建成年份\n时间差\n\n\n计数\n文本里感叹号个数\n文本统计\n\n\n拆解\n日期 → 星期几 / 季度 / 是否节假日\n周期规律\n\n\n分箱\n年龄 → 0-18 / 19-35 / 36-60\n非线性关系\n\n\n组合\n楼层 × 朝向\n交叉特征\n\n\n\n“楼层 × 有无电梯”这个例子值得琢磨：单独看，高层应该更贵；但如果那栋楼没电梯，高层反而难卖。两个特征一起看才有意义——这种叫交叉特征。\n\n\n不是什么都能加\n\n\n\n\n\n\n\n风险\n说明\n\n\n\n\n共线性\n造出”面积×1000”这种和原特征完全等价的东西，只会让权重无法解释\n\n\n过拟合\n特征越多，模型越容易在训练集上凑出好成绩\n\n\n成本\n每条数据都要多算一遍，上线时难以复现\n\n\n泄漏\n用了全量数据的统计量（比如全量均值）造特征 → 数据泄漏\n\n\n\n\n\n\n\n\n\n警告特征工程正在被自动学习取代——但只是在某些领域\n\n\n\n深度学习的卖点之一就是”自动学特征”：扔进原始像素，网络自己学出边缘、纹理、形状。\n但表格数据上，人工特征工程至今仍然很强。Kaggle 上的结构化数据比赛，赢家大部分时间花在造特征，而不是换模型。\n原因很实在：表格数据里，领域知识（“这个比值有意义”）比通用结构更有效。",
@@ -1259,8 +1910,8 @@
     ]
   },
   {
-    "objectID": "03d-extras.html#三多项式回归",
-    "href": "03d-extras.html#三多项式回归",
+    "objectID": "part1-ml/ch03/03d-extras.html#三多项式回归",
+    "href": "part1-ml/ch03/03d-extras.html#三多项式回归",
     "title": "额外拓展",
     "section": "三、多项式回归",
     "text": "三、多项式回归\n上一节最直接的一种特征工程，是把特征自己乘自己。\n\n模型长什么样\n同样的面积，价格明显不是线性的——面积越大，每平米越不值钱（边际递减）。用直线去拟合，两头总会偏：\nf(x) = w_1x + b\n加一个 x^2：\nf(x) = w_1x + w_2x^2 + b\n再加 x^3：\nf(x) = w_1x + w_2x^2 + w_3x^3 + b\n这就是多项式回归（polynomial regression）。\n\n\n\n\n\n\n重要它依然是线性回归\n\n\n\n这一点最容易搞混。\n“线性”指的是对参数线性——w_1, w_2, w_3 都是一次方，没有 w_1w_2、没有 w_1^2。\n从模型的角度看，x 和 x^2 就是两个普通的特征，只不过第二个是你用第一个算出来的。\n所以：代码不用改。把 x^2 当成一个新列塞进特征矩阵，原来的梯度下降、正规方程，原封不动都能用。\n\n\n\n\n阶数的影响\n用同一批数据，分别拟合 1 次、2 次、3 次、9 次：\n\n\n\n不同阶数的拟合效果，下方是训练集 MSE\n\n\n\n\n\n阶数\n训练 MSE\n现象\n\n\n\n\n1\n1079\n一条直线，两端明显偏——欠拟合\n\n\n2\n234\n抓住了弯曲的趋势，明显更好\n\n\n3\n202\n和 2 次几乎一样，多的一项没带来明显收益\n\n\n9\n135\n训练 MSE 最低，但曲线在两端乱翘\n\n\n\n\n\n\n\n\n\n警告9 次那条曲线说明了一切\n\n\n\n它的训练 MSE 是最低的（135），但你能看到它在 x &lt; 40 的地方猛地扎下去，在 x &gt; 180 的地方又翘起来。\n那些地方根本没有数据点。模型在那里纯粹是在编。\n这就是过拟合的经典形态：训练集上的分数越来越好，模型的形状越来越离谱。\n如果你只看”训练 MSE 从 1079 降到 135”，会以为 9 次最好。看了图就知道不是。\n\n\n\n\n怎么选阶数\n不看训练 MSE，看验证集。\n做法很朴素：把 1、2、3、4、5 次都试一遍，各自算验证集上的误差，选验证误差最小的那个。\n一般规律：\n\n数据少、噪声大 → 阶数要低（1 或 2）\n数据多、关系确实弯曲 → 可以试到 3、4\n再高基本没意义，不如换模型\n\n\n\n两个坑\n坑一：必须做特征缩放。\nx = 150 时，x^2 = 22500，x^9 \\approx 3.8 \\times 10^{19}。\n如果不缩放，这些列的量级差二十个数量级，梯度下降根本跑不动——正是上一课那个病态问题的极端版本。\n坑二：高次项会把数值推向极端。\n即使做了标准化，阶数很高时在数据范围之外预测，结果会瞬间爆炸。所以多项式回归不适合外推——它只能在你见过的区间里可信。\n\n\n它和特征工程的关系\n多项式回归不是一个新算法，它就是特征工程的一个特例：\n\n造 x^2、x^3 两列新特征\n然后跑普通的线性回归\n\n同样的思路还能造：\nx_3 = x_1 \\times x_2 \\quad\\text{（交叉项）}, \\qquad x_4 = \\log(x_1), \\qquad x_5 = \\sqrt{x_1}\n只要新特征是从旧特征算出来的确定函数，都可以这么塞进去。",
@@ -1271,8 +1922,8 @@
     ]
   },
   {
-    "objectID": "03d-extras.html#这一课的小结",
-    "href": "03d-extras.html#这一课的小结",
+    "objectID": "part1-ml/ch03/03d-extras.html#这一课的小结",
+    "href": "part1-ml/ch03/03d-extras.html#这一课的小结",
     "title": "额外拓展",
     "section": "这一课的小结",
     "text": "这一课的小结\n\n\n\n主题\n一句话\n\n\n\n\n画图\n损失曲线是训练的仪表盘；训练和验证必须一起画\n\n\n何时停\n验证损失不再下降就停，早停是最便宜的正则化\n\n\n特征工程\n在原始特征上造新特征，让模型看得见比值、乘积、交互\n\n\n为什么有用\n线性模型只会”加权求和”，做不了除法乘法比较\n\n\n多项式回归\n造 x^2, x^3 当新特征，本质仍是线性回归\n\n\n阶数选择\n看验证集，不看训练集；高次必过拟合\n\n\n缩放要求\n高次项量级爆炸，必须先标准化",
@@ -1283,8 +1934,8 @@
     ]
   },
   {
-    "objectID": "03d-extras.html#下一课",
-    "href": "03d-extras.html#下一课",
+    "objectID": "part1-ml/ch03/03d-extras.html#下一课",
+    "href": "part1-ml/ch03/03d-extras.html#下一课",
     "title": "额外拓展",
     "section": "下一课",
     "text": "下一课\n第 2、3 章讲完了线性回归的整套原理：模型、损失、梯度、学习率、多特征、缩放、诊断、特征工程。\n但模型还是那条直线（或者你手动弯出来的曲线）。\n下一章换一种完全不同的思路：用概率的方式做分类——逻辑回归。它的输出不再是价格，而是”这封邮件是垃圾的概率”。",
@@ -1295,149 +1946,735 @@
     ]
   },
   {
-    "objectID": "05-softmax.html",
-    "href": "05-softmax.html",
-    "title": "第 5 章　多分类与 softmax",
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "",
+    "text": "上一课说直线做不了分类。那换成一条 S 形的曲线呢？\n\n\n\nS 形曲线穿过这些点\n\n\n这条绿线有几个特点，值得一个个看：\n一、它永远在 0 和 1 之间。 不管肿瘤大小是多少，预测值不会变成 1.3，也不会变成 −0.2。\n二、它给的是概率，不是判决。 曲线上的读数可以直接解释：\n\n\n\n肿瘤大小\n预测值\n读作\n\n\n\n\n4.0 cm\n0.828\n82.8% 的概率是良性\n\n\n4.5 cm\n0.990\n99.0% 的概率是良性\n\n\n6.0 cm\n0.999999\n几乎肯定是良性，但不是 100%\n\n\n\n“70%” 不是”有点良性”，而是十次里有七次会判为良性。这个数比简单的”是 / 否”信息量大得多——医生可以据此决定要不要做进一步检查。\n三、它两头是平的。 肿瘤从 6 cm 长到 7 cm，预测值几乎不动（都接近 1）。上一课那个”加几个远端点就毁掉边界”的问题，在这里消失了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#先看结果",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#先看结果",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "",
+    "text": "上一课说直线做不了分类。那换成一条 S 形的曲线呢？\n\n\n\nS 形曲线穿过这些点\n\n\n这条绿线有几个特点，值得一个个看：\n一、它永远在 0 和 1 之间。 不管肿瘤大小是多少，预测值不会变成 1.3，也不会变成 −0.2。\n二、它给的是概率，不是判决。 曲线上的读数可以直接解释：\n\n\n\n肿瘤大小\n预测值\n读作\n\n\n\n\n4.0 cm\n0.828\n82.8% 的概率是良性\n\n\n4.5 cm\n0.990\n99.0% 的概率是良性\n\n\n6.0 cm\n0.999999\n几乎肯定是良性，但不是 100%\n\n\n\n“70%” 不是”有点良性”，而是十次里有七次会判为良性。这个数比简单的”是 / 否”信息量大得多——医生可以据此决定要不要做进一步检查。\n三、它两头是平的。 肿瘤从 6 cm 长到 7 cm，预测值几乎不动（都接近 1）。上一课那个”加几个远端点就毁掉边界”的问题，在这里消失了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#那个把直线掰弯的函数",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#那个把直线掰弯的函数",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "那个把直线掰弯的函数",
+    "text": "那个把直线掰弯的函数\n这条曲线的名字叫 Sigmoid，也叫逻辑函数（logistic function）：\ng(z) = \\frac{1}{1 + e^{-z}}\n分母里的 e^{-z} 是主要角色：\n\nz 很大时，e^{-z} 趋近 0，于是 g(z) \\to \\frac{1}{1+0} = 1\nz 很小（很负）时，e^{-z} 变得巨大，于是 g(z) \\to \\frac{1}{\\text{巨大}} \\to 0\nz = 0 时，e^{0} = 1，于是 g(0) = \\frac{1}{2}\n\n\n\n\nSigmoid 的完整图像，标了几个关键点\n\n\n\n数学性质\n\n\n\n\n\n\n\n\n性质\n内容\n用处\n\n\n\n\n定义域 / 值域\n输入任意实数，输出落在 (0, 1)\n天然适合当概率\n\n\ng(0)\n= 0.5\n正中间那条分界线\n\n\n单调性\n严格递增\n输入越大输出越大，不会反转\n\n\n对称性\ng(-z) = 1 - g(z)\n正负样本地位对称\n\n\n两端极限\nz \\to +\\infty 时 g \\to 1；z \\to -\\infty 时 g \\to 0\n注意：是趋近，永远取不到\n\n\n导数\ng'(z) = g(z)\\bigl(1 - g(z)\\bigr)\n后面求梯度时极其好用\n\n\n\n\n\n\n\n\n\n提示关于”永远到不了 1”\n\n\n\n这一点很多人以为无所谓，其实很重要。\ng(6) = 0.9975，g(10) = 0.99995，g(30) \\approx 1 - 9\\times10^{-14}。数学上永远严格小于 1。\n所以在程序里 g(50) 会因为浮点精度变成 1.0——这时候取对数会得到 -inf，是实际训练中需要处理的一个数值问题（下一课讲损失函数时会碰见）。\n\n\n\n\n导数是怎么来的\n顺手推一下，因为后面要用：\ng(z) = (1+e^{-z})^{-1}\n用链式法则：\ng'(z) = -(1+e^{-z})^{-2} \\cdot (-e^{-z}) = \\frac{e^{-z}}{(1+e^{-z})^2}\n而这个式子恰好能拆成两个因子相乘：\n= \\underbrace{\\frac{1}{1+e^{-z}}}_{g(z)} \\cdot \\underbrace{\\frac{e^{-z}}{1+e^{-z}}}_{1-g(z)} = g(z)\\bigl(1-g(z)\\bigr)\n导数值可以直接用函数值算出来，不用重新算指数。这在实现里省一次计算，也是 Sigmoid 当年受欢迎的原因之一。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#回到肿瘤的例子",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#回到肿瘤的例子",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "回到肿瘤的例子",
+    "text": "回到肿瘤的例子\n把 Sigmoid 套上去：\nf(x) = g\\bigl(wx + b\\bigr) = \\frac{1}{1 + e^{-(wx+b)}}\n注意它是两步：\n\n先算 z = wx + b —— 这一步和线性回归一模一样，还是一条直线\n再把 z 送进 g —— 这一步把它压成 S 形\n\n用那 13 个样本拟合，得到 w = 5.99、b = -22.4。代入验证：\nz(4.0) = 5.99 \\times 4.0 - 22.4 = 1.56, \\qquad f = g(1.56) = 0.828\n和图上那个 82.8% 对得上。\n\n\n\n\n\n\n注记一个反直觉的地方\n\n\n\n这个模型对参数 w, b 是非线性的，但内部结构极其简单——一个线性函数加一个固定形状的挤压。\nw 的符号依然有意义：w &gt; 0 表示”特征越大越倾向 y=1“，和线性回归的直觉完全一致。\n变的是输出，不是权重的作用方式。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#什么是激活函数",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#什么是激活函数",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "什么是激活函数",
+    "text": "什么是激活函数\ng 在深度学习的术语里叫激活函数（activation function）。\n\n\n\n\n\n\n重要定义\n\n\n\n激活函数是套在线性组合外面的那一层非线性函数。\na = \\text{activation}(\\underbrace{w_1x_1 + \\dots + w_nx_n + b}_{\\text{还是线性的}})\n\n\n它有两个作用：\n一、把输出压到合适的范围。 分类要的是概率，那就压到 (0,1)。\n二、引入非线性。 这一条更本质。\n如果一层网络只做 z = wx + b，那么堆多少层都白搭：\nw_3\\bigl(w_2(w_1x + b_1) + b_2\\bigr) + b_3 = (w_3w_2w_1)x + \\dots\n三个线性函数套起来，还是线性的。 中间塞一个非线性函数，这个”塌缩”才被打断，网络才有能力拟合弯曲的东西。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#常见的激活函数",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#常见的激活函数",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "常见的激活函数",
+    "text": "常见的激活函数\n\n\n\n四种常见激活函数\n\n\n\n\n\n\n\n\n\n\n\n函数\n公式\n值域\n什么时候用\n\n\n\n\nSigmoid\n\\dfrac{1}{1+e^{-z}}\n(0, 1)\n二分类的输出层\n\n\nTanh\n\\dfrac{e^z - e^{-z}}{e^z + e^{-z}}\n(-1, 1)\n隐藏层（现在少用）\n\n\nReLU\n\\max(0, z)\n[0, +\\infty)\n隐藏层的默认选择\n\n\nLeaky ReLU\n\\max(0.01z,\\ z)\n(-\\infty, +\\infty)\n解决 ReLU 的”死神经元”\n\n\n\n补几句各自的脾气：\n\nSigmoid：输出恒正，两端导数趋近 0（梯度消失）。所以它现在几乎只用在最后一层，不在中间层用。\nTanh：是 Sigmoid 的平移缩放版，\\tanh(z) = 2g(2z) - 1。输出以 0 为中心，这一点比 Sigmoid 好，但梯度消失的问题一样在。\nReLU：正数区间导数恒为 1，负数区间导数为 0。计算极快、不会梯度消失，是深度网络的功臣。缺点是负数区间”彻底死掉”（导数为 0，再也学不动）。\nLeaky ReLU：给负数区间留一条小缝（斜率 0.01），死不了。\n\n\n\n\n\n\n\n注记这个选择有历史包袱\n\n\n\n2012 年之前大家用 Sigmoid / Tanh，网络一深就训不动。ReLU 普及之后，深层网络才真正跑得起来。\n所以你看到的老教程和新的实践，激活函数的选择可能完全不一样——不是谁错了，是时代变了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#决策边界",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#决策边界",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "决策边界",
+    "text": "决策边界\n回到最实际的问题：这个模型凭什么判断一个样本是 0 还是 1？\n规则很简单：输出大于 0.5 判 1，否则判 0。\n而由于 g 单调递增、且 g(0) = 0.5：\ng(z) &gt; 0.5 \\iff z &gt; 0\n所以真正的判决依据不是 g 的输出，而是里面的 z：\nwx + b &gt; 0 \\;\\Longrightarrow\\; \\hat{y} = 1\n\n\n\n\n\n\n注记所以 g 在判定这件事上其实”没起作用”\n\n\n\n它只负责把 z 翻译成一个概率给你看，判决本身完全由 z 的正负决定。\n于是”这个模型怎么分类”这个问题，等价于”z = 0 这条线长什么样”。这条线就叫决策边界（decision boundary）。\n\n\n不同特征数下，边界的样子：\n\n\n\n特征数\nz = 0 是什么\n边界形状\n\n\n\n\n1 个（肿瘤大小）\nw_1x_1 + b = 0\n一个点\n\n\n2 个\nw_1x_1 + w_2x_2 + b = 0\n一条直线\n\n\nn 个\n\\mathbf{w}^{\\top}\\mathbf{x} + b = 0\n一个超平面",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#但直线切不开所有数据",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#但直线切不开所有数据",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "但直线切不开所有数据",
+    "text": "但直线切不开所有数据\n上面说的边界都是直线。现实里很多数据用直线根本分不开。\n下图三格用的是同一个算法（逻辑回归），唯一的区别是喂给它的特征不同：\n\n\n\n同样的算法，不同特征，边界形状完全不同\n\n\n\n\n\n\n特征\n边界\n训练准确率\n\n\n\n\n左\nx_1,\\ x_2\n直线\n91.2%\n\n\n中\nx_1,\\ x_2（换圆环数据）\n直线\n71.1%\n\n\n右\nx_1,\\ x_2,\\ x_1^2,\\ x_2^2\n圆\n100%\n\n\n\n中间那格说明了问题：蓝点在圆心，橙点围成一圈。一条直线无论怎么摆都没法把里外分开——它必须穿过某一类。\n右图加了 x_1^2 和 x_2^2 两个特征，于是\nz = w_1x_1 + w_2x_2 + w_3x_1^2 + w_4x_2^2 + b = 0\n若 w_1 = w_2 = 0、w_3 = w_4 = k，它就成了 k(x_1^2 + x_2^2) + b = 0——一个圆。\n边界终于能把里外分开了。\n\n\n\n\n\n\n重要关键在于：算法一行没改\n\n\n\n左中右三格，模型结构、损失函数、优化过程完全相同。\n变的只有一件事：你有没有把 x_1^2, x_2^2 这两列加进特征矩阵。\n这就是第 3 章”特征工程”和”多项式回归”在分类里的直接应用。当时的结论是”多项式回归本质还是线性回归”；现在换个角度：线性模型的边界形状，完全由你喂给它的特征决定。\n\n\n理论上还能更复杂：加 x_1^3、x_1x_2、x_1^2x_2 等等，边界可以任意弯曲。\n代价是老问题——阶数越高越容易过拟合，尤其在没数据的区域，边界会乱扭。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#核心概念",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#核心概念",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n\n\n\n\n概念\n内容\n\n\n\n\nSigmoid\ng(z) = \\dfrac{1}{1+e^{-z}}，把任意实数压到 (0,1)\n\n\n关键性质\ng(0)=0.5、单调递增、两端趋近 0 / 1 但取不到、g' = g(1-g)\n\n\n逻辑回归\nf(x) = g(\\mathbf{w}^{\\top}\\mathbf{x} + b)，输出可当概率\n\n\n激活函数\n套在线性组合外面的非线性函数\n\n\n为什么要激活\n没有它，多层线性叠加依然等价于一层线性\n\n\n常见激活\nSigmoid（输出层）、Tanh、ReLU（隐藏层默认）、Leaky ReLU\n\n\n决策边界\n\\mathbf{w}^{\\top}\\mathbf{x} + b = 0 的解集\n\n\n非线性边界\n加多项式特征即可，算法不用改",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04b-logistic-sigmoid.html#下一课",
+    "href": "part1-ml/ch04/04b-logistic-sigmoid.html#下一课",
+    "title": "逻辑回归与 Sigmoid",
+    "section": "下一课",
+    "text": "下一课\n模型有了，但还没法训练——因为我们不知道它”错了多少”。\n下一课讲损失函数：为什么逻辑回归不能沿用平方误差，交叉熵怎么从极大似然推出来，以及那个 \\log 为什么会自然出现。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归与 Sigmoid"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html",
+    "href": "part1-ml/ch04/04d-gradient-descent.html",
+    "title": "逻辑回归的梯度下降",
+    "section": "",
+    "text": "上一课推出了梯度：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i - y_i\\bigr)x_i, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i - y_i\\bigr)\n其中 f_i = g(wx_i + b)，而 g 就是 Sigmoid。\n更新规则和第 2 章一模一样：\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n两个式子重复执行，直到收敛。\n这一课不推任何东西，就把这套式子真的转起来，看它到底发生什么。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#公式已经有了现在真跑",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#公式已经有了现在真跑",
+    "title": "逻辑回归的梯度下降",
+    "section": "",
+    "text": "上一课推出了梯度：\n\\frac{\\partial J}{\\partial w} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i - y_i\\bigr)x_i, \\qquad \\frac{\\partial J}{\\partial b} = \\frac{1}{m}\\sum_{i=1}^{m}\\bigl(f_i - y_i\\bigr)\n其中 f_i = g(wx_i + b)，而 g 就是 Sigmoid。\n更新规则和第 2 章一模一样：\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}, \\qquad b \\leftarrow b - \\alpha\\frac{\\partial J}{\\partial b}\n两个式子重复执行，直到收敛。\n这一课不推任何东西，就把这套式子真的转起来，看它到底发生什么。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#第-0-步起点在哪",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#第-0-步起点在哪",
+    "title": "逻辑回归的梯度下降",
+    "section": "第 0 步：起点在哪",
+    "text": "第 0 步：起点在哪\n参数从零开始：w = 0，b = 0。\n这时候 z = 0，g(0) = 0.5 ——模型对每个样本都说”50% 是良性”，等于什么都没判断。\n损失是多少？13 个样本里 7 个恶性、6 个良性：\nJ = -\\frac{1}{13}\\left[7\\log(1-0.5) + 6\\log 0.5\\right] = \\log 2 = \\mathbf{0.6931}\n\n\n\n\n\n\n提示记住这个数：0.6931\n\n\n\n\\log 2 就是“完全瞎猜”的成本。\n二分类问题里，一个什么都不学的模型损失必然停在 0.6931 附近。所以训练开始后，J 只要还贴着这个数，就说明模型还没学到任何东西。\n这个数可以当成一把尺子：训练有没有真的起作用，先看 J 有没有掉到 0.6931 以下。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#第-1-步手算一次",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#第-1-步手算一次",
+    "title": "逻辑回归的梯度下降",
+    "section": "第 1 步：手算一次",
+    "text": "第 1 步：手算一次\n先算梯度。f_i = 0.5 对所有 i 都成立，所以每个样本的残差都是 0.5 - y_i：\n\n\n\n\n前 7 个（y=0）\n后 6 个（y=1）\n\n\n\n\n残差 f-y\n+0.5\n-0.5\n\n\n\n于是\n\\frac{\\partial J}{\\partial w} = \\frac{1}{13}\\left[\\sum_{y=0}0.5x_i + \\sum_{y=1}(-0.5)x_i\\right] = -0.634615\n\\frac{\\partial J}{\\partial b} = \\frac{1}{13}\\left[7 \\times 0.5 + 6 \\times (-0.5)\\right] = \\frac{0.5}{13} = 0.038462\n取 \\alpha = 0.5，更新：\nw = 0 - 0.5 \\times (-0.634615) = \\mathbf{0.3173} b = 0 - 0.5 \\times 0.038462 = \\mathbf{-0.0192}\n新损失 J = 0.680968。\n从 0.6931 掉到 0.6810。 掉得不多，但方向对了。\n\n\n\n\n\n\n注记看梯度里藏着的两件事\n\n\n\n\\left|\\dfrac{\\partial J}{\\partial w}\\right| = 0.63，而 \\left|\\dfrac{\\partial J}{\\partial b}\\right| = 0.038 ——差了十六倍。\n原因还是那个：w 的梯度里多乘了一个 x，而 x 是 1 到 7 之间的数。\n所以一开始 w 大步走、b 几乎不动。第 3 章那个”两个参数抢一个 \\alpha“的问题，在逻辑回归里一模一样。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#一直跑下去",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#一直跑下去",
+    "title": "逻辑回归的梯度下降",
+    "section": "一直跑下去",
+    "text": "一直跑下去\n把上面那一步重复两千次：\n\n\n\n损失随迭代下降\n\n\n\n\n\n迭代次数\nw\nb\nJ\n\n\n\n\n0\n0.0000\n0.0000\n0.69315\n\n\n1\n0.3173\n−0.0192\n0.68097\n\n\n5\n0.3033\n−0.3656\n0.59010\n\n\n10\n0.2934\n−0.7537\n0.52600\n\n\n50\n0.7922\n−2.7151\n0.31448\n\n\n100\n1.1448\n−4.1084\n0.23071\n\n\n500\n2.3070\n−8.5484\n0.11258\n\n\n2000\n3.8327\n−14.2882\n0.06171\n\n\n\n损失从 0.6931 降到 0.0617，降了十一倍。\n注意 w 那一列：第 1 步跳到 0.3173，第 2 步又退回 0.0833，第 5 步才 0.3033……前十步基本在原地打转。\n因为 b 还没跟上。 等 b 从 0 慢慢走到 −2 以后，w 才开始稳步增长。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#训练前后",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#训练前后",
+    "title": "逻辑回归的梯度下降",
+    "section": "训练前后",
+    "text": "训练前后\n\n\n\n左：什么都没学到。右：学会分类了\n\n\n左边是起点：整条曲线贴在 0.5，对任何输入都报”一半一半”。\n右边是训练结果：w = 3.8327，b = -14.2882。曲线在 3.5 到 4.0 之间快速抬升，把两类分开了。\n决策边界在 z = 0 处：\nx = -\\frac{b}{w} = \\frac{14.2882}{3.8327} = \\mathbf{3.73 \\text{ cm}}\n和图中曲线穿过 0.5 的位置一致。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#两个必须知道的坑",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#两个必须知道的坑",
+    "title": "逻辑回归的梯度下降",
+    "section": "两个必须知道的坑",
+    "text": "两个必须知道的坑\n\n坑一：\\alpha 太大会先冲过头\n同样是这两千步，把 \\alpha 从 0.5 改成 1.0，前几步的 J 是这样：\n\n\n\n迭代\n\\alpha=0.5\n\\alpha=1.0\n\n\n\n\n0\n0.69315\n0.69315\n\n\n1\n0.68097\n0.90755\n\n\n5\n0.59010\n0.67475\n\n\n10\n0.52600\n1.13076\n\n\n\n\\alpha = 1.0 时，损失先涨到 1.13 才回来 —— 比起点还高。\n它最后还是收敛了，但这说明步长已经接近危险边缘。第 2 章那句”\\alpha 太大会震荡”在这里同样成立。\n\n\n坑二：特征缩放照样有用\nx 的范围是 1 到 7，和 b 的量级不对齐。把 x 标准化之后再跑，同样 \\alpha = 0.5：\n\n\n\n\n达到 J &lt; 0.07 需要的步数\n\n\n\n\n原始 x\n1503 步\n\n\n标准化后\n329 步\n\n\n\n快了 4.6 倍。 第 3 章那套结论原封不动适用。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#实现只有两部分",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#实现只有两部分",
+    "title": "逻辑回归的梯度下降",
+    "section": "实现只有两部分",
+    "text": "实现只有两部分\n官方材料把这个算法拆得很清楚：一个循环 + 一个算梯度的函数。\n\n算梯度\ndef compute_gradient_logistic(X, y, w, b):\n    m, n = X.shape\n    dj_dw = np.zeros(n)\n    dj_db = 0.0\n    for i in range(m):\n        f = sigmoid(X[i] @ w + b)      # 这一条的预测\n        err = f - y[i]                 # 残差\n        for j in range(n):\n            dj_dw[j] += err * X[i, j]  # 残差乘特征\n        dj_db += err\n    return dj_dw / m, dj_db / m\n\n\n循环\ndef gradient_descent(X, y, w, b, alpha, num_iters):\n    for i in range(num_iters):\n        dj_dw, dj_db = compute_gradient_logistic(X, y, w, b)\n        w = w - alpha * dj_dw\n        b = b - alpha * dj_db\n    return w, b\n\n\n\n\n\n\n警告两次更新必须用同一份梯度\n\n\n\n注意顺序：先算完 \\dfrac{\\partial J}{\\partial w} 和 \\dfrac{\\partial J}{\\partial b}，再一起更新。\n如果先更新了 w，然后拿新的 w 去算 \\dfrac{\\partial J}{\\partial b}，那算出来的就不是同一个点的梯度了——这叫非同步更新，会让收敛变慢甚至出错。\n代码里 dj_dw, dj_db = compute_gradient(...) 这一行同时拿到两个梯度，就是为了保证这一点。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#和第-2-章比一比",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#和第-2-章比一比",
+    "title": "逻辑回归的梯度下降",
+    "section": "和第 2 章比一比",
+    "text": "和第 2 章比一比\n把两个算法摆在一起看，会发现它们的骨架完全一样：\n\n\n\n\n\n\n\n\n\n线性回归\n逻辑回归\n\n\n\n\n预测\nf = wx + b\nf = g(wx + b)\n\n\n损失\n\\frac{1}{2m}\\sum(f-y)^2\n-\\frac{1}{m}\\sum[y\\log f + (1-y)\\log(1-f)]\n\n\n梯度\n\\frac{1}{m}\\sum(f-y)x\n\\frac{1}{m}\\sum(f-y)x\n\n\n更新\nw \\leftarrow w - \\alpha\\frac{\\partial J}{\\partial w}\n同左\n\n\n循环\n重复直到收敛\n同左\n\n\n\n只有前两行变了。 梯度的形式、更新规则、循环结构，一个字都没改。\n这就是为什么逻辑回归学起来不费劲——它只是在线性回归外面套了一层 g，再把损失换成配得上分类的那一个。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#一个诚实的补充",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#一个诚实的补充",
+    "title": "逻辑回归的梯度下降",
+    "section": "一个诚实的补充",
+    "text": "一个诚实的补充\n这 13 个样本是线性可分的：所有恶性都在 3.5 cm 以下，所有良性都在 4.0 cm 以上。\n这种数据上，逻辑回归的最优解在无穷远处——w 越大、b 越负，分得越干净，损失越接近 0 但永远到不了 0。\n所以上表里 J 到第 2000 步还在缓慢下降，不是没收敛好，是本来就没有一个有限的终点。真实数据很少这么干净，通常会有重叠，那时 J 会收敛到一个正数。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#核心概念",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#核心概念",
+    "title": "逻辑回归的梯度下降",
+    "section": "核心概念",
+    "text": "核心概念\n\n\n\n概念\n内容\n\n\n\n\n起点损失\n\\log 2 = 0.6931，等于”完全瞎猜”的成本\n\n\n梯度形式\n\\frac{1}{m}\\sum(f_i-y_i)x_i，和线性回归同形\n\n\n同步更新\n两个梯度都算完再一起更新，不能边算边改\n\n\n\\alpha 太大\n损失会先冲到起点之上再回来\n\n\n特征缩放\n逻辑回归同样需要；本例快 4.6 倍\n\n\n线性可分\n最优解在无穷远，J 只能无限趋近 0",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch04/04d-gradient-descent.html#下一课",
+    "href": "part1-ml/ch04/04d-gradient-descent.html#下一课",
+    "title": "逻辑回归的梯度下降",
+    "section": "下一课",
+    "text": "下一课\n第 4 章到这里，逻辑回归的整套就齐了：模型、损失、梯度、训练。\n下一课换一个角度：从概率和最大似然重新看一遍交叉熵，然后过渡到多分类——Softmax。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 4 章　逻辑回归与交叉熵",
+      "逻辑回归的梯度下降"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05a-why-split.html",
+    "href": "part1-ml/ch05/05a-why-split.html",
+    "title": "训练误差骗了你",
+    "section": "",
+    "text": "上一章的习题里有个现象：5 个样本拟合 6 次多项式，训练误差是 0.0000。\n每个点都被完美穿过，一个不差。\n如果你只看这个数字，会觉得这就是完美的模型。但它的验证误差是 10^{13} 量级——在训练数据范围之外，那条曲线早就飞到天上去了。\n\n\n\n\n\n\n警告训练误差小，说明不了任何事\n\n\n\n它只能证明一件事：模型记住了这批数据。\n记住和学会是两回事。一个把答案抄下来的学生，做过的题全对，换一道就废了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "训练误差骗了你"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05a-why-split.html#一个让人不放心的模型",
+    "href": "part1-ml/ch05/05a-why-split.html#一个让人不放心的模型",
+    "title": "训练误差骗了你",
+    "section": "",
+    "text": "上一章的习题里有个现象：5 个样本拟合 6 次多项式，训练误差是 0.0000。\n每个点都被完美穿过，一个不差。\n如果你只看这个数字，会觉得这就是完美的模型。但它的验证误差是 10^{13} 量级——在训练数据范围之外，那条曲线早就飞到天上去了。\n\n\n\n\n\n\n警告训练误差小，说明不了任何事\n\n\n\n它只能证明一件事：模型记住了这批数据。\n记住和学会是两回事。一个把答案抄下来的学生，做过的题全对，换一道就废了。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "训练误差骗了你"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05a-why-split.html#需要一批模型没见过的数据",
+    "href": "part1-ml/ch05/05a-why-split.html#需要一批模型没见过的数据",
+    "title": "训练误差骗了你",
+    "section": "需要一批模型没见过的数据",
+    "text": "需要一批模型没见过的数据\n所以评估模型必须分两批数据：\n\n\n\n名字\n用途\n模型训练时能看到吗\n\n\n\n\n训练集\n用来调参数\n能\n\n\n验证集\n用来选模型、调超参数\n不能\n\n\n测试集\n最后报告成绩\n绝对不能\n\n\n\n常见的划分比例是 60% / 20% / 20%，或者数据多的时候 98% / 1% / 1%。\n\n为什么要三个而不是两个\n两个也能跑，但会有个隐蔽的问题：\n假设你只用训练集和验证集。你试了 20 种模型，挑出验证误差最小的那个。这个”挑”的动作本身就是在验证集上做了一次训练——你选的是”在这批验证数据上表现最好”的模型，它天然会偏向这批数据。\n所以还需要第三份从没参与过任何选择的测试集，用来给出一个诚实的成绩。\n\n\n\n\n\n\n注记一个新手最常犯的错\n\n\n\n用测试集反复调参。\n“测试误差 0.3，太高了，我改改超参数再试”……试了十几次之后挑出测试误差 0.15 的那个，然后报告”测试误差 0.15”。\n这个数字是假的。测试集已经被你用成了验证集，它不再能代表”模型在没见过的数据上表现如何”。\n测试集只能碰一次，就是最后那一次。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "训练误差骗了你"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05a-why-split.html#那验证误差怎么用",
+    "href": "part1-ml/ch05/05a-why-split.html#那验证误差怎么用",
+    "title": "训练误差骗了你",
+    "section": "那验证误差怎么用",
+    "text": "那验证误差怎么用\n它回答的根本问题是：\n\n换一批数据，这个模型还稳吗？\n\n训练误差和验证误差的关系，比任何一个绝对值都重要：\n\n\n\n训练误差\n验证误差\n说明\n\n\n\n\n低\n低\n好模型\n\n\n低\n高\n记住了训练集，泛化不了 → 下一课\n\n\n高\n高\n连训练集都没学好 → 再下一课\n\n\n高\n低\n几乎不可能，出现就说明划分有问题\n\n\n\n后两行就是这一章要讲的两件事。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "训练误差骗了你"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05a-why-split.html#这一章要解决的问题",
+    "href": "part1-ml/ch05/05a-why-split.html#这一章要解决的问题",
+    "title": "训练误差骗了你",
+    "section": "这一章要解决的问题",
+    "text": "这一章要解决的问题\n“留出一部分数据”听起来简单，真做起来一堆坑：\n\n划多少合适？怎么划才不带偏？\n数据少的时候，一份验证集太浪费、太不稳怎么办 → 交叉验证\n哪些操作会悄悄把验证集的信息泄进训练 → 数据泄漏\n\n下一课先从最基本的划分方式开始。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "训练误差骗了你"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html",
+    "href": "part1-ml/ch05/05c-cross-validation.html",
+    "title": "交叉验证",
+    "section": "",
+    "text": "用一份 60 个点的数据，做 80/20 划分，训练一个线性回归，重复 200 次（每次重新随机划分）：\n\n\n\n\n验证 MSE\n\n\n\n\n平均\n4.988\n\n\n标准差\n1.644\n\n\n最小\n1.692\n\n\n最大\n9.924\n\n\n\n\n\n\n\n\n\n警告同一个模型、同一份数据，报出来的分数能差 5.9 倍\n\n\n\n抽到最好的那次，你会以为模型很不错（MSE 1.69）。\n抽到最差的那次，你会以为模型烂透了（MSE 9.92）。\n它俩其实是同一个模型。 差别只在于哪 12 个点被抽去做验证集了。\n\n\n这就是小数据上用留出法的根本问题：你报的是一个随机数。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html#先看单次划分有多不稳",
+    "href": "part1-ml/ch05/05c-cross-validation.html#先看单次划分有多不稳",
+    "title": "交叉验证",
+    "section": "",
+    "text": "用一份 60 个点的数据，做 80/20 划分，训练一个线性回归，重复 200 次（每次重新随机划分）：\n\n\n\n\n验证 MSE\n\n\n\n\n平均\n4.988\n\n\n标准差\n1.644\n\n\n最小\n1.692\n\n\n最大\n9.924\n\n\n\n\n\n\n\n\n\n警告同一个模型、同一份数据，报出来的分数能差 5.9 倍\n\n\n\n抽到最好的那次，你会以为模型很不错（MSE 1.69）。\n抽到最差的那次，你会以为模型烂透了（MSE 9.92）。\n它俩其实是同一个模型。 差别只在于哪 12 个点被抽去做验证集了。\n\n\n这就是小数据上用留出法的根本问题：你报的是一个随机数。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html#k-折交叉验证",
+    "href": "part1-ml/ch05/05c-cross-validation.html#k-折交叉验证",
+    "title": "交叉验证",
+    "section": "k 折交叉验证",
+    "text": "k 折交叉验证\n做法很直接：把数据切成 k 块，训练 k 次。\n\n\n\n5 折交叉验证：每一折换一块当验证集\n\n\n\n第 1 次：第 1 块当验证，其余 4 块训练\n第 2 次：第 2 块当验证，其余 4 块训练\n……\n第 5 次：第 5 块当验证，其余 4 块训练\n\n最后把 5 个验证分数平均，作为这个模型的成绩。\nfrom sklearn.model_selection import cross_val_score\nscores = cross_val_score(model, X, y, cv=5, scoring=\"neg_mean_squared_error\")\nmse = -scores.mean()\n\n\n\n\n\n\n提示为什么这样就稳了\n\n\n\n因为每一个样本都恰好当过一次验证集。\n单次划分时，那 12 个被抽中的点决定了你的分数；交叉验证里，全部 60 个点都参与过评分，运气成分被平均掉了。\n而且每个样本也都参与了 k-1 次训练——数据一点没浪费。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html#k-取多少",
+    "href": "part1-ml/ch05/05c-cross-validation.html#k-取多少",
+    "title": "交叉验证",
+    "section": "k 取多少",
+    "text": "k 取多少\n\n\n\nk\n训练集占\n偏差\n方差\n计算量\n\n\n\n\n5\n80%\n稍高\n中\n5 次\n\n\n10\n90%\n低\n中\n10 次\n\n\nm（留一法）\n接近 100%\n最低\n高\nm 次\n\n\n\n实际最常用的是 5 折和 10 折。\n\nk 太小（比如 3）：训练集只用了 2/3，模型没吃饱，分数偏低\nk 太大（比如留一法）：训练 m 次太慢，而且各折模型几乎一样，平均之后方差反而不降\n\n\n\n\n\n\n\n注记留一法（LOO）\n\n\n\nk = m，每次只留 1 个样本做验证。\n听起来最完美——训练集几乎用了全部数据。但它有两个问题：\n\n要训练 m 次，数据一万条就训练一万次\n各折的模型高度相关（彼此只差一个样本），平均掉的信息很少，方差不一定比 5 折低\n\n小数据上偶尔用，大数据上基本不考虑。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html#代价与选择",
+    "href": "part1-ml/ch05/05c-cross-validation.html#代价与选择",
+    "title": "交叉验证",
+    "section": "代价与选择",
+    "text": "代价与选择\n\n\n\n场景\n建议\n\n\n\n\n数据少（几百条以内）、模型便宜\n10 折\n\n\n数据中等、模型便宜\n5 折\n\n\n模型很贵（深度学习）\n单次留出，或者 3 折\n\n\n数据很大（百万级）\n单次留出就够了\n\n\n\n最后一行值得强调：数据足够多的时候，留出法本身就足够稳，没必要再交叉验证。上一课那个”差 5.9 倍”是因为只有 60 个样本。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html#和超参数选择的关系",
+    "href": "part1-ml/ch05/05c-cross-validation.html#和超参数选择的关系",
+    "title": "交叉验证",
+    "section": "和超参数选择的关系",
+    "text": "和超参数选择的关系\n交叉验证最常见的用途是选超参数：\nfor 阶数 in [1, 2, 3, 4, 5]:\n    用 5 折交叉验证算出这个阶数的平均误差\n选平均误差最小的那个阶数\n\n\n\n\n\n\n重要注意：这一步用的是验证，不是测试\n\n\n\n交叉验证的分数用来做决定（选哪个阶数、哪个 λ）。所以它扮演的是验证集的角色。\n选完之后，还要在测试集上跑一次，报出最终成绩。测试集从头到尾没参与过任何选择。\n如果连测试集也拿去选，那就又回到了”用测试集调参”的老坑。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05c-cross-validation.html#下一课",
+    "href": "part1-ml/ch05/05c-cross-validation.html#下一课",
+    "title": "交叉验证",
+    "section": "下一课",
+    "text": "下一课\n还有一类问题比”划分方式”更隐蔽：数据泄漏。\n你的划分看起来完全正确，交叉验证也做了，但分数莫名其妙地好——那多半是有信息从训练集漏到了验证集。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "交叉验证"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05e-exercises.html",
+    "href": "part1-ml/ch05/05e-exercises.html",
+    "title": "习题",
+    "section": "",
+    "text": "第一题　有 1000 个样本，按 60/20/20 划分。三个集合各多少个？如果其中有 30 个正类（3%），采用分层抽样后，验证集里应该有多少个正类？\n第二题　下面是一份 5 个样本的标签：\ny = np.array([10., 12., 14., 16., 18.])\n模型很简单：预测训练集的平均值。\n用留一法（5 折，每次留 1 个）算出每一折的误差，再求平均 MSE。\n然后回答：这个交叉验证的分数，和”直接用全部 5 个样本的平均值去预测全部 5 个样本”的 MSE 相比，哪个大？为什么？\n第三题　判断下面哪些操作会造成数据泄漏：\n\n先用全部数据算出均值来填充缺失值，然后划分训练/测试集\n先划分，然后用训练集的均值填充训练集和测试集的缺失值\n用 5 折交叉验证选出最好的多项式阶数，然后在测试集上报告成绩\n用 5 折交叉验证选出最好的阶数，然后用同一批数据的测试集反复调参，报告最好的那个成绩\n预测明天的股价，把最近三年的数据随机打乱后划分\n\n第四题　下面这段代码重复了 200 次，每次都是同一个模型、同一份数据，只是划分随机种子不同。解释为什么结果会差这么多，以及交叉验证怎么解决它。\nscores = []\nfor seed in range(200):\n    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=seed)\n    model.fit(X_tr, y_tr)\n    scores.append(mean_squared_error(y_te, model.predict(X_te)))\n\nprint(scores.mean(), scores.min(), scores.max())",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05e-exercises.html#题目",
+    "href": "part1-ml/ch05/05e-exercises.html#题目",
+    "title": "习题",
+    "section": "",
+    "text": "第一题　有 1000 个样本，按 60/20/20 划分。三个集合各多少个？如果其中有 30 个正类（3%），采用分层抽样后，验证集里应该有多少个正类？\n第二题　下面是一份 5 个样本的标签：\ny = np.array([10., 12., 14., 16., 18.])\n模型很简单：预测训练集的平均值。\n用留一法（5 折，每次留 1 个）算出每一折的误差，再求平均 MSE。\n然后回答：这个交叉验证的分数，和”直接用全部 5 个样本的平均值去预测全部 5 个样本”的 MSE 相比，哪个大？为什么？\n第三题　判断下面哪些操作会造成数据泄漏：\n\n先用全部数据算出均值来填充缺失值，然后划分训练/测试集\n先划分，然后用训练集的均值填充训练集和测试集的缺失值\n用 5 折交叉验证选出最好的多项式阶数，然后在测试集上报告成绩\n用 5 折交叉验证选出最好的阶数，然后用同一批数据的测试集反复调参，报告最好的那个成绩\n预测明天的股价，把最近三年的数据随机打乱后划分\n\n第四题　下面这段代码重复了 200 次，每次都是同一个模型、同一份数据，只是划分随机种子不同。解释为什么结果会差这么多，以及交叉验证怎么解决它。\nscores = []\nfor seed in range(200):\n    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=seed)\n    model.fit(X_tr, y_tr)\n    scores.append(mean_squared_error(y_te, model.predict(X_te)))\n\nprint(scores.mean(), scores.min(), scores.max())",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch05/05e-exercises.html#一句话总结",
+    "href": "part1-ml/ch05/05e-exercises.html#一句话总结",
+    "title": "习题",
+    "section": "一句话总结",
+    "text": "一句话总结\n\n\n\n结论\n内容\n\n\n\n\n验证集的绝对数量\n至少几百个，否则数字本身就不稳\n\n\n分层抽样\n类别不平衡时的必需品\n\n\n交叉验证\n用 k 倍计算量换掉抽样运气\n\n\n数据泄漏\n任何”算参数”的操作，只能在训练集上做\n\n\n测试集\n只能碰一次",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 5 章　数据划分与交叉验证",
+      "习题"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html",
+    "href": "part1-ml/ch06/06b-underfitting.html",
+    "title": "欠拟合",
+    "section": "",
+    "text": "同一个图，看最左边那个：\n\n\n\n1 次多项式：一条直线，两端明显偏\n\n\n它没有被噪声带跑——恰恰相反，它什么都没学到。\n数据明显是弯的，它硬要用直线去凑，结果两头都偏。训练 MSE 是 1079，四个里最高。\n\n\n\n\n\n\n重要欠拟合的定义\n\n\n\n模型太简单，连训练集的基本规律都没抓住。\n表现：训练误差本身就很高，验证误差也高，两个差不多。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#另一头",
+    "href": "part1-ml/ch06/06b-underfitting.html#另一头",
+    "title": "欠拟合",
+    "section": "",
+    "text": "同一个图，看最左边那个：\n\n\n\n1 次多项式：一条直线，两端明显偏\n\n\n它没有被噪声带跑——恰恰相反，它什么都没学到。\n数据明显是弯的，它硬要用直线去凑，结果两头都偏。训练 MSE 是 1079，四个里最高。\n\n\n\n\n\n\n重要欠拟合的定义\n\n\n\n模型太简单，连训练集的基本规律都没抓住。\n表现：训练误差本身就很高，验证误差也高，两个差不多。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#为什么两个误差差不多",
+    "href": "part1-ml/ch06/06b-underfitting.html#为什么两个误差差不多",
+    "title": "欠拟合",
+    "section": "为什么两个误差差不多",
+    "text": "为什么两个误差差不多\n这一点值得想清楚。\n过拟合时，训练误差低得离谱，验证误差高——因为模型只对训练集”特调”。\n欠拟合时，模型根本没能力区分训练集和新数据。它对所有数据一视同仁地拟合不好，所以两个误差自然就差不多了。\n\n\n\n\n\n\n提示一个快速的判断口诀\n\n\n\n看训练误差。\n\n训练误差就已经很高 → 欠拟合\n训练误差很低，验证误差高 → 过拟合\n两个都低 → 正常\n\n训练误差是判断的起点，不是验证误差。很多人一上来就看验证误差，然后分不清是哪一头。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#两者的对照",
+    "href": "part1-ml/ch06/06b-underfitting.html#两者的对照",
+    "title": "欠拟合",
+    "section": "两者的对照",
+    "text": "两者的对照\n\n\n\n\n欠拟合\n过拟合\n\n\n\n\n训练误差\n高\n低\n\n\n验证误差\n高\n很高\n\n\n两者差距\n小\n大\n\n\n模型复杂度\n太低\n太高\n\n\n曲线形状\n太平、太直\n太弯、乱翘\n\n\n该做什么\n加复杂度、加特征\n降复杂度、加数据、正则化",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#一张图看全",
+    "href": "part1-ml/ch06/06b-underfitting.html#一张图看全",
+    "title": "欠拟合",
+    "section": "一张图看全",
+    "text": "一张图看全\n\n\n\n训练误差和验证误差随模型复杂度的变化\n\n\n这张图是本章最重要的一张，值得盯着看一会儿：\n\n蓝色（训练误差）一路下降。模型越复杂，越能贴合训练数据，这没什么好意外的。\n橙色（验证误差）先降后升。它才是我们真正关心的。\n左边橙色高 = 模型太简单，欠拟合\n右边橙色高 = 模型太复杂，过拟合\n中间那个最低点 = 刚好\n\n\n\n\n\n\n\n重要关键结论\n\n\n\n训练误差永远会随复杂度下降，所以它不能用来选模型。\n能用来选模型的只有验证误差。而验证误差的形状是 U 形——这意味着”越复杂越好”是错的，“越简单越好”也是错的，存在一个最优点。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#为什么验证误差会回升",
+    "href": "part1-ml/ch06/06b-underfitting.html#为什么验证误差会回升",
+    "title": "欠拟合",
+    "section": "为什么验证误差会回升",
+    "text": "为什么验证误差会回升\n因为模型开始学噪声了。\n复杂度低的时候，模型连真实规律都表达不了；复杂度适中时，它刚好能表达规律；再往上涨，多出来的自由度没有真实规律可拟合，就去拟合噪声。\n噪声在每个数据集里都不一样，所以在训练集上拟合到的噪声，到验证集上全部变成错误。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#怎么缓解",
+    "href": "part1-ml/ch06/06b-underfitting.html#怎么缓解",
+    "title": "欠拟合",
+    "section": "怎么缓解",
+    "text": "怎么缓解\n\n\n\n手段\n适用\n\n\n\n\n加高次项 / 加特征\n欠拟合\n\n\n换更复杂的模型（比如从线性换成树）\n欠拟合\n\n\n减少正则化强度\n欠拟合（如果已经在用正则化）\n\n\n\n注意：加数据对欠拟合几乎没用。模型能力不够，给再多数据也学不会——这一点下一课的学习曲线会讲清楚。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06b-underfitting.html#下一课把它量化",
+    "href": "part1-ml/ch06/06b-underfitting.html#下一课把它量化",
+    "title": "欠拟合",
+    "section": "下一课：把它量化",
+    "text": "下一课：把它量化\n“太简单”和”太复杂”还是感觉层面的说法。\n下一课把它们变成两个可以量的东西：偏差和方差。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "欠拟合"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html",
+    "href": "part1-ml/ch06/06d-learning-curves.html",
+    "title": "学习曲线与诊断",
+    "section": "",
+    "text": "前面那张图横轴是模型复杂度。现在换一个：横轴是训练样本数。\n\n\n\n两种典型形态：左高偏差，右高方差",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#把横轴换掉",
+    "href": "part1-ml/ch06/06d-learning-curves.html#把横轴换掉",
+    "title": "学习曲线与诊断",
+    "section": "",
+    "text": "前面那张图横轴是模型复杂度。现在换一个：横轴是训练样本数。\n\n\n\n两种典型形态：左高偏差，右高方差",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#左边高偏差",
+    "href": "part1-ml/ch06/06d-learning-curves.html#左边高偏差",
+    "title": "学习曲线与诊断",
+    "section": "左边：高偏差",
+    "text": "左边：高偏差\n\n训练误差随样本增加而上升（数据多了，完美拟合越来越难）\n验证误差随样本增加而下降\n两条线很快贴在一起，然后一起停在很高的位置\n\n关键在最后一句：它们贴在了一起，说明模型对训练集和新数据一样差——不是过拟合，是根本没学会。\n\n\n\n\n\n\n警告结论：加数据没用\n\n\n\n两条线已经贴住了，再加数据只会让它们继续贴着不动。\n这种情况必须换更复杂的模型或者加特征。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#右边高方差",
+    "href": "part1-ml/ch06/06d-learning-curves.html#右边高方差",
+    "title": "学习曲线与诊断",
+    "section": "右边：高方差",
+    "text": "右边：高方差\n\n训练误差一直很低\n验证误差一直很高\n两条线之间始终有一道大缝\n\n模型对训练集特调得很好，换一批数据就废。\n\n\n\n\n\n\n提示结论：加数据有用\n\n\n\n缝还在，说明模型还没被数据”约束住”。给它更多数据，缝会缩小。\n这是唯一一种”加数据能治”的情况。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#实用价值",
+    "href": "part1-ml/ch06/06d-learning-curves.html#实用价值",
+    "title": "学习曲线与诊断",
+    "section": "实用价值",
+    "text": "实用价值\n\n\n\n\n\n\n\n\n\n你看到的\n诊断\n加数据有用吗\n该做什么\n\n\n\n\n两线贴住，都很高\n高偏差（欠拟合）\n❌ 没用\n换更复杂的模型、加特征\n\n\n中间有大缝\n高方差（过拟合）\n✅ 有用\n加数据、正则化、降复杂度\n\n\n两线都低且贴住\n健康\n—\n可以停了\n\n\n\n\n\n\n\n\n\n重要这是本章最省时间的一张表\n\n\n\n在动手调任何东西之前，先画一遍学习曲线。\n不画就调参，等于蒙着眼睛修车。 你会花一整天试各种招，其中一半是针对另一种病的——不但没用，还会让情况更糟（比如给欠拟合的模型加正则化）。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#总的诊断表",
+    "href": "part1-ml/ch06/06d-learning-curves.html#总的诊断表",
+    "title": "学习曲线与诊断",
+    "section": "总的诊断表",
+    "text": "总的诊断表\n\n\n\n\n\n\n\n\n症状\n病因\n手段\n\n\n\n\n训练误差高，验证误差也高，两线贴住\n高偏差 / 欠拟合\n加特征、加高次项、换更复杂的模型、减小正则化\n\n\n训练误差低，验证误差高，中间有大缝\n高方差 / 过拟合\n加数据、加正则化、减特征、降复杂度\n\n\n训练误差低，验证误差也低\n健康\n收工\n\n\n\n\n\n\n\n\n\n注记注意第一行最后那个”减小正则化”\n\n\n\n很容易搞反。\n正则化的作用是压制模型复杂度。如果模型本来就太简单（欠拟合），再加正则化只会更糟。\n所以”正则化”不是万能药，它只治过拟合。第 6 章专门讲这件事。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#本章小结",
+    "href": "part1-ml/ch06/06d-learning-curves.html#本章小结",
+    "title": "学习曲线与诊断",
+    "section": "本章小结",
+    "text": "本章小结\n\n\n\n概念\n一句话\n\n\n\n\n训练误差\n只说明”记住了”，不说明”学会了”\n\n\n验证集\n用来选模型；测试集只能用一次\n\n\n过拟合\n训练误差低、验证误差高、缝大\n\n\n欠拟合\n训练误差本身就高\n\n\n偏差\n平均偏离多远；高 = 欠拟合\n\n\n方差\n换批数据波动多大；高 = 过拟合\n\n\n噪声\n不可约误差，是任何模型的下限\n\n\n学习曲线\n一眼看出是哪一种病",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/ch06/06d-learning-curves.html#下一课",
+    "href": "part1-ml/ch06/06d-learning-curves.html#下一课",
+    "title": "学习曲线与诊断",
+    "section": "下一课",
+    "text": "下一课\n下一章解决过拟合：正则化。\n思路很直接——既然问题出在”参数太大导致曲线乱扭”，那就在损失函数里加一项，专门惩罚大参数。",
+    "crumbs": [
+      "第一部分 · 机器学习",
+      "第 6 章　过拟合、欠拟合与偏差方差",
+      "学习曲线与诊断"
+    ]
+  },
+  {
+    "objectID": "part1-ml/stubs/07-regularization.html",
+    "href": "part1-ml/stubs/07-regularization.html",
+    "title": "第 7 章　正则化",
     "section": "",
     "text": "注记\n\n\n\n本章尚未完成。",
     "crumbs": [
       "第一部分 · 机器学习",
-      "第 5 章　多分类与 softmax"
+      "第 7~15 章（待写）",
+      "第 7 章　正则化"
     ]
   },
   {
-    "objectID": "07-overfitting.html",
-    "href": "07-overfitting.html",
-    "title": "第 7 章　过拟合与偏差方差",
+    "objectID": "part1-ml/stubs/09-classification-metrics.html",
+    "href": "part1-ml/stubs/09-classification-metrics.html",
+    "title": "第 9 章　评估分类器",
     "section": "",
     "text": "注记\n\n\n\n本章尚未完成。",
     "crumbs": [
       "第一部分 · 机器学习",
-      "第 7 章　过拟合与偏差方差"
+      "第 7~15 章（待写）",
+      "第 9 章　评估分类器"
     ]
   },
   {
-    "objectID": "09-data-splitting.html",
-    "href": "09-data-splitting.html",
-    "title": "第 9 章　数据划分与交叉验证",
+    "objectID": "part1-ml/stubs/11-ensembles-kernels.html",
+    "href": "part1-ml/stubs/11-ensembles-kernels.html",
+    "title": "第 11 章　集成与核方法",
     "section": "",
     "text": "注记\n\n\n\n本章尚未完成。",
     "crumbs": [
       "第一部分 · 机器学习",
-      "第 9 章　数据划分与交叉验证"
+      "第 7~15 章（待写）",
+      "第 11 章　集成与核方法"
     ]
   },
   {
-    "objectID": "11-decision-trees.html",
-    "href": "11-decision-trees.html",
-    "title": "第 11 章　决策树",
+    "objectID": "part1-ml/stubs/13-dimensionality-reduction.html",
+    "href": "part1-ml/stubs/13-dimensionality-reduction.html",
+    "title": "第 13 章　降维与推荐",
     "section": "",
     "text": "注记\n\n\n\n本章尚未完成。",
     "crumbs": [
       "第一部分 · 机器学习",
-      "第 11 章　决策树"
+      "第 7~15 章（待写）",
+      "第 13 章　降维与推荐"
     ]
   },
   {
-    "objectID": "13-clustering.html",
-    "href": "13-clustering.html",
-    "title": "第 13 章　聚类",
+    "objectID": "part1-ml/stubs/15-to-neural-networks.html",
+    "href": "part1-ml/stubs/15-to-neural-networks.html",
+    "title": "第 15 章　从 ML 到神经网络",
     "section": "",
     "text": "注记\n\n\n\n本章尚未完成。",
     "crumbs": [
       "第一部分 · 机器学习",
-      "第 13 章　聚类"
+      "第 7~15 章（待写）",
+      "第 15 章　从 ML 到神经网络"
     ]
   },
   {
-    "objectID": "15-sklearn-pipeline.html",
-    "href": "15-sklearn-pipeline.html",
-    "title": "第 15 章　sklearn 工程化",
-    "section": "",
-    "text": "注记\n\n\n\n本章尚未完成。",
-    "crumbs": [
-      "第一部分 · 机器学习",
-      "第 15 章　sklearn 工程化"
-    ]
-  },
-  {
-    "objectID": "appendix-pipeline.html",
-    "href": "appendix-pipeline.html",
-    "title": "附录 A　机器学习项目的完整流程",
-    "section": "",
-    "text": "这一节是把整个流程一次看全，不要求现在全部理解。后面每章会拆开讲其中一步。",
-    "crumbs": [
-      "附录",
-      "附录 A　机器学习项目的完整流程"
-    ]
-  },
-  {
-    "objectID": "appendix-pipeline.html#a.1-训练循环",
-    "href": "appendix-pipeline.html#a.1-训练循环",
-    "title": "附录 A　机器学习项目的完整流程",
-    "section": "A.1 训练循环",
-    "text": "A.1 训练循环\n\n\n代码\nflowchart TD\n  A[\"参数 w, b（先随便猜）\"] --&gt; B[\"前向：用当前参数算预测\"]\n  B --&gt; C[\"损失：预测和真值差多少\"]\n  C --&gt; D[\"梯度：往哪个方向调能变小\"]\n  D --&gt; E[\"更新：w ← w − 学习率 × 梯度\"]\n  E --&gt;|\"重复几百次\"| B\n\n\n\n\n\n\nflowchart TD\n  A[\"参数 w, b（先随便猜）\"] --&gt; B[\"前向：用当前参数算预测\"]\n  B --&gt; C[\"损失：预测和真值差多少\"]\n  C --&gt; D[\"梯度：往哪个方向调能变小\"]\n  D --&gt; E[\"更新：w ← w − 学习率 × 梯度\"]\n  E --&gt;|\"重复几百次\"| B\n\n\n\n\n\n\n前向\n\\hat{y}^{(i)} = w x^{(i)} + b\n损失（均方误差）\nL(w, b) = \\frac{1}{m} \\sum_{i=1}^{m} \\left( \\hat{y}^{(i)} - y^{(i)} \\right)^2\n梯度：损失对参数的导数。\\dfrac{\\partial L}{\\partial w} &gt; 0 表示 w 增大会让损失增大，所以要让 w 减小——这就是更新时减去梯度的原因。\n更新\nw \\leftarrow w - \\alpha \\frac{\\partial L}{\\partial w}, \\qquad b \\leftarrow b - \\alpha \\frac{\\partial L}{\\partial b}\n\\alpha 是学习率，决定每步迈多大。",
-    "crumbs": [
-      "附录",
-      "附录 A　机器学习项目的完整流程"
-    ]
-  },
-  {
-    "objectID": "appendix-pipeline.html#a.2-项目生命周期",
-    "href": "appendix-pipeline.html#a.2-项目生命周期",
-    "title": "附录 A　机器学习项目的完整流程",
-    "section": "A.2 项目生命周期",
-    "text": "A.2 项目生命周期\n训练只是第 8 步。\n\n\n代码\nflowchart TD\n  A[\"1 定义问题\"] --&gt; B[\"2 收集数据\"]\n  B --&gt; C[\"3 探索与清洗\"]\n  C --&gt; D[\"4 特征工程\"]\n  D --&gt; E[\"5 划分数据集\"]\n  E --&gt; F[\"6 选模型\"]\n  F --&gt; G[\"7 定损失函数\"]\n  G --&gt; H[\"8 训练\"]\n  H --&gt; I[\"9 验证与评估\"]\n  I --&gt; J{\"够好？\"}\n  J --&gt;|\"不够\"| D\n  J --&gt;|\"够\"| K[\"10 测试集终评\"]\n  K --&gt; L[\"11 部署与监控\"]\n\n\n\n\n\n\nflowchart TD\n  A[\"1 定义问题\"] --&gt; B[\"2 收集数据\"]\n  B --&gt; C[\"3 探索与清洗\"]\n  C --&gt; D[\"4 特征工程\"]\n  D --&gt; E[\"5 划分数据集\"]\n  E --&gt; F[\"6 选模型\"]\n  F --&gt; G[\"7 定损失函数\"]\n  G --&gt; H[\"8 训练\"]\n  H --&gt; I[\"9 验证与评估\"]\n  I --&gt; J{\"够好？\"}\n  J --&gt;|\"不够\"| D\n  J --&gt;|\"够\"| K[\"10 测试集终评\"]\n  K --&gt; L[\"11 部署与监控\"]\n\n\n\n\n\n\n\n\n\n步骤\n常见错误\n章节\n\n\n\n\n1 定义问题\n没定评价标准就选模型\n第 1 章\n\n\n2 收集数据\n标签错、样本有偏\n—\n\n\n3 探索与清洗\n不看数据分布\n第 9 章\n\n\n4 特征工程\n只喂原始字段\n第 10 章\n\n\n5 划分数据集\n先标准化再划分，数据泄漏\n第 9 章\n\n\n6 选模型\n只看准确率\n第 6、11、12 章\n\n\n7 定损失函数\n分类用了平方误差\n第 4 章\n\n\n8 训练\n学习率不对、特征未缩放\n第 2–3 章\n\n\n9 验证与评估\n只看一个指标\n第 6–7 章\n\n\n10 终评\n反复看测试集\n第 9 章\n\n\n11 部署\n不管线上分布漂移\n—",
-    "crumbs": [
-      "附录",
-      "附录 A　机器学习项目的完整流程"
-    ]
-  },
-  {
-    "objectID": "appendix-pipeline.html#a.3-跑一遍",
-    "href": "appendix-pipeline.html#a.3-跑一遍",
-    "title": "附录 A　机器学习项目的完整流程",
-    "section": "A.3 跑一遍",
-    "text": "A.3 跑一遍\n任务：猜出 y = 2x + 1 这条线，数据带噪声。\npython code/ch01_loss_goes_down.py\n预期输出（CPU 约 1 秒）：\nepoch   0   loss=  2.0940   w= 0.5690   b= 0.9455\nepoch   1   loss=  0.6202   w= 0.9940   b= 0.9606\nepoch   2   loss=  0.3121   w= 1.2931   b= 0.9719\nepoch   5   loss=  0.0464   w= 1.7560   b= 0.9893\nepoch  10   loss=  0.0107   w= 1.9610   b= 0.9971\nepoch  20   loss=  0.0096   w= 2.0026   b= 0.9987\nepoch  50   loss=  0.0096   w= 2.0038   b= 0.9987\nepoch 200   loss=  0.0096   w= 2.0038   b= 0.9987\n\n最终 w = 2.0038   （真值 2.0）\n最终 b = 0.9987   （真值 1.0）\nloss 从 2.0940 降到 0.009589\n三点：\n\nloss 在下降。2.09 → 0.0096。它不降，模型就没在学。\n参数逼近真值。真值 w=2, b=1，训完 2.0038 / 0.9987，差一点因为数据里有噪声。\nloss 停在 0.0096 不是 bug。噪声标准差 0.1，方差 0.01，任何模型都不可能低于它，这叫噪声地板。",
-    "crumbs": [
-      "附录",
-      "附录 A　机器学习项目的完整流程"
-    ]
-  },
-  {
-    "objectID": "math-calculus-chain.html",
-    "href": "math-calculus-chain.html",
-    "title": "链式法则与矩阵求导",
+    "objectID": "math/math-calculus-derivative.html",
+    "href": "math/math-calculus-derivative.html",
+    "title": "导数与偏导",
     "section": "",
     "text": "注记\n\n\n\n尚未完成。",
     "crumbs": [
       "数学基础",
       "微积分",
-      "链式法则与矩阵求导"
+      "导数与偏导"
     ]
   },
   {
-    "objectID": "math-linalg-eigen.html",
-    "href": "math-linalg-eigen.html",
-    "title": "特征值与 SVD",
+    "objectID": "math/math-linalg-vector.html",
+    "href": "math/math-linalg-vector.html",
+    "title": "向量与矩阵",
     "section": "",
     "text": "注记\n\n\n\n尚未完成。",
     "crumbs": [
       "数学基础",
       "线性代数",
-      "特征值与 SVD"
+      "向量与矩阵"
     ]
   },
   {
-    "objectID": "math-prob-basic.html",
-    "href": "math-prob-basic.html",
-    "title": "随机变量与分布",
+    "objectID": "math/math-prob-moments.html",
+    "href": "math/math-prob-moments.html",
+    "title": "期望、方差与 KL 散度",
     "section": "",
     "text": "注记\n\n\n\n尚未完成。",
     "crumbs": [
       "数学基础",
       "概率与统计",
-      "随机变量与分布"
+      "期望、方差与 KL 散度"
     ]
   }
 ]

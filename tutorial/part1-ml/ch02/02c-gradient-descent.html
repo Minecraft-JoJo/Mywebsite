@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>梯度下降 – 从零到 Transformer</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../part1-ml/ch02/02d-gradient-intuition.html" rel="next">
+<link href="../../part1-ml/ch02/02b-loss-function.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-1d614d8877da232198c69cda031ca3fd.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-b75e420efa57228567829ca042fb0827.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">跳至主要内容</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" aria-label="工具栏">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="展开或折叠侧边栏导航" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="路径"><ol class="breadcrumb"><li class="breadcrumb-item">第一部分 · 机器学习</li><li class="breadcrumb-item"><a href="../../part1-ml/ch02/02a-linear-regression.html">第 2 章　线性回归与梯度下降</a></li><li class="breadcrumb-item"><a href="../../part1-ml/ch02/02c-gradient-descent.html">梯度下降</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="搜索" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto" aria-label="网站">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">从零到 Transformer</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="搜索"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">前言</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">第一部分 · 机器学习</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label">第 1 章　机器学习在解决什么问题</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch01/01a-rules-and-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">规则与数据</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch01/01b-nouns.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">名词对应</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch01/01c-paradigms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">三种范式</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch01/01d-review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">回顾</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label">第 2 章　线性回归与梯度下降</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02a-linear-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">线性回归</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02b-loss-function.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">损失函数</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02c-gradient-descent.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">梯度下降</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02d-gradient-intuition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">梯度的直观理解</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02e-learning-rate.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">学习率</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02f-summary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">总结：完整走一遍</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch02/02g-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">习题</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label">第 3 章　多元回归与特征缩放</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch03/03a-multiple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">多元线性回归</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch03/03b-multivariate-gd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">多元线性回归的梯度下降</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch03/03c-feature-scaling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">特征缩放</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch03/03d-extras.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">额外拓展</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label">第 4 章　逻辑回归与交叉熵</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch04/04a-why-not-linear.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">线性回归为什么做不了分类</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch04/04b-logistic-sigmoid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">逻辑回归与 Sigmoid</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch04/04c-cross-entropy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">逻辑回归的代价函数</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch04/04d-gradient-descent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">逻辑回归的梯度下降</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch04/04e-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">习题</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label">第 5 章　数据划分与交叉验证</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch05/05a-why-split.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">训练误差骗了你</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch05/05b-splitting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">怎么划分数据</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch05/05c-cross-validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">交叉验证</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch05/05d-data-leakage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">数据泄漏</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch05/05e-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">习题</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label">第 6 章　过拟合、欠拟合与偏差方差</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch06/06a-overfitting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">过拟合</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch06/06b-underfitting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">欠拟合</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch06/06c-bias-variance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">偏差与方差</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch06/06d-learning-curves.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">学习曲线与诊断</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/ch06/06e-exercises.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">习题</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-controls="quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-8-label">第 7~15 章（待写）</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-8" aria-labelledby="quarto-sidebar-section-8-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/07-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 7 章　正则化</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/08-softmax.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 8 章　多分类与 softmax</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/09-classification-metrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 9 章　评估分类器</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/10-decision-trees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 10 章　决策树</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/11-ensembles-kernels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 11 章　集成与核方法</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/12-clustering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 12 章　聚类</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/13-dimensionality-reduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 13 章　降维与推荐</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/14-sklearn-pipeline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 14 章　sklearn 工程化</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../part1-ml/stubs/15-to-neural-networks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">第 15 章　从 ML 到神经网络</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-controls="quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-9-label">数学基础</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-9" aria-labelledby="quarto-sidebar-section-9-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-controls="quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-10-label">微积分</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-10" aria-labelledby="quarto-sidebar-section-10-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../math/math-calculus-derivative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">导数与偏导</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../math/math-calculus-chain.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">链式法则与矩阵求导</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-controls="quarto-sidebar-section-11" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-11-label">线性代数</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-11" aria-labelledby="quarto-sidebar-section-11-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../math/math-linalg-vector.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">向量与矩阵</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../math/math-linalg-eigen.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">特征值与 SVD</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-controls="quarto-sidebar-section-12" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-12-label">概率与统计</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-12" aria-labelledby="quarto-sidebar-section-12-label" class="collapse list-unstyled sidebar-section depth2 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../math/math-prob-basic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">随机变量与分布</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../math/math-prob-moments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">期望、方差与 KL 散度</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-controls="quarto-sidebar-section-13" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-13-label">附录</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-13" aria-labelledby="quarto-sidebar-section-13-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../appendix/appendix-pipeline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">附录 A　机器学习项目的完整流程</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">本章目录</h2>
+   
+  <ul>
+  <li><a href="#这一课要回答什么" id="toc-这一课要回答什么" class="nav-link active" data-scroll-target="#这一课要回答什么">这一课要回答什么</a></li>
+  <li><a href="#先给个画面" id="toc-先给个画面" class="nav-link" data-scroll-target="#先给个画面">先给个画面</a></li>
+  <li><a href="#看一眼真实的曲面" id="toc-看一眼真实的曲面" class="nav-link" data-scroll-target="#看一眼真实的曲面">看一眼真实的曲面</a></li>
+  <li><a href="#麻烦谷不止一个" id="toc-麻烦谷不止一个" class="nav-link" data-scroll-target="#麻烦谷不止一个">麻烦：谷不止一个</a></li>
+  <li><a href="#数学准备导数和偏导" id="toc-数学准备导数和偏导" class="nav-link" data-scroll-target="#数学准备导数和偏导">数学准备：导数和偏导</a>
+  <ul class="collapse">
+  <li><a href="#把两个偏导算出来" id="toc-把两个偏导算出来" class="nav-link" data-scroll-target="#把两个偏导算出来">把两个偏导算出来</a></li>
+  </ul></li>
+  <li><a href="#梯度" id="toc-梯度" class="nav-link" data-scroll-target="#梯度">梯度</a></li>
+  <li><a href="#更新公式" id="toc-更新公式" class="nav-link" data-scroll-target="#更新公式">更新公式</a></li>
+  <li><a href="#学习率-alpha" id="toc-学习率-alpha" class="nav-link" data-scroll-target="#学习率-alpha">学习率 <span class="math inline">\alpha</span></a></li>
+  <li><a href="#一个必须写对的细节同时更新" id="toc-一个必须写对的细节同时更新" class="nav-link" data-scroll-target="#一个必须写对的细节同时更新">一个必须写对的细节：同时更新</a></li>
+  <li><a href="#真实走一遍" id="toc-真实走一遍" class="nav-link" data-scroll-target="#真实走一遍">真实走一遍</a></li>
+  <li><a href="#核心概念" id="toc-核心概念" class="nav-link" data-scroll-target="#核心概念">核心概念</a></li>
+  <li><a href="#下一课" id="toc-下一课" class="nav-link" data-scroll-target="#下一课">下一课</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="路径"><ol class="breadcrumb"><li class="breadcrumb-item">第一部分 · 机器学习</li><li class="breadcrumb-item"><a href="../../part1-ml/ch02/02a-linear-regression.html">第 2 章　线性回归与梯度下降</a></li><li class="breadcrumb-item"><a href="../../part1-ml/ch02/02c-gradient-descent.html">梯度下降</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">梯度下降</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="这一课要回答什么" class="level2">
+<h2 class="anchored" data-anchor-id="这一课要回答什么">这一课要回答什么</h2>
+<p>上一课造出了损失函数 <span class="math inline">J(w,b)</span>：给它一组参数，它告诉你这条线有多差。</p>
+<p>现在的问题是：</p>
+<blockquote class="blockquote">
+<p>站在曲面上的某一点，怎么知道该往哪走，才能让 <span class="math inline">J</span> 变小？</p>
+</blockquote>
+<p>答案是<span class="term">梯度下降</span>（gradient descent）。这是整个深度学习里最核心的一个算法——后面所有的训练，不管模型多大，底层都是它。</p>
+</section>
+<section id="先给个画面" class="level2">
+<h2 class="anchored" data-anchor-id="先给个画面">先给个画面</h2>
+<p>想象你被空投到一片山谷里，蒙着眼，任务是走到谷底。</p>
+<p>你能做的只有一件事：<strong>用脚感受脚下的坡度</strong>。</p>
+<ul>
+<li>感觉一下哪个方向最陡、最向下</li>
+<li>朝那个方向迈一小步</li>
+<li>站定，重新感受一次</li>
+<li>再迈一步</li>
+</ul>
+<p>一直重复，直到脚下已经平坦（四周都不再下降），你就到了谷底。</p>
+<p><strong>这就是梯度下降。</strong> 不规划全局，只处理眼前这一步。</p>
+<p>对应到我们的问题：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>山谷</th>
+<th>机器学习</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>你站的位置</td>
+<td>一组具体的 <span class="math inline">(w, b)</span></td>
+</tr>
+<tr class="even">
+<td>地面高度</td>
+<td>损失 <span class="math inline">J(w,b)</span></td>
+</tr>
+<tr class="odd">
+<td>脚下的坡度</td>
+<td>梯度 <span class="math inline">\nabla J</span></td>
+</tr>
+<tr class="even">
+<td>迈一步</td>
+<td>更新一次参数</td>
+</tr>
+<tr class="odd">
+<td>走到谷底</td>
+<td>找到让损失最小的一组参数</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="看一眼真实的曲面" class="level2">
+<h2 class="anchored" data-anchor-id="看一眼真实的曲面">看一眼真实的曲面</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../img/loss-3d.png" class="img-fluid figure-img"></p>
+<figcaption>损失曲面与下降路径。白线是参数走过的路，绿点是终点</figcaption>
+</figure>
+</div>
+<p>横轴 <span class="math inline">w</span>、纵轴 <span class="math inline">b</span>，这是”地面坐标”；高度是损失。</p>
+<p>那条白线就是”走”出来的轨迹：从左上角出发，一路滑进中间那条深沟，最后停在绿点附近。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>纵轴为什么写着 log(1+J)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>原始损失的跨度太大了：从 37 到 37000，差一千倍。直接画，谷底会被压成一条看不见的缝。</p>
+<p>取对数只是把高度<strong>压缩</strong>了，形状没变。就像把一座山按比例压扁——哪里高哪里低，一点没变。</p>
+</div>
+</div>
+</section>
+<section id="麻烦谷不止一个" class="level2">
+<h2 class="anchored" data-anchor-id="麻烦谷不止一个">麻烦：谷不止一个</h2>
+<p>上面那张图里的地形很简单，只有一个底。但真实的损失曲面往往不止一个坑。</p>
+<p>下图是一条剖面的示意（把多个参数压成一条横轴）：</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../img/loss-local-min.png" class="img-fluid figure-img"></p>
+<figcaption>局部最低点与全局最低点</figcaption>
+</figure>
+</div>
+<p>从最左边出发，顺着坡往下走，你会掉进中间那个小坑，然后停住——因为四周都不再下降了。</p>
+<p>但右边还有一条更深的沟。你到不了那里，因为你根本不知道它存在。</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>局部最优
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>停在”局部最低点”而不是”全局最低点”，是所有基于梯度的优化方法的通病。</p>
+<p>它只能保证”我脚下是平的”，没法保证”这是全世界最低的地方”。</p>
+<p><strong>不过</strong>：我们这条 <span class="math inline">J(w,b)</span> 是个例外——它是一个碗，只有一个最低点，数学上叫<strong>凸函数</strong>。所以线性回归的梯度下降<strong>只要迭代足够多次</strong>，一定能找到全局最优。（“足够多次”是关键——第 2 章最后一课会看到一个反例。）</p>
+<p>深度学习里没有这种保证了。到第 16 章会回来看这件事。</p>
+</div>
+</div>
+</section>
+<section id="数学准备导数和偏导" class="level2">
+<h2 class="anchored" data-anchor-id="数学准备导数和偏导">数学准备：导数和偏导</h2>
+<p>要”感受坡度”，需要用导数。</p>
+<p>一句话：<strong>导数描述”往某个方向挪一点点，函数值会变多少”。</strong></p>
+<p><span class="math display">\frac{dJ}{dw}</span></p>
+<p>读作”<span class="math inline">J</span> 对 <span class="math inline">w</span> 的导数”。它是个数：</p>
+<ul>
+<li>正数 → <span class="math inline">w</span> 增大，<span class="math inline">J</span> 会变大（所以该让 <span class="math inline">w</span> 减小）</li>
+<li>负数 → <span class="math inline">w</span> 增大，<span class="math inline">J</span> 会变小（所以该让 <span class="math inline">w</span> 增大）</li>
+<li>接近 0 → 这里是平地，差不多到谷底了</li>
+</ul>
+<p>现在的问题是，<span class="math inline">J</span> 有两个自变量（<span class="math inline">w</span> 和 <span class="math inline">b</span>）。这时要用<strong>偏导数</strong>：</p>
+<p><span class="math display">\frac{\partial J}{\partial w}, \qquad \frac{\partial J}{\partial b}</span></p>
+<p>符号从 <span class="math inline">d</span> 变成 <span class="math inline">\partial</span>（读作”偏”），意思是：<strong>只对这一个变量求导，把另一个当成常数。</strong></p>
+<p>物理上理解：你想知道”只往 <span class="math inline">w</span> 方向挪”，那就把 <span class="math inline">b</span> 按住不动，单独看高度怎么变。</p>
+<section id="把两个偏导算出来" class="level3">
+<h3 class="anchored" data-anchor-id="把两个偏导算出来">把两个偏导算出来</h3>
+<p><span class="math inline">J</span> 的定义是：</p>
+<p><span class="math display">J(w,b) = \frac{1}{2m}\sum_{i=1}^{m}\left(wx^{(i)} + b - y^{(i)}\right)^2</span></p>
+<p>对 <span class="math inline">w</span> 求偏导（<span class="math inline">b</span> 当常数，用链式法则，平方的导数乘上内部对 <span class="math inline">w</span> 的导数 <span class="math inline">x^{(i)}</span>）：</p>
+<p><span class="math display">\frac{\partial J}{\partial w} = \frac{1}{2m}\sum 2\left(wx^{(i)}+b-y^{(i)}\right)\cdot x^{(i)} = \frac{1}{m}\sum\left(\hat{y}^{(i)}-y^{(i)}\right)x^{(i)}</span></p>
+<p>对 <span class="math inline">b</span> 求偏导（内部对 <span class="math inline">b</span> 的导数是 1）：</p>
+<p><span class="math display">\frac{\partial J}{\partial b} = \frac{1}{2m}\sum 2\left(wx^{(i)}+b-y^{(i)}\right)\cdot 1 = \frac{1}{m}\sum\left(\hat{y}^{(i)}-y^{(i)}\right)</span></p>
+<p>看到那个 <span class="math inline">\frac{1}{2}</span> 的作用了吗——它和平方求导下来的 2 正好抵消。当初加它的理由就是这个。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>两个偏导在说什么
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math inline">\dfrac{\partial J}{\partial b}</span> 就是<strong>所有残差的平均值</strong>。残差是”预测减真值”，所以这个数为负，说明整体预测偏低，该把 <span class="math inline">b</span> 调大。</p>
+<p><span class="math inline">\dfrac{\partial J}{\partial w}</span> 是<strong>残差乘面积后的平均值</strong>。面积越大的房子，它的残差对 <span class="math inline">w</span> 的影响越大——因为面积大的点上，<span class="math inline">w</span> 的一点变化会放大成更大的预测偏差。</p>
+</div>
+</div>
+</section>
+</section>
+<section id="梯度" class="level2">
+<h2 class="anchored" data-anchor-id="梯度">梯度</h2>
+<p>把两个偏导装进一个向量，就是<strong>梯度</strong>：</p>
+<p><span class="math display">\nabla J = \left( \frac{\partial J}{\partial w},\ \frac{\partial J}{\partial b} \right)</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">注记</span>梯度的两个性质（记住这两条就够）
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>方向</strong>：梯度指向函数<strong>上升最快</strong>的方向</li>
+<li><strong>大小</strong>：梯度越陡，说明坡越陡</li>
+</ol>
+<p>所以”下坡最快”的方向就是<strong>梯度的反方向</strong>——这就是更新式里那个减号的来历。</p>
+</div>
+</div>
+</section>
+<section id="更新公式" class="level2">
+<h2 class="anchored" data-anchor-id="更新公式">更新公式</h2>
+<p><span class="math display">w \leftarrow w - \alpha \frac{\partial J}{\partial w}, \qquad b \leftarrow b - \alpha \frac{\partial J}{\partial b}</span></p>
+<p>逐个符号拆开：</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>符号</th>
+<th>含义</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">w</span>, <span class="math inline">b</span></td>
+<td>当前的参数</td>
+<td>要改的东西</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\leftarrow</span></td>
+<td>赋值</td>
+<td>不是”等于”，是”用右边算出的新值覆盖左边”</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\alpha</span></td>
+<td>学习率</td>
+<td>你手动设定的数，不是学出来的</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\dfrac{\partial J}{\partial w}</span></td>
+<td>偏导</td>
+<td>坡度，告诉方向</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">-\alpha\cdot(\text{偏导})</span></td>
+<td>这一步走多远、朝哪走</td>
+<td>方向反着来，长度由 <span class="math inline">\alpha</span> 控制</td>
+</tr>
+</tbody>
+</table>
+<p>合起来读：<strong>新参数 = 老参数 − 学习率 × 当前的坡</strong>。</p>
+</section>
+<section id="学习率-alpha" class="level2">
+<h2 class="anchored" data-anchor-id="学习率-alpha">学习率 <span class="math inline">\alpha</span></h2>
+<p>它决定每一步迈多大。这是你调模型时最先要动的旋钮。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><span class="math inline">\alpha</span></th>
+<th>现象</th>
+<th>叫法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>太小</td>
+<td>每一步几乎不动，要跑几万步才到</td>
+<td>收敛慢</td>
+</tr>
+<tr class="even">
+<td>合适</td>
+<td>几十步内落到谷底附近</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>太大</td>
+<td>一步跨过谷底，到对面更高的地方，再来一步更高</td>
+<td><strong>发散</strong></td>
+</tr>
+<tr class="even">
+<td>极大</td>
+<td>第一次更新就直接算出无穷大或 NaN</td>
+<td>爆炸</td>
+</tr>
+</tbody>
+</table>
+<p>用一个比喻：下山时步长。</p>
+<ul>
+<li>步子太小：天黑也下不去</li>
+<li>步子适中：几十步到底</li>
+<li>步子太大：一步跨过谷底，直接冲到对面山坡上，越走越往山顶去</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">警告</span>学习率太大会怎样
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>NaN</code>（not a number）是最常见的崩溃信号。看到 loss 变成 <code>nan</code>，第一个要怀疑的就是学习率太大。</p>
+</div>
+</div>
+</section>
+<section id="一个必须写对的细节同时更新" class="level2">
+<h2 class="anchored" data-anchor-id="一个必须写对的细节同时更新">一个必须写对的细节：同时更新</h2>
+<p>这是线性回归那门课里最容易被忽略、又最容易写错的地方。</p>
+<p><span class="math inline">w</span> 和 <span class="math inline">b</span> 的更新必须<strong>同时</strong>完成。也就是：</p>
+<ol type="1">
+<li>先用<strong>当前的</strong> <span class="math inline">w</span>、<span class="math inline">b</span> 算出两个偏导</li>
+<li>算出两个新值，暂时存着</li>
+<li>最后<strong>一起</strong>赋值</li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">重要</span>错误写法
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 错的：w 已经变了，再算 b 的更新时用的是新的 w</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> w <span class="op">-</span> alpha <span class="op">*</span> dJ_dw(w, b)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> b <span class="op">-</span> alpha <span class="op">*</span> dJ_db(w, b)     <span class="co"># ← 这里的 w 已经不是原来的 w 了</span></span></code></pre></div><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="正确写法" class="level2">
+<h2 class="anchored" data-anchor-id="正确写法">正确写法</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 对的：两个偏导都基于旧的 w、b</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dw <span class="op">=</span> dJ_dw(w, b)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> dJ_db(w, b)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> w <span class="op">-</span> alpha <span class="op">*</span> dw</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> b <span class="op">-</span> alpha <span class="op">*</span> db</span></code></pre></div><button title="复制到剪贴板" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</div>
+</div>
+<p>为什么必须这样？因为梯度是在<strong>当前这个点</strong>上测出来的。一旦 <span class="math inline">w</span> 变了，你脚下的位置就变了，原来测的坡度对新位置不再成立。混着用，等于在拿 A 点的坡去指导 B 点的移动。</p>
+<p>单变量时两者结果一样（只有一个参数，没得混），所以很多人写错了也发现不了。两变量时就会出错。</p>
+</section>
+<section id="真实走一遍" class="level2">
+<h2 class="anchored" data-anchor-id="真实走一遍">真实走一遍</h2>
+<p>用我们的数据（12 套房），从 <span class="math inline">w = 1.0</span>、<span class="math inline">b = 0</span> 出发，学习率取 <span class="math inline">\alpha = 4.5 \times 10^{-5}</span>。</p>
+<p>第一步手算：</p>
+<ul>
+<li>12 个残差 <span class="math inline">\hat{y} - y</span> 的平均值是 <span class="math inline">-262.38</span> → <span class="math inline">\dfrac{\partial J}{\partial b} = -262.38</span></li>
+<li>残差乘面积再平均是 <span class="math inline">-27562</span> → <span class="math inline">\dfrac{\partial J}{\partial w} = -27562</span></li>
+</ul>
+<p><span class="math display">w_{\text{new}} = 1.0 - 4.5\times10^{-5}\times(-27562) = 2.2403</span> <span class="math display">b_{\text{new}} = 0 - 4.5\times10^{-5}\times(-262.38) = 0.0118</span></p>
+<p>跑五步：</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>步</th>
+<th><span class="math inline">w</span></th>
+<th><span class="math inline">b</span></th>
+<th><span class="math inline">J</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>1.0000</td>
+<td>0.0000</td>
+<td>37007.88</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>2.2403</td>
+<td>0.0118</td>
+<td>10724.14</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>2.9070</td>
+<td>0.0182</td>
+<td>3128.88</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>3.2655</td>
+<td>0.0216</td>
+<td>934.07</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>3.4581</td>
+<td>0.0235</td>
+<td>299.83</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>3.5617</td>
+<td>0.0245</td>
+<td>116.55</td>
+</tr>
+</tbody>
+</table>
+<p>五步，损失从三万七降到一百一十六。</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">提示</span>注意 <span class="math inline">b</span> 几乎没动
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>五步下来 <span class="math inline">w</span> 走了 2.5，<span class="math inline">b</span> 只走了 0.02。</p>
+<p>不是算错了——是 <span class="math inline">w</span> 的梯度（<span class="math inline">-27562</span>）比 <span class="math inline">b</span> 的梯度（<span class="math inline">-262</span>）大了整整一百倍。<strong>同一个学习率，梯度大的参数走得飞快，梯度小的几乎原地不动。</strong></p>
+<p>原因是面积的数值（几十到一百多）远大于截距——量纲差了一百倍。这就是第 3 章”特征缩放”要解决的问题。现在先记住这个现象。</p>
+</div>
+</div>
+</section>
+<section id="核心概念" class="level2">
+<h2 class="anchored" data-anchor-id="核心概念">核心概念</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>概念</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>梯度下降</td>
+<td>反复沿负梯度方向迈小步，直到损失不再下降</td>
+</tr>
+<tr class="even">
+<td>导数 <span class="math inline">\frac{dJ}{dw}</span></td>
+<td>往这个方向挪一点，函数变多少；正负号给方向</td>
+</tr>
+<tr class="odd">
+<td>偏导 <span class="math inline">\frac{\partial J}{\partial w}</span></td>
+<td>多变量时只对一个求导，其余当常数</td>
+</tr>
+<tr class="even">
+<td>梯度 <span class="math inline">\nabla J</span></td>
+<td>所有偏导组成的向量，指向上升最快的方向</td>
+</tr>
+<tr class="odd">
+<td>更新式</td>
+<td><span class="math inline">\theta \leftarrow \theta - \alpha\,\nabla J</span></td>
+</tr>
+<tr class="even">
+<td>学习率 <span class="math inline">\alpha</span></td>
+<td>步长；太小走得慢，太大直接发散</td>
+</tr>
+<tr class="odd">
+<td>同时更新</td>
+<td>两个偏导都用旧参数算，算完再一起赋值</td>
+</tr>
+<tr class="even">
+<td>局部最优</td>
+<td>只能保证脚下是平的，不保证是全局最低</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="下一课" class="level2">
+<h2 class="anchored" data-anchor-id="下一课">下一课</h2>
+<p>这一课是”知道大概在干什么”。下一课往深里走：</p>
+<ul>
+<li>为什么梯度方向恰好是<strong>最陡</strong>的方向（不是”差不多陡”，是数学上的精确）</li>
+<li>学习率的选取和收敛判断：怎么知道该停了</li>
+<li>学习率太大的发散到底长什么样（画出来）</li>
+<li>梯度消失、梯度爆炸是怎么回事</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<div id="dl-theme">
+  <button id="dl-theme-btn" title="配色" aria-label="配色">🎨</button>
+  <div id="dl-theme-panel">
+    <div class="dl-title">配色</div>
+    <div class="dl-group">
+      <span class="dl-label">背景</span>
+      <div class="dl-swatches" id="dl-bg-sw"></div>
+      <label class="dl-pick" title="自由调色"><input type="color" id="dl-bg-in"></label>
+    </div>
+    <div class="dl-group">
+      <span class="dl-label">文字</span>
+      <div class="dl-swatches" id="dl-fg-sw"></div>
+      <label class="dl-pick" title="自由调色"><input type="color" id="dl-fg-in"></label>
+    </div>
+    <button id="dl-reset">恢复默认</button>
+  </div>
+</div>
+<style>
+#dl-theme{position:fixed;right:18px;bottom:18px;z-index:3000;font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+#dl-theme-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--dl-border,#30363d);background:var(--dl-bg2,#161b22);color:var(--dl-fg,#c9d1d9);font-size:18px;cursor:pointer;line-height:1}
+#dl-theme-btn:hover{filter:brightness(1.3)}
+#dl-theme-panel{display:none;position:absolute;right:0;bottom:52px;width:252px;padding:14px;border-radius:10px;border:1px solid var(--dl-border,#30363d);background:var(--dl-bg2,#161b22);color:var(--dl-fg,#c9d1d9);box-shadow:0 8px 28px rgba(0,0,0,.55)}
+#dl-theme-panel.open{display:block}
+.dl-title{font-size:13px;color:var(--dl-muted,#8b949e);margin-bottom:10px}
+.dl-group{margin-bottom:12px}
+.dl-label{display:block;font-size:12px;color:var(--dl-muted,#8b949e);margin-bottom:6px}
+.dl-swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.dl-sw{width:24px;height:24px;border-radius:5px;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(125,125,125,.45);cursor:pointer;padding:0}
+.dl-sw.sel{border-color:var(--dl-link,#58a6ff)}
+.dl-pick{display:inline-block;width:26px;height:24px;border-radius:5px;position:relative;overflow:hidden;cursor:pointer;vertical-align:middle;background:conic-gradient(from 0deg,#ff4d4d,#ffd24d,#4dff88,#4dd2ff,#8a7dff,#ff4dd2,#ff4d4d);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.dl-pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none;padding:0;margin:0}
+#dl-reset{width:100%;margin-top:4px;padding:6px;border-radius:6px;border:1px solid var(--dl-border,#30363d);background:transparent;color:var(--dl-fg,#c9d1d9);cursor:pointer;font-size:12px}
+#dl-reset:hover{filter:brightness(1.3)}
+</style>
+<script>
+(function(){
+  var DEF_BG = '#0d1117', DEF_FG = '#c9d1d9';
+  var BGS = ['#0d1117','#161b22','#1e1e1e','#23272e','#282c34','#101418'];
+  var FGS = ['#c9d1d9','#e6edf3','#d4d4d4','#abb2bf','#b8c4ce','#ffffff'];
+
+  function h2r(h){ h = String(h).replace('#',''); if(h.length===3){ h = h.split('').map(function(c){return c+c;}).join(''); }
+    return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)]; }
+  function r2h(a){ return '#' + a.map(function(v){ v = Math.max(0,Math.min(255,Math.round(v)));
+    var s = v.toString(16); return s.length<2 ? '0'+s : s; }).join(''); }
+  function mix(a,b,t){ var A=h2r(a), B=h2r(b);
+    return r2h([0,1,2].map(function(i){ return A[i] + (B[i]-A[i])*t; })); }
+
+  function apply(bg, fg){
+    var s = document.documentElement.style;
+    s.setProperty('--dl-bg', bg);
+    s.setProperty('--dl-fg', fg);
+    s.setProperty('--dl-bg2', mix(bg, fg, 0.07));
+    s.setProperty('--dl-border', mix(bg, fg, 0.18));
+    s.setProperty('--dl-muted', mix(bg, fg, 0.55));
+  }
+  function save(bg, fg){ try{ localStorage.setItem('dl-bg', bg); localStorage.setItem('dl-fg', fg); }catch(e){} }
+  function load(){ try{ return [localStorage.getItem('dl-bg'), localStorage.getItem('dl-fg')]; }catch(e){ return [null,null]; } }
+
+  function buildSw(host, colors, cur, onPick){
+    host.innerHTML = '';
+    colors.forEach(function(c){
+      var b = document.createElement('button');
+      b.className = 'dl-sw' + (c.toLowerCase() === String(cur).toLowerCase() ? ' sel' : '');
+      b.style.background = c;
+      b.title = c;
+      b.onclick = function(ev){ ev.stopPropagation(); onPick(c); };
+      host.appendChild(b);
+    });
+  }
+
+  var bg = load()[0] || DEF_BG, fg = load()[1] || DEF_FG;
+  apply(bg, fg);
+
+  function refresh(){
+    buildSw(document.getElementById('dl-bg-sw'), BGS, bg, function(c){ bg = c; commit(); });
+    buildSw(document.getElementById('dl-fg-sw'), FGS, fg, function(c){ fg = c; commit(); });
+    document.getElementById('dl-bg-in').value = bg;
+    document.getElementById('dl-fg-in').value = fg;
+  }
+  function commit(){ apply(bg, fg); save(bg, fg); refresh(); }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var panel = document.getElementById('dl-theme-panel');
+    document.getElementById('dl-theme-btn').onclick = function(){ panel.classList.toggle('open'); };
+    document.getElementById('dl-bg-in').oninput = function(e){ bg = e.target.value; commit(); };
+    document.getElementById('dl-fg-in').oninput = function(e){ fg = e.target.value; commit(); };
+    document.getElementById('dl-reset').onclick = function(){ bg = DEF_BG; fg = DEF_FG; commit(); };
+    document.addEventListener('click', function(e){
+      if(!document.getElementById('dl-theme').contains(e.target)) panel.classList.remove('open');
+    });
+    refresh();
+  });
+})();
+</script>
+<script>
+(function(){
+  var KEY = 'dl-sidebar-collapsed';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ return []; } }
+  function save(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){} }
+  function toggles(){ return Array.prototype.slice.call(document.querySelectorAll('button.sidebar-item-toggle')); }
+  function currentCollapsed(){
+    return toggles().filter(function(b){ return b.getAttribute('aria-expanded') === 'false'; })
+      .map(function(b){ return b.getAttribute('aria-controls'); });
+  }
+  function containsActive(btn){
+    var id = btn.getAttribute('aria-controls');
+    var box = id ? document.getElementById(id) : null;
+    return !!(box && box.querySelector('a.active'));
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var saved = load();
+    toggles().forEach(function(b){
+      var id = b.getAttribute('aria-controls');
+      if (saved.indexOf(id) !== -1 && !containsActive(b) && b.getAttribute('aria-expanded') !== 'false') {
+        b.click();
+      }
+    });
+    document.addEventListener('click', function(e){
+      var t = e.target && e.target.closest ? e.target.closest('button.sidebar-item-toggle') : null;
+      if (t) setTimeout(function(){ save(currentCollapsed()); }, 400);
+    });
+  });
+})();
+</script>
+<div id="dl-top" aria-hidden="true">
+  <button id="dl-top-btn" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<style>
+#dl-top{position:fixed;right:18px;bottom:74px;z-index:2999;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none}
+#dl-top.on{opacity:1;transform:translateY(0);pointer-events:auto}
+#dl-top-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--dl-border,#30363d);background:var(--dl-bg2,#161b22);color:var(--dl-fg,#c9d1d9);font-size:19px;line-height:1;cursor:pointer}
+#dl-top-btn:hover{filter:brightness(1.35)}
+</style>
+<script>
+(function(){
+  var box = document.getElementById('dl-top');
+  var btn = document.getElementById('dl-top-btn');
+  function sync(){
+    if (window.scrollY > 260) box.classList.add('on'); else box.classList.remove('on');
+  }
+  window.addEventListener('scroll', sync, { passive: true });
+  document.addEventListener('DOMContentLoaded', function(){
+    sync();
+    btn.addEventListener('click', function(){
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+})();
+</script>
+<div id="dl-contact">
+  <button id="dl-contact-btn" title="联系我" aria-label="联系我">✉</button>
+  <div id="dl-contact-panel">
+    <div class="dl-c-title">联系方式</div>
+    <div class="dl-c-mail" id="dl-c-mail">liudagecxz@qq.com</div>
+    <button id="dl-c-copy">复制邮箱</button>
+    <div class="dl-c-hint" id="dl-c-hint"></div>
+  </div>
+</div>
+<style>
+#dl-contact{position:fixed;right:18px;bottom:130px;z-index:2998;font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+#dl-contact-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--dl-border,#30363d);background:var(--dl-bg2,#161b22);color:var(--dl-fg,#c9d1d9);font-size:18px;line-height:1;cursor:pointer;transition:filter .15s}
+#dl-contact-btn:hover{filter:brightness(1.35)}
+#dl-contact-panel{display:none;position:absolute;right:0;bottom:52px;width:224px;padding:14px;border-radius:10px;border:1px solid var(--dl-border,#30363d);background:var(--dl-bg2,#161b22);color:var(--dl-fg,#c9d1d9);box-shadow:0 8px 28px rgba(0,0,0,.55)}
+#dl-contact-panel.open{display:block}
+.dl-c-title{font-size:12px;color:var(--dl-muted,#8b949e);margin-bottom:8px}
+.dl-c-mail{font-size:13px;font-family:ui-monospace,Consolas,monospace;color:var(--dl-link,#58a6ff);word-break:break-all;padding:8px 10px;border-radius:6px;background:rgba(88,166,255,.08);border:1px solid var(--dl-border,#30363d);user-select:all;margin-bottom:10px}
+#dl-c-copy{width:100%;padding:7px 0;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid var(--dl-border,#30363d);background:transparent;color:var(--dl-fg,#c9d1d9)}
+#dl-c-copy:hover{filter:brightness(1.35)}
+.dl-c-hint{font-size:11px;color:var(--dl-ok,#3fb950);height:14px;margin-top:6px;text-align:center}
+</style>
+<script>
+(function(){
+  var wrap=document.getElementById('dl-contact');
+  if(!wrap) return;
+  var btn=document.getElementById('dl-contact-btn');
+  var panel=document.getElementById('dl-contact-panel');
+  var copyBtn=document.getElementById('dl-c-copy');
+  var hint=document.getElementById('dl-c-hint');
+  var mail=document.getElementById('dl-c-mail').textContent.trim();
+
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    panel.classList.toggle('open');
+    if(!panel.classList.contains('open')) return;
+    copyMail();
+  });
+
+  copyBtn.addEventListener('click',function(e){ e.stopPropagation(); copyMail(); });
+
+  document.addEventListener('click',function(e){
+    if(!wrap.contains(e.target)) panel.classList.remove('open');
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') panel.classList.remove('open');
+  });
+
+  function copyMail(){
+    var done=function(){ hint.textContent='已复制'; setTimeout(function(){hint.textContent='';},1600); };
+    var fallback=function(){
+      try{
+        var ta=document.createElement('textarea');
+        ta.value=mail; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta); done();
+      }catch(err){ hint.textContent='请手动选中复制'; }
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(mail).then(done).catch(fallback);
+    } else { fallback(); }
+  }
+})();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"可滚动的代码","output":"可滚动的输出"};
+  </script>
+<nav class="page-navigation" aria-label="页面">
+  <div class="nav-page nav-page-previous">
+      <a href="../../part1-ml/ch02/02b-loss-function.html" class="pagination-link" aria-label="损失函数">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">损失函数</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../part1-ml/ch02/02d-gradient-intuition.html" class="pagination-link" aria-label="梯度的直观理解">
+        <span class="nav-page-text">梯度的直观理解</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
