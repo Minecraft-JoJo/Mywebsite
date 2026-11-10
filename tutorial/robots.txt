@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Host: https://minecraft-jojo.github.io/Mywebsite/tutorial
+Sitemap: https://minecraft-jojo.github.io/Mywebsite/tutorial/sitemap.xml
