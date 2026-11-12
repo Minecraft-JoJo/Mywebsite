@@ -1,0 +1,158 @@
+/* site.css — 简洁深色站，无动效无渐变 */
+
+*,*::before,*::after{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--font-sans);
+  font-size:15px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration:underline}
+
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
+
+.skip-link{
+  position:absolute;left:-9999px;
+}
+.skip-link:focus{
+  left:16px;top:16px;z-index:99;
+  background:var(--void-3);color:var(--ink);
+  padding:8px 14px;border-radius:6px;
+}
+
+/* ── 顶栏 ── */
+.site-header{
+  border-bottom:1px solid var(--line);
+  background:var(--void);
+}
+.site-header__inner{
+  max-width:900px;margin:0 auto;
+  padding:0 24px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  color:var(--ink);font-weight:600;font-size:15px;
+}
+.brand:hover{text-decoration:none;color:var(--cyan)}
+.brand__mark{
+  display:grid;place-items:center;
+  width:26px;height:26px;border-radius:6px;
+  border:1px solid var(--line-2);
+  font-size:11px;letter-spacing:.04em;color:var(--cyan);
+}
+.site-nav{display:flex;gap:26px}
+.nav-link{
+  color:var(--muted);font-size:14px;
+  padding:4px 0;border-bottom:1px solid transparent;
+}
+.nav-link:hover{color:var(--ink);text-decoration:none}
+.nav-link[aria-current="page"]{color:var(--ink);border-bottom-color:var(--cyan)}
+
+/* ── 正文容器 ── */
+main{
+  max-width:900px;margin:0 auto;
+  padding:88px 24px 120px;
+}
+
+/* ── 首页大字 ── */
+.hero h1{
+  margin:0;
+  font-size:clamp(30px,5vw,46px);
+  line-height:1.25;
+  font-weight:600;
+  letter-spacing:-.01em;
+}
+.hero p{
+  margin:18px 0 0;
+  font-size:17px;
+  color:var(--muted);
+}
+
+/* ── 区块标题 ── */
+.section-title{
+  margin:72px 0 22px;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* ── 卡片 ── */
+.cards{display:grid;gap:14px}
+
+.card{
+  display:block;
+  padding:24px 26px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--void-2);
+  color:inherit;
+}
+.card:hover{
+  text-decoration:none;
+  border-color:var(--line-2);
+  background:var(--void-3);
+}
+.card h3{
+  margin:0 0 8px;
+  font-size:19px;
+  font-weight:600;
+  color:var(--ink);
+}
+.card p{
+  margin:0;
+  color:var(--muted);
+  font-size:14.5px;
+}
+.card__more{
+  display:inline-block;
+  margin-top:16px;
+  font-size:13.5px;
+  color:var(--cyan);
+}
+
+/* ── 页面标题（about / contact / 建设中） ── */
+.page-title{
+  margin:0 0 8px;
+  font-size:28px;
+  font-weight:600;
+}
+
+/* ── 建设中 ── */
+.notice{
+  margin-top:56px;
+  padding:32px 28px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--void-2);
+}
+.notice p{margin:0 0 12px;color:var(--muted)}
+.notice p:last-child{margin-bottom:0}
+
+/* ── 页脚 ── */
+.site-footer{
+  border-top:1px solid var(--line);
+  color:var(--muted-2);
+  font-size:13px;
+}
+.site-footer__inner{
+  max-width:900px;margin:0 auto;
+  padding:28px 24px;
+  display:flex;flex-wrap:wrap;gap:8px 24px;
+  justify-content:space-between;
+}
+
+@media (max-width:600px){
+  main{padding:56px 20px 80px}
+  .site-header__inner{padding:0 20px}
+  .site-nav{gap:18px}
+  .brand span:last-child{display:none}
+}
