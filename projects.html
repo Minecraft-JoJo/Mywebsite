@@ -37,8 +37,6 @@
       <nav class="site-nav" aria-label="主导航">
         <a class="nav-link" href="./index.html">Index</a>
         <a class="nav-link" href="./projects.html" aria-current="page">Projects</a>
-        <a class="nav-link" href="./notes.html">Knowledge</a>
-        <a class="nav-link" href="/Mywebsite/tutorial/index.html">Tutorial</a>
         <a class="nav-link" href="./about.html">About</a>
         <a class="nav-link" href="./contact.html">Contact</a>
       </nav>
@@ -53,97 +51,23 @@
   </header>
 
   <main id="main">
-    <section class="proj-hero" aria-labelledby="projHeroTitle">
+    <section class="section home-stack" id="stack" aria-labelledby="stackTitle">
       <div class="wrap">
-        <p class="eyebrow">PROJECTS / 6 ARCHIVES</p>
-        <h1 class="proj-hero__title" id="projHeroTitle">工程档案</h1>
-        <p class="lede proj-hero__lede">每个项目一篇文章：进去能看到架构、决策与取舍，以及可以自己跑一遍的复核命令。</p>
-        <div class="proj-hero__facts">
-          <span>6 篇文章</span>
-          <span>每篇一张内联 SVG 数据流图</span>
-          <span>行数与文件数用 wc -l 与 find 计</span>
+        <div class="section__head">
+          <div>
+            <p class="eyebrow"><em>01</em> / PROJECTS</p>
+            <h1 class="h1" id="stackTitle">项目</h1>
+          </div>
+          <p class="home-sec__note">目前只有一个：一份正在迁移的深度学习教程。</p>
         </div>
-        <nav class="proj-index" aria-label="档案索引">
-          <a class="proj-index__item" href="./projects/ocr-pipeline.html">01 OCR 翻译管线</a>
-          <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="./projects/train-framework.html">02 训练框架</a>
-          <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="./projects/diffusion-lora.html">03 扩散微调</a>
-          <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="./projects/pose-pipeline.html">04 姿态推理</a>
-          <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="./projects/vision-classifier.html">05 分类实验台</a>
-          <span class="proj-index__sep" aria-hidden="true">·</span>
-          <a class="proj-index__item" href="./projects/service-layer.html">06 服务层</a>
-        </nav>
-      </div>
-    </section>
-
-    <div class="wrap proj-list">
-      <div style="display:grid;gap:var(--gutter) var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
-
-        <a class="card card--glow" href="./projects/ocr-pipeline.html" id="ocr-pipeline" data-reveal data-glow>
-          <p class="card__label"><span>01</span><span>OCR</span></p>
-          <h2 class="card__title">漫画 OCR 翻译管线</h2>
-          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">识别、分块、翻译、擦除、回填，一条纯 CPU 管线。</p>
-          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">RapidOCR</span><span class="tag">OpenCV</span><span class="tag">Pillow</span></div>
-          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>阅读全文</span><span aria-hidden="true">→</span></p>
-        </a>
-
-        <a class="card card--glow" href="./projects/train-framework.html" id="train-framework" data-reveal data-glow>
-          <p class="card__label"><span>02</span><span>FRAMEWORK</span></p>
-          <h2 class="card__title">自建 PyTorch 训练框架</h2>
-          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">配置、数据、模型、循环四层解耦，换数据集不改循环。</p>
-          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">PyTorch</span><span class="tag">ONNX</span><span class="tag">TensorBoard</span></div>
-          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>阅读全文</span><span aria-hidden="true">→</span></p>
-        </a>
-
-        <a class="card card--glow" href="./projects/diffusion-lora.html" id="diffusion-lora" data-reveal data-glow>
-          <p class="card__label"><span>03</span><span>GENERATIVE</span></p>
-          <h2 class="card__title">扩散模型 LoRA 微调</h2>
-          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">把数据集、配置、训练、采样固定成可重放的文件。</p>
-          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">kohya_ss</span><span class="tag">TOML</span><span class="tag">CUDA</span></div>
-          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>阅读全文</span><span aria-hidden="true">→</span></p>
-        </a>
-
-        <a class="card card--glow" href="./projects/pose-pipeline.html" id="pose-pipeline" data-reveal data-glow>
-          <p class="card__label"><span>04</span><span>INFERENCE</span></p>
-          <h2 class="card__title">实时姿态估计推理管线</h2>
-          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">逐帧关键点推理与平滑，端到端一条管线跑完。</p>
-          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">ONNX Runtime</span><span class="tag">OpenCV</span><span class="tag">关键点</span></div>
-          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>READ ARCHIVE</span><span aria-hidden="true">→</span></p>
-        </a>
-
-        <a class="card card--glow" href="./projects/vision-classifier.html" id="vision-classifier" data-reveal data-glow>
-          <p class="card__label"><span>05</span><span>EXPERIMENTS</span></p>
-          <h2 class="card__title">图像分类实验台</h2>
-          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">同一份数据多个模型并排跑，结果落表再比较。</p>
-          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">PyTorch</span><span class="tag">迁移学习</span><span class="tag">CSV</span></div>
-          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>READ ARCHIVE</span><span aria-hidden="true">→</span></p>
-        </a>
-
-        <a class="card card--glow" href="./projects/service-layer.html" id="service-layer" data-reveal data-glow>
-          <p class="card__label"><span>06</span><span>BACKEND</span></p>
-          <h2 class="card__title">应用服务与数据层</h2>
-          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">用户鉴权与最小数据层，接口先于框架。</p>
-          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">FastAPI</span><span class="tag">SQLAlchemy</span><span class="tag">SQLite</span></div>
-          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>READ ARCHIVE</span><span aria-hidden="true">→</span></p>
-        </a>
-
-      </div>
-    </div>
-
-    <section class="proj-outro">
-      <div class="wrap">
-        <div class="proj-outro__grid">
-          <div>
-            <p class="eyebrow">How to read</p>
-            <p class="lede" style="margin-top:16px">这一页只给一句话和一张卡；技术细节进了各自的文章。</p>
-            <p class="proj-outro__note">每篇文章的骨架相同：任务与边界 / 架构（内联 SVG）/ 关键决策与取舍 / 难点与解法 / 代码走读 / 失败与下一步 / 规模与复核。行数一律用 find 与 wc 计，命令随文给出。</p>
-          </div>
-          <div>
-            <a class="btn" href="./notes.html">Knowledge base <span class="btn__arrow" aria-hidden="true">→</span></a>
-          </div>
+        <div class="home-stack__grid">
+          <a class="card card--glow home-skill" href="./tutorial.html" data-reveal data-glow>
+            <span class="home-skill__num mono">01</span>
+            <h3 class="card__title">从零到 Transformer</h3>
+            <p class="home-skill__en mono">DEEP LEARNING</p>
+            <p class="home-skill__body">一份从机器学习讲到 Transformer 的深度学习教程，38 章 219 讲，每个数字都实跑验证过。</p>
+            <p class="mono xs muted" style="margin-top:14px">正在迁移到新服务器 →</p>
+          </a>
         </div>
       </div>
     </section>
@@ -159,7 +83,6 @@
         <div class="site-footer__links">
           <span class="mono xs muted">INDEX</span>
           <a href="./projects.html">Projects</a>
-          <a href="./notes.html">Knowledge</a>
           <a href="./about.html">About</a>
           <a href="./contact.html">Contact</a>
         </div>
@@ -192,3 +115,4 @@
   <script type="module" src="./assets/js/main.js"></script>
 </body>
 </html>
+
