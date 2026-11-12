@@ -12,7 +12,6 @@ export const SITE = {
 export const NAV = [
   { label: "Index",       href: "./index.html",    match: "index" },
   { label: "Projects",    href: "./projects.html", match: "projects" },
-  { label: "Knowledge",   href: "./notes.html",    match: "notes" },
   { label: "About",       href: "./about.html",    match: "about" },
   { label: "Contact",     href: "./contact.html",  match: "contact" }
 ];
@@ -85,20 +84,7 @@ export const PROJECTS = [
   }
 ];
 
-export const NOTES = [
-  { title: "Attention（注意力机制）完全教程", lines: 2010, domain: "Deep Learning", href: "./notes/attention.html", featured: true },
-  { title: "现代深度学习全景地图",             lines: 457,  domain: "Deep Learning", href: "./notes.html#dl", featured: true },
-  { title: "Seq2Seq 网络介绍",                 lines: 1382, domain: "Deep Learning", href: "./notes.html#dl" },
-  { title: "LSTM 网络介绍",                    lines: 647,  domain: "Deep Learning", href: "./notes.html#dl" },
-  { title: "迁移学习",                         lines: 1021, domain: "Deep Learning", href: "./notes.html#dl" },
-  { title: "FastAPI 教程",                     lines: 7994, domain: "Backend",       href: "./notes.html#backend" },
-  { title: "PostgreSQL 教程",                  lines: 4449, domain: "Backend",       href: "./notes.html#backend" },
-  { title: "数据库入门教程",                   lines: 3609, domain: "Backend",       href: "./notes.html#backend" },
-  { title: "Linux 手册",                       lines: 6019, domain: "Systems",       href: "./notes.html#systems" },
-  { title: "PySide6 学习手册",                 lines: 3148, domain: "Desktop",       href: "./notes.html#desktop" },
-  { title: "Python 基础教程",                  lines: 3039, domain: "Language",      href: "./notes.html#language" },
-  { title: "JavaScript 练习册",                lines: 3333, domain: "Frontend",      href: "./notes.html#frontend" }
-];
+export const NOTES = [];// 知识库暂时下线，保留导出名
 
 export const SKILLS = [
   { domain: "Deep Learning 建模", level: "build",    detail: "从零实现 CNN / RNN / LSTM / Seq2Seq / Attention，含前向传播算例与训练脚本" },

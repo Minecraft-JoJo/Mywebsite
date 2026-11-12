@@ -1,10 +1,10 @@
 /* palette.js — ⌘K 检索面板。
-   索引固定 23 条：NAV 5 + PROJECTS 6 + NOTES 12，
+   索引固定 10 条：NAV 4 + PROJECTS 6 + NOTES 0，
    与 index.html boot 日志里的 "palette: index loaded (23 records)" 对齐。 */
 
 import { NAV, PROJECTS, NOTES } from "./data.js";
 
-/* domain → notes.html 上的分组 id（.notes-group#dl / #backend / …）。 */
+/* domain → 分组 id（知识库暂时下线，保留映射备用）。 */
 const DOMAIN_GROUP = {
   "Deep Learning": "dl",
   Backend: "backend",
@@ -30,9 +30,8 @@ function stripDot(href) {
 }
 
 function noteHref(note) {
-  if (note.href.indexOf("./notes/") === 0) return BASE + stripDot(note.href);
-  const group = DOMAIN_GROUP[note.domain] || "dl";
-  return BASE + "notes.html#" + group;
+  // 知识库暂时下线；NOTES 为空时此函数不会被调用
+  return BASE + stripDot(note.href || "");
 }
 
 function buildRecords() {
