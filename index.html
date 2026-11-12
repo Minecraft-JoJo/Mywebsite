@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Engineering Dossier · Minecraft-JoJo</title>
+  <title>Minecraft-JoJo</title>
   <meta name="description" content="个人技术作品集：深度学习建模、计算机视觉推理、扩散模型微调与后端工程。首页只讲能做什么，架构与取舍都在项目档案里。">
   <meta name="theme-color" content="#07080A">
   <meta property="og:type" content="website">
@@ -64,23 +64,17 @@
       <p class="wrap home-hero__scroll mono xs"><span>向下滚动</span><span aria-hidden="true">SCROLL ↓</span></p>
     </section>
 
-    <section class="section home-stack" id="stack" aria-labelledby="stackTitle">
-      <div class="wrap">
-        <div class="section__head">
-          <div>
-            <p class="eyebrow"><em>01</em> / PROJECTS</p>
-            <h2 class="h2" id="stackTitle">项目</h2>
-          </div>
-        </div>
-        <div class="home-stack__grid">
-          <a class="card card--glow home-skill" href="./tutorial.html" data-reveal data-glow>
-            <span class="home-skill__num mono">01</span>
-            <h3 class="card__title">从零到 Transformer</h3>
-            <p class="home-skill__en mono">DEEP LEARNING</p>
-            <p class="home-skill__body">一份从机器学习讲到 Transformer 的深度学习教程，38 章 219 讲，每个数字都实跑验证过。</p>
-            <p class="mono xs muted" style="margin-top:14px">正在迁移到新服务器 →</p>
-          </a>
-        </div>
+    <section class="wrap proj-list" id="projects" aria-labelledby="projTitle">
+      <p class="eyebrow">PROJECTS</p>
+      <h2 class="h2" id="projTitle" style="margin-bottom:var(--s-6)">项目</h2>
+      <div style="display:grid;gap:var(--s-5);grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));max-width:620px">
+        <a class="card card--glow" href="./tutorial.html" id="tutorial" data-reveal data-glow>
+          <p class="card__label"><span>01</span><span>TUTORIAL</span></p>
+          <h2 class="card__title">从零到 Transformer</h2>
+          <p style="margin-top:var(--s-3);font-size:var(--t-sm);line-height:1.7;color:var(--ink-2)">一份从机器学习讲到 Transformer 的深度学习教程，38 章 219 讲，每个数字都实跑验证过。</p>
+          <div class="tag-row" style="margin-top:var(--s-4)"><span class="tag">PyTorch</span><span class="tag">Transformer</span><span class="tag">中文教程</span></div>
+          <p class="mono xs" style="margin-top:var(--s-5);display:flex;justify-content:space-between;color:var(--muted-2)"><span>打开教程</span><span aria-hidden="true">→</span></p>
+        </a>
       </div>
     </section>
   </main>
@@ -90,7 +84,7 @@
       <div class="site-footer__grid">
         <div>
           <p class="eyebrow">End of document</p>
-          <p class="lede" style="margin-top:16px">这里的内容都可以被复核：文件、命令、出处，逐条给出。</p>
+          <p class="lede" style="margin-top:16px">这里记录我做过的东西。</p>
         </div>
         <div class="site-footer__links">
           <span class="mono xs muted">INDEX</span>
@@ -127,4 +121,5 @@
   <script type="module" src="./assets/js/main.js"></script>
 </body>
 </html>
+
 
